@@ -19,6 +19,10 @@ export default class DefaultFrame extends React.Component {
   }
   
   onLinkClick(link) {
+    if (this.props.history) {
+      this.props.history.push(link);
+      return;
+    }
     window.location.assign(link);
   }
   
@@ -64,9 +68,9 @@ export default class DefaultFrame extends React.Component {
       <div className="frame">
         <Toolbar name="toolbar">
           {this.state.showMenu && 
-            <Menu clickHandler={this.toggleMenu} >
-              <MenuElement link="/dashsuites">Dashboard Suites</MenuElement>
-              <MenuElement link="/users">Users</MenuElement>
+            <Menu history={this.props.history} clickHandler={this.toggleMenu} >
+              <MenuElement history={this.props.history} link="/dashsuites">Dashboard Suites</MenuElement>
+              <MenuElement history={this.props.history} link="/users">Users</MenuElement>
             </Menu>
           }
           <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />

@@ -1,13 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  UncontrolledTooltip,
-} from 'reactstrap';
 
 import '../styles/default.scss';
 

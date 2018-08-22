@@ -23,7 +23,7 @@ export default class ToolbarMenu extends React.Component {
         <div className="menu">
           <h1>My Menu</h1>
           <p>Home</p>
-          <Element link="/">Home</Element>
+          <Element history={this.props.history} link="/">Home</Element>
           {this.props.children}
         </div>
         <div className="side-overlay" onClick={this.props.clickHandler} />

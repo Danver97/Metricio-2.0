@@ -10,6 +10,10 @@ export default class MenuElement extends React.Component {
   }
   
   onClick() {
+    if (this.props.history) {
+      this.props.history.push(this.props.link);
+      return;
+    }
     window.location.assign(this.props.link);
   }
   

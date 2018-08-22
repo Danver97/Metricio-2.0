@@ -5,7 +5,7 @@ import { ensureAutenticated, ensureAndVerifyToken } from '../lib/utils';
 const express = require('express');
 
 const router = express.Router();
-
+/*
 router.get('/', ensureAutenticated, (req, res) => {
   res.render('index', {
     name: 'dashsuites',
@@ -25,10 +25,11 @@ router.get('/view/:dashsuite', ensureAutenticated, (req, res) => {
     name: 'dashsuiteView',
   });
 });
-
+*/
 router.get('/dashboards/:dashsuite', ensureAndVerifyToken, (req, res) => {
   DashSuite.findByUserAndDashSuiteName(req.decodedToken.user._id, req.params.dashsuite, true, (err, doc) => {
     if (err) throw err;
+    console.log(doc);
     if(!doc){
       res.status(400);
       res.json({error: "a"});

@@ -13,7 +13,7 @@ export default function withAuth(AuthComponent, domain) {
     
     componentWillMount() {
       if (!Auth.loggedIn()) {
-        this.props.history.replace('/login');
+        this.props.history.replace('/users/login');
       } else {
         try {
           const profile = Auth.getProfile();
@@ -22,7 +22,7 @@ export default function withAuth(AuthComponent, domain) {
           });
         } catch (err) {
           Auth.logout();
-          this.props.history.replace('/login');
+          this.props.history.replace('/users/login');
         }
       }
     }

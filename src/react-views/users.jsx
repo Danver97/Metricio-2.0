@@ -11,7 +11,7 @@ class Users extends React.Component {
   }
   
   render() {
-    return (<DefaultFrame title="Users" titledTables={[getUsersStruct('Add User', '/users/create')]} />);
+    return (<DefaultFrame history={this.props.history} title="Users" titledTables={[getUsersStruct('Add User', '/users/create')]} />);
   }
 }
 

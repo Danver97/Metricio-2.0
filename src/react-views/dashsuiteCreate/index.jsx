@@ -9,6 +9,7 @@ import {
   UncontrolledTooltip,
 } from 'reactstrap';
 import { post } from '../../lib/requests';
+import DefaultFrame from '../../react-elements/default-frame/widget';
 
 import './styles.scss';
 
@@ -93,21 +94,23 @@ export default class CreateView extends React.Component {
   
   render() {
     return (
-      <div className="createView">
-        <h1>New Dashsuite</h1>
-        <Form className="form" action="/">
-          <FormGroup>
-            <Label for="dashsuitename">Dashsuite name:</Label>
-            <Input type="text" name="dashsuitename" id="dashsuitename" onInput={e => this.onInput(e)} placeholder="Name" />
-          </FormGroup>
-          <FormGroup>
-            <Label>Dashboard names:</Label>
-            {this.state.dashNamesFormElems}
-            <Button onClick={e => this.onDashboardAddClick(e)} style={{display:'block'}}>Add new</Button>
-          </FormGroup>
-          <Button color="primary" onClick={e => this.onSave(e)} style={{display:'block'}}>Save</Button>
-        </Form>
-      </div>
+      <DefaultFrame>
+        <div className="createView">
+          <h1>New Dashsuite</h1>
+          <Form className="form" action="/">
+            <FormGroup>
+              <Label for="dashsuitename">Dashsuite name:</Label>
+              <Input type="text" name="dashsuitename" id="dashsuitename" onInput={e => this.onInput(e)} placeholder="Name" />
+            </FormGroup>
+            <FormGroup>
+              <Label>Dashboard names:</Label>
+              {this.state.dashNamesFormElems}
+              <Button onClick={e => this.onDashboardAddClick(e)} style={{display:'block'}}>Add new</Button>
+            </FormGroup>
+            <Button color="primary" onClick={e => this.onSave(e)} style={{display:'block'}}>Save</Button>
+          </Form>
+        </div>
+      </DefaultFrame>
     );
   }
 }

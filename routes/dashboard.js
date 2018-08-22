@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Dashboard = require('../models/dashboard');
 import { ensureAutenticated, ensureAndVerifyToken } from '../lib/utils';
-
+/*
 router.get('/:dashboard', ensureAndVerifyToken, (req, res) => {
   res.render('index', {
     name: req.params.dashboard,
     layout: false,
   });
 });
-
+*/
 router.get('/:dashboard/getStructure', ensureAndVerifyToken, (req, res) => {
   Dashboard.findByUserAndDashboardName(req.decodedToken.user._id, req.params.dashboard, (err, doc) => {
     if (err) throw err;

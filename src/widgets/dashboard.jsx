@@ -3,6 +3,7 @@ import socketIOClient from 'socket.io-client';
 
 import DashTreeHandler from '../lib/dashTreeHandler';
 
+// React Elements
 // rst
 // import DashboardFrame from '../react-elements/dashboard-frame/widget';
 import DashboardGrid from '../react-elements/dashboard-grid/widget';
@@ -16,13 +17,16 @@ import DefaultFrame from '../react-elements/default-frame/widget';
 // import WidgetCollection from './dashboard-widget-collection/widget';
 import JobScheduler from './job-scheduler/widget';
 
+// Utils
+// rst
 import Widgets from './Widgets';
 import ComponentStructure from '../lib/structures/component';
 import DynamicComponents from '../dynamic_components';
 import { post, getSync } from '../lib/requests';
-import checker from '../lib/checkers';
 import AuthService from '../lib/authService';
 import { gridItemCM } from './context-menu-holder';
+// import checker from '../lib/checkers';
+// rcl
 
 const CollectionName = 'DashboardWidgetCollection';
 
@@ -34,14 +38,14 @@ function renderWidgets(props) {
   }));
 }
 
-let keys = 15;
+// let keys = 15;
 
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.Auth = new AuthService(window.location.host);
     this.state = {
-        showMenu: false,
+      showMenu: false,
       isSaved: false,
       childrenStructure: this.props.childrenStructure || [],
       children: this.props.children ? this.props.children.slice() : [],
@@ -58,12 +62,11 @@ class Dashboard extends React.Component {
     /*
     TODO: togliere il supporto alla prop "childrenStructure" e
     implementare una dashStructure di default
-    */
     if (false && checker.checkArray(this.props.childrenStructure, ComponentStructure))
       this.state.children = this.state.children
         .concat((new DynamicComponents({ structure: this.state.childrenStructure }))
           .render({ toArray: true }));
-
+    */
 
     this.saveOnClick = this.saveOnClick.bind(this);
     this.widgetSelectorClickHandler = this.widgetSelectorClickHandler.bind(this);
@@ -92,7 +95,7 @@ class Dashboard extends React.Component {
   }
 
   getSavedDashboard() {
-    getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { 'Authorization': 'Bearer ' + this.Auth.getToken() }, (xhttp) => {
+    getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
@@ -116,8 +119,8 @@ class Dashboard extends React.Component {
   }
 
   getDashboardToolbarTree() {
-    const Title = (e, i) => <DashboardToolbarDashboardListTitle key={'toollistelem'+i} title={e.name} clickHandler={this.dashListItemClick} />;
-    const TitleDisabled = (e, i) => <DashboardToolbarDashboardListTitle key={'toollistelem'+i} title={e.name} clickHandler={this.dashListItemClick} disabled />;
+    const Title = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} />;
+    const TitleDisabled = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} disabled />;
     const Separator = <DashboardToolbarDashboardListTitle separator />;
     
     const dth = new DashTreeHandler();
@@ -129,13 +132,13 @@ class Dashboard extends React.Component {
         return (Title(e, i));
       else if (i === window.dashTree.length - 1)
         return (
-          <div key={'tooltreeelem'+i} style={{ display: 'inline-block' }}>
+          <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
             {Separator}
             {TitleDisabled(e, i)}
           </div>
         );
       return (
-        <div key={'tooltreeelem'+i} style={{ display: 'inline-block' }}>
+        <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
           {Separator}
           {Title(e, i)}
         </div>
@@ -145,11 +148,11 @@ class Dashboard extends React.Component {
   
   postStructure() {
     const structure = JSON.stringify(window.dashStructure, (k, v) => { return k === 'socket' ? undefined : v; });
-    post(this.dashboardReqUrl(window.dashStructure[0].name, 'save'), { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'Bearer ' + this.Auth.getToken() }, `layout=${structure}`);
+    post(this.dashboardReqUrl(window.dashStructure[0].name, 'save'), { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.Auth.getToken()}` }, `layout=${structure}`);
   }
 
   dashboardReqUrl(dashName, end) {
-    return 'http://' + window.location.host + '/dashboard/' + dashName + '/' + end;
+    return `http://${window.location.host}/dashboard/${dashName}/${end}`;
   }
 
   addToDashStructure(childStructure) {
@@ -250,7 +253,7 @@ class Dashboard extends React.Component {
     const childStructure = this.state.childrenStructure.filter(x => x.attrs.key === ck)[0];
 
     let childrenStructure = this.state.childrenStructure.slice();
-    childrenStructure = childrenStructure.filter(x => /*!x.is(cn) &&*/ x.attrs.key !== ck);
+    childrenStructure = childrenStructure.filter(x => /* !x.is(cn) && */ x.attrs.key !== ck);
 
     this.removeFromDashStructure(childStructure);
     this.setState({ childrenStructure });
@@ -290,7 +293,7 @@ class Dashboard extends React.Component {
     this.setState({ editMode: false });
   }
   
-  cancelEdit(childStr) {
+  cancelEdit() {
     this.setState({ editMode: false });
   }
   
@@ -326,7 +329,7 @@ class Dashboard extends React.Component {
       <Button key="toolbarbutton3" name="Add Job" title="Add Job" clickHandler={this.addJob} />,
     ];
     return (
-      <DefaultFrame toolbarChildren={toolbarChildren} containerStyle={{padding: '0'}}>
+      <DefaultFrame history={this.props.history} toolbarChildren={toolbarChildren} containerStyle={{ padding: '0' }}>
         {this.state.editMode ? this.getDashboardEdit() : this.getDashboardGrid()}
         {
           gridItemCM(

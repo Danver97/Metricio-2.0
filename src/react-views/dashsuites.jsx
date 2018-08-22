@@ -11,7 +11,7 @@ class Dashsuites extends React.Component {
   }
   
   render() {
-    return (<DefaultFrame titledTables={[getSuitesStruct('Add New', '/dashsuites/create')]} />);
+    return (<DefaultFrame history={this.props.history} titledTables={[getSuitesStruct('Add New', '/dashsuites/create')]} />);
   }
 }
 

@@ -13,7 +13,7 @@ export default class DashboardView extends React.Component {
   
   render() {
     (new DashTreeHandler()).addElement();
-    return (<Dashboard title={this.dashboard || 'index2'} name="dash" key="dash" />);
+    return (<Dashboard history={this.props.history} title={this.dashboard || 'index2'} name="dash" key="dash" />);
   }
 }
 // window.location.href.substr(window.location.href.lastIndexOf('/') + 1)

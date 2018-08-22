@@ -2,5 +2,14 @@
   .form {
     min-width: 15rem;
     width: 30%;
+    
+    label {
+      font-weight: 100;
+      float: none;
+    }
+    
+    input[type="text"] {
+      margin-left: 0;
+    }
   }
 }

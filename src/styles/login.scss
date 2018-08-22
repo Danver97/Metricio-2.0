@@ -1,0 +1,94 @@
+@import "./_form.scss";
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-size: 2vw;
+  color: white;
+  font-family: 'Saira', sans-serif;
+  background-color: #222;
+  box-sizing: border-box;
+}
+
+.formlogin {
+  position: relative;
+  margin: auto;
+  border-radius: $borderradius;
+  background-color: white;
+  min-width: 21.25rem;
+  width: 25%;
+  min-height: 12.5rem;
+  height: 25%;
+  color: black;
+  padding: 20px;
+  margin-top: 10%;
+  font-size: 1rem;
+  
+  & h3 {
+    position: relative;
+    text-align: center;
+  }
+  
+  form {
+    display: block;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 2.75rem + $containerpadding;
+    bottom: $containerpadding;
+    left: $containerpadding;
+    right: $containerpadding;
+    //top: 0 + $containerpadding;
+  }
+  
+  .line {
+    position: relative;
+    display: block;
+    .label {
+      display: inline-block;
+      width: 25%;
+      padding-right: 0.5rem;
+      .flex-container {
+        height: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin: 0;
+
+        label {
+          margin: 0;
+        }
+      }
+    }
+    
+    input[type="text"], input[type="password"] {
+      font-family: 'Saira', sans-serif;
+      background-color: #dbdbdb;
+      margin: 0;
+      width: 75%;
+    }
+  }
+  
+  & .submit {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin: auto;
+    
+    & input[type="submit"] {
+      display: block;
+      margin: auto;
+      position: relative;
+      min-width: 51px;
+      width: 20%;
+      bottom: 0;
+      right: 0;
+    }
+  }
+}

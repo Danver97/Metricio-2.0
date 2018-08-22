@@ -1,0 +1,37 @@
+@import './_shadow.scss';
+
+.form {
+    width: 15rem;
+    padding: 20px;
+    
+    label {
+      font-size: 0.9rem;
+      color: #dddddd;
+    }
+
+    input {
+      border: 0;
+      box-shadow: $shadow;
+      &:focus {
+        outline: none;
+      box-shadow: $shadow-focus;
+      }
+    }
+
+    button {
+      margin-right: 0.5rem;
+      box-shadow: $shadow;
+
+      &:hover {
+        box-shadow: $shadow-hover;
+      }
+
+      &:active {
+        box-shadow: $shadow-active;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }

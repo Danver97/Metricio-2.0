@@ -1,0 +1,82 @@
+$submitheight: 36px;
+$containerpaddding: 20px;
+$borderradius: 5px;
+$inputheight: 24px;
+$shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+
+.job_scheduler {
+  text-align: left;
+  height: 100%;
+  overflow: hidden;
+
+  input {
+    height: $inputheight;
+    border: 0;
+    border-radius: $borderradius;
+    line-height: normal;
+    //margin-top: 8px;
+
+    &[type="text"] {
+      font-family: monospace;
+      margin-left: 8px;
+
+      &:focus {
+        box-shadow: $shadow;
+      }
+    }
+
+    &[type="submit"]{
+      color: white;
+      background-color: #222;
+      height: $submitheight;
+      line-height: $submitheight;
+      position: absolute;
+      right: 0 + $containerpaddding;
+      bottom: 0 + $containerpaddding;
+
+      &:hover{
+        background-color: #333;
+      }
+
+      &:active{
+        background-color: #1d1d1d;
+      }
+    }
+  }
+
+  .dropdown {
+    width: 7.5rem;
+  }
+
+  textarea {
+    border: 0;
+    padding: 6px 8px;
+    border-radius: $borderradius;
+    margin-left: 8px;
+    outline: none;
+    transition: all 0.3 cubic-bezier(.25,.8,.25,1);;
+
+    &:focus {
+      box-shadow: $shadow;
+    }
+  }
+
+  .line {
+    margin: 8px 0;
+    //vertical-align: middle;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    float: right;
+  }
+  .label {
+    display: inline-block;
+    width: 12.5%;
+    min-width: 65px;
+    height: $inputheight;
+    vertical-align: top;
+  }
+  
+}

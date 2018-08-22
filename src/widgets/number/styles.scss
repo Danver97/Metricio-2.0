@@ -1,0 +1,25 @@
+.widget__number {
+  background-color: #47bbb3;
+  height: 100%;
+}
+
+$colors: #2ecec5, #348aa7, #525174, #694d70;
+$repeat: 8;
+
+@for $i from 1 through $repeat {
+  .widget__number:nth-child(#{length($colors)}n + #{$i}) {
+    background: nth($colors, random(length($colors)));
+    
+    .widget__value {
+      text-transform: none;
+      
+      
+    }
+  }
+}
+
+
+.widget__value small {
+  font-size: smaller;
+  font-weight: inherit;
+}

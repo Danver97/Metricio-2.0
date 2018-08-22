@@ -1,0 +1,21 @@
+@import '../../../../../styles/_shadow.scss';
+
+.menu-element {
+  background-color: #222;
+  border-radius: 5px;
+  transitions: $transitions;
+  box-shadow: $shadow;
+  padding: 8px 16px;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  
+  &:hover {
+    background-color: #333;
+    box-shadow: $shadow-hover;
+  }
+  
+  &:active {
+    background-color: #1d1d1d;
+    box-shadow: $shadow-active;
+  }
+}

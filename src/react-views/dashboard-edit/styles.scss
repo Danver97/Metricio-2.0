@@ -1,0 +1,64 @@
+@import '../../styles/_shadow.scss';
+
+.widget_edit {
+  width: 100%;
+  position: relative;
+}
+
+.widget_settings {
+  position: relative;
+  display: inline-block;
+  float: left;
+  width: 50%;
+  min-width: 330px;
+  padding: 20px;
+  //color: black;
+  
+  .tab-pane:not(.active) {
+    display: none;
+  }
+  
+  .nav-item {
+    font-size: 1.2rem;
+  }
+  
+  .nav-link:not(.active) {
+    color: #dddddd;
+    
+    &:hover {
+      color: white;
+    }
+  }
+  
+  button {
+    margin-right: 0.5rem;
+  }
+  
+  
+}
+
+.widget_viewport {
+  position: relative;
+  display: inline-block;
+  float: left;
+  width: 50%;
+  min-width: 330px;
+  padding: 20px;
+  
+  .widget_container {
+    box-shadow: $shadow;
+    margin: auto;
+    max-width: 400px;
+    width: 100%;
+    min-width: 200px;
+    height: 250px;
+    overflow: hidden;
+  }
+  
+}
+
+@media screen and (max-width: 659px) {
+  .widget_viewport, .widget_settings{
+    width: 100%
+  }
+}

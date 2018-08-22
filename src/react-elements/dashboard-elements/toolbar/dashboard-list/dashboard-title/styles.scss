@@ -1,0 +1,29 @@
+.toolbar-dashboard-title {
+  display: inline-block;
+  float: left;
+  height: 36px;
+  border-radius: 5px;
+  //background-color: #222;
+  padding: 5px 10px;
+    
+  p {
+    font-size: 16px;
+  }
+  
+}
+
+.separator {
+  padding: 5px 0;
+}
+
+.hoverable {
+  &:hover {
+    background-color: #333;
+  }
+}
+
+.activable {
+  &:active {
+    background-color: #1d1d1d;
+  }
+}

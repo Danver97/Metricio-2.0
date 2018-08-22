@@ -1,0 +1,57 @@
+$back-color: unquote('#ffffff44');
+$progress-color: unquote('#ffffff77');
+$padding: 1.25rem;
+$top-spacing: 1.25rem;
+$intra-margin: 0.75rem;
+
+.widget_multipleprogress {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  //padding: 1.25rem;
+  //background-color: red;
+  
+  .widget__data {
+    position: absolute;
+    overflow: auto;
+    top: 2.938rem + $padding + $top-spacing;
+    left: 0 + $padding;
+    right: 0 + $padding;
+    bottom: 0 + $padding;
+    padding: 0.5rem;
+  }
+  
+  .data-element {
+    margin-bottom: $intra-margin;
+  }
+  
+  .data-title {
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    color: white;
+    text-align: left;
+    margin-bottom: $intra-margin;
+    
+    span {
+      margin-right: 1rem;
+      opacity: 0.95;
+    }
+    
+    strong {
+      color: white;
+      font-size: 1.15rem;
+      line-height: 1.15rem;
+    }
+  }
+
+  
+  .progress {
+    background-color: $back-color;
+    border-radius: 0;
+    
+    .progress-bar {
+      background-color: $progress-color;
+    }
+  }
+}

@@ -7,8 +7,8 @@ export default function withAuth(AuthComponent, domain) {
     constructor(props) {
       super(props);
       this.state = {
-          user: null
-      }
+        user: null,
+      };
     }
     
     componentWillMount() {
@@ -30,11 +30,14 @@ export default function withAuth(AuthComponent, domain) {
     render() {
       if (this.state.user) {
         return (
-          <AuthComponent history={this.props.history} match={this.props.match} user={this.state.user} />
+          <AuthComponent 
+            history={this.props.history} 
+            match={this.props.match} 
+            user={this.state.user} 
+          />
         );
-      } else {
-        return null;
       }
+      return null;
     }
-  }
+  };
 }

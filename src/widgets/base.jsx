@@ -43,8 +43,8 @@ export default class BaseWidget extends React.Component {
   }
   
   componentWillUnmount() {
-    //this.props.socket.removeEventListener(`widget:update:${this.props.name}`, this.state.socketListener);
     this.props.socket.removeAllListeners(`widget:update:${this.props.name}`);
+    this.props.socket.disconnect();
   }
   
   addChild(childStructure) {

@@ -1,6 +1,6 @@
 export default function request(method, url, async, headers, data, cb) {
   return new Promise((resolve, reject) => {
-    // console.log(url);
+    console.log(url);
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {

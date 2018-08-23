@@ -14,27 +14,27 @@ class Login extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
   
-  handleChange(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
+  componentWillMount() {
+    if (this.Auth.loggedIn())
+      this.props.history.replace('/');
   }
   
   onSave(e) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      this.Auth.login(this.state.username, this.state.password, (token) => {
+      this.Auth.login(this.state.username, this.state.password, () => {
         this.props.history.replace('/');
       });
-    } catch(e) {
+    } catch (err) {
       this.props.history.replace('/login');
     }
   }
   
-  componentWillMount() {
-    if (this.Auth.loggedIn())
-      this.props.history.replace('/');
+  handleChange(e) {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   }
   
   render() {
@@ -48,7 +48,7 @@ class Login extends React.Component {
                 <label htmlFor="username">Username:</label>
               </div>
             </div>
-            <input type="text" name="username" onChange={e => this.handleChange(e)}></input>
+            <input type="text" name="username" onChange={e => this.handleChange(e)} />
           </div>
           <div className="line">
             <div className="label">
@@ -56,10 +56,10 @@ class Login extends React.Component {
                 <label htmlFor="password">Password:</label>
               </div>
             </div>
-            <input type="password" name="password" onChange={e => this.handleChange(e)}></input><br></br>
+            <input type="password" name="password" onChange={e => this.handleChange(e)} /><br />
           </div>
           <div className="submit">
-            <input type="submit" value="Login" onClick={e => this.onSave(e)}></input>
+            <input type="submit" value="Login" onClick={e => this.onSave(e)} />
           </div>
         </form>
       </div>

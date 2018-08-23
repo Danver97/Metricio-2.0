@@ -12,6 +12,7 @@ export default {
   dashboard: {
     get: {
       dashboard: (dash) => checkParam`/dashboard/${dash}`(':dashboard'),
+      dashboardEdit: (dash) => checkParam`/dashboard/${dash}/edit`(':dashboard'),
       getStructure: (dash) => checkParam`/dashboard/${dash}/getStructure`(':dashboard'),
     },
     post: {

@@ -29,7 +29,7 @@ const App = () => (
       <Link to="/dashsuites">Dashsuite</Link>
       <Link to="/users">Users</Link>
       <Link to="/dashboard/index2">Dashboard</Link>
-      <Link to="/dashboard/index42">Dashboard2</Link>
+      <Link to="/dashboard/index3">Dashboard2</Link>
       <Link to="/users/login">Login</Link>
     </nav>
     <div>

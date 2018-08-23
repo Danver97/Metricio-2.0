@@ -38,7 +38,7 @@ DashboardSchema.pre('update', (next) => {
   next();
 });
 
-DashboardSchema.index({ user: 1, jobName: 1 }, { unique: true });
+DashboardSchema.index({ user: 1, name: 1 }, { unique: true });
 
 const Dashboard = mongoose.model('Dashboard', DashboardSchema);
 

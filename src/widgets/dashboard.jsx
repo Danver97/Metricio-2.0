@@ -1,38 +1,34 @@
 import React from 'react';
 import socketIOClient from 'socket.io-client';
 
-import DashTreeHandler from '../lib/dashTreeHandler';
-
 // React Elements
 // rst
 // import DashboardFrame from '../react-elements/dashboard-frame/widget';
 import DashboardGrid from '../react-elements/dashboard-grid/widget';
 import DashboardEdit from '../react-views/dashboard-edit/widget';
 import Button from '../react-elements/dashboard-elements/toolbar/button/widget';
-import DashboardToolbarDashboardList from '../react-elements/dashboard-elements/toolbar/dashboard-list/widget';
-import DashboardToolbarDashboardListTitle from '../react-elements/dashboard-elements/toolbar/dashboard-list/dashboard-title/widget';
 import DefaultFrame from '../react-elements/default-frame/widget';
+import DashTreeList from '../react-elements/dashboard-tree-list/widget';
 // rcl
-
-// import WidgetCollection from './dashboard-widget-collection/widget';
-import JobScheduler from './job-scheduler/widget';
 
 // Utils
 // rst
 import Widgets from './Widgets';
 import ComponentStructure from '../lib/structures/component';
 import DynamicComponents from '../dynamic_components';
-import { post, getSync } from '../lib/requests';
+import { post, getSync, get } from '../lib/requests';
 import AuthService from '../lib/authService';
 import { gridItemCM } from './context-menu-holder';
 // import checker from '../lib/checkers';
 // rcl
 
+// import WidgetCollection from './dashboard-widget-collection/widget';
+import JobScheduler from './job-scheduler/widget';
+
 const CollectionName = 'DashboardWidgetCollection';
 
 function renderWidgets(props) {
   const socket = socketIOClient(`http://${window.location.host}`);
-  // console.log(socket);
   return React.Children.map(props.children, child => React.cloneElement(child, {
     socket,
   }));
@@ -45,6 +41,7 @@ class Dashboard extends React.Component {
     super(props);
     this.Auth = new AuthService(window.location.host);
     this.state = {
+      title: this.props.title,
       showMenu: false,
       isSaved: false,
       childrenStructure: this.props.childrenStructure || [],
@@ -81,8 +78,18 @@ class Dashboard extends React.Component {
     this.saveEdit = this.saveEdit.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.editChild = this.editChild.bind(this);
-    this.dashListItemClick = this.dashListItemClick.bind(this);
+    this.refreshDashboard = this.refreshDashboard.bind(this);
+    this.refreshStateStruct = this.refreshStateStruct.bind(this);
+    // this.dashListItemClick = this.dashListItemClick.bind(this);
     // this.toggleMenu = this.toggleMenu.bind(this);
+  }
+  
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.state.title !== nextProps.title && this.state.title === nextState.title) {
+      this.refreshDashboard(nextProps.title);
+      this.setState({ title: nextProps.title });
+    }
+    return true;
   }
 
   onLayoutChange(layout) {
@@ -100,15 +107,13 @@ class Dashboard extends React.Component {
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
       window.dashStructure = [structure];
-      this.state.layout = window.dashStructure[0].layouts;
-      this.state.childrenStructure = window.dashStructure[0].children;
-      this.state.children = window.dashStructure[0].children.map(c => this.getReactComponent(c));
+      this.refreshStateStruct(true);
     });
   }
   
   getDashboardGrid() {
     return (
-      <DashboardGrid key="dash" layout={this.state.layout} childrenStructure={window.dashStructure[0].children} onLayoutChange={this.onLayoutChange}>
+      <DashboardGrid key="dash" layout={this.state.layout} childrenStructure={this.state.childrenStructure} onLayoutChange={this.onLayoutChange}>
         {renderWidgets(this.state)}
       </DashboardGrid>
     );
@@ -117,32 +122,30 @@ class Dashboard extends React.Component {
   getDashboardEdit() {
     return (<DashboardEdit childStructure={this.state.editChild} className="widget__edit" saveHandler={this.saveEdit} cancelHandler={this.cancelEdit} />);
   }
-
-  getDashboardToolbarTree() {
-    const Title = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} />;
-    const TitleDisabled = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} disabled />;
-    const Separator = <DashboardToolbarDashboardListTitle separator />;
-    
-    const dth = new DashTreeHandler();
-    
-    return dth.getAll().map((e, i) => {
-      if (i === 0 && i === window.dashTree.length - 1)
-        return (TitleDisabled(e, i));
-      else if (i === 0)
-        return (Title(e, i));
-      else if (i === window.dashTree.length - 1)
-        return (
-          <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
-            {Separator}
-            {TitleDisabled(e, i)}
-          </div>
-        );
-      return (
-        <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
-          {Separator}
-          {Title(e, i)}
-        </div>
-      );
+  
+  refreshDashboard(title) {
+    if (!title)
+      return;
+    get(this.dashboardReqUrl(title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+      const structure = JSON.parse(xhttp.responseText);
+      structure.children = structure.children
+        .map(c => new ComponentStructure(c.type, c.attrs, c.children));
+      window.dashStructure = [structure];
+      this.refreshStateStruct();
+    });
+  }
+  
+  refreshStateStruct(notMount) {
+    if (notMount) {
+      this.state.layout = window.dashStructure[0].layouts;
+      this.state.childrenStructure = window.dashStructure[0].children;
+      this.state.children = window.dashStructure[0].children.map(c => this.getReactComponent(c));
+      return;
+    }
+    this.setState({
+      layout: window.dashStructure[0].layouts,
+      childrenStructure: window.dashStructure[0].children,
+      children: window.dashStructure[0].children.map(c => this.getReactComponent(c)),
     });
   }
   
@@ -302,12 +305,6 @@ class Dashboard extends React.Component {
     this.setState({ editChild: cStr, editMode: true });
   }
   
-  dashListItemClick(name) {
-    const dth = new DashTreeHandler();
-    const current = dth.popAllUntil(name);
-    window.location.assign(current.href);
-  }
-  
   /*
   toggleMenu() {
     this.setState((prevState) => {
@@ -319,11 +316,8 @@ class Dashboard extends React.Component {
   */
   
   render() {
-    // const editMode = this.state.editMode || true;
     const toolbarChildren = [
-      <DashboardToolbarDashboardList key="dashtreelist">
-        {this.getDashboardToolbarTree()}
-      </DashboardToolbarDashboardList>,
+      <DashTreeList history={this.props.history} onNavigate={this.refreshDashboard} />,
       <Button key="toolbarbutton1" name="Save" title="Save" clickHandler={this.saveOnClick} />,
       <Button key="toolbarbutton2" name="Add Panel" title="Add Panel" clickHandler={this.addPanel} />,
       <Button key="toolbarbutton3" name="Add Job" title="Add Job" clickHandler={this.addJob} />,

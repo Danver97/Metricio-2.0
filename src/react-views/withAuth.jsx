@@ -33,6 +33,7 @@ export default function withAuth(AuthComponent, domain) {
           <AuthComponent 
             history={this.props.history} 
             match={this.props.match} 
+            location={this.props.location} 
             user={this.state.user} 
           />
         );

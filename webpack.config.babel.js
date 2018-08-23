@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
 import paths from './config/paths';
+const CompressionPlugin = require('compression-webpack-plugin');
 
 function getNamesAndPaths(folder) {
   return fs.readdirSync(folder).reduce((accu, file) => {
@@ -16,12 +17,13 @@ console.log("NOME PATH!!!! \n" + JSON.stringify(getNamesAndPaths(paths.dashboard
 
 const webConfig = {
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   mode: process.env.NODE_ENV || 'development',
+  devtool: 'source-map' || 'eval',
   entry: getNamesAndPaths(paths.dashboards),
   target: 'web',
-  output: { path: '/dist/', filename: '[name].dashboard.bundle.js', publicPath: '/' },
+  output: { path: paths.dist, filename: '[name].dashboard.bundle.js', publicPath: '/dist' },
   stats: 'errors-only',
   module: {
     rules: [
@@ -43,6 +45,15 @@ const webConfig = {
   plugins: [
     new webpack.EnvironmentPlugin({ NODE_ENV: 'development' }),
     new webpack.ContextReplacementPlugin(/moment[\\/]locale$/, /^\.\/(en)$/),
+    new webpack.LoaderOptionsPlugin({ minimize: true }),
+    new webpack.optimize.AggressiveMergingPlugin(),
+    new CompressionPlugin({
+      asset: '[path].gz[query]',
+      algorithm: 'gzip',
+      test: /\.js$|\.css$|\.html$/,
+      threshold: 10240,
+      minRatio: 0.8,
+    }),
   ],
   resolve: {
     extensions: ['.js', '.jsx', '.scss'],

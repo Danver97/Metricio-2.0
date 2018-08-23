@@ -1,3 +1,23 @@
+function checkParam(strings) {
+  const values = Array.from(arguments)
+  values.shift();
+  const result = function () {
+    const resultArr = [];
+    const params = Array.from(arguments);
+    let index;
+    values.forEach((value, i) => {
+      index = i;
+      if (!value)
+        resultArr.push(strings[i], params[i]);
+      else
+        resultArr.push(strings[i], values[i]);
+    });
+    resultArr.push(strings[index + 1]);
+    return resultArr.join('');
+  };
+  return result;
+}
+
 export default {
   users: {
     get: {
@@ -12,8 +32,9 @@ export default {
   dashboard: {
     get: {
       dashboard: (dash) => checkParam`/dashboard/${dash}`(':dashboard'),
-      dashboardEdit: (dash) => checkParam`/dashboard/${dash}/edit`(':dashboard'),
+      edit: (dash) => checkParam`/dashboard/${dash}/edit`(':dashboard'),
       getStructure: (dash) => checkParam`/dashboard/${dash}/getStructure`(':dashboard'),
+      getComponentStructure: (dash) => checkParam`/dashboard/${dash}/getComponentStructure`(':dashboard'),
     },
     post: {
       save: (dash) => checkParam`/dashboard/${dash}/save`(':dashboard'),
@@ -31,23 +52,3 @@ export default {
     }
   },
 };
-
-function checkParam(strings) {
-  const values = Array.from(arguments)
-  values.shift();
-  const result = function() {
-    const result = [];
-    const params = Array.from(arguments);
-    let index;
-    values.forEach((value, i) => {
-      index = i;
-      if(!value)
-        result.push(strings[i], params[i]);
-      else
-        result.push(strings[i], values[i]);
-    });
-    result.push(strings[index+1]);
-    return result.join('');
-  };
-  return result;
-}

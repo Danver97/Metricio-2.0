@@ -1,5 +1,6 @@
 import React from 'react';
 import socketIOClient from 'socket.io-client';
+import qs from 'query-string';
 
 // React Elements
 // rst
@@ -301,8 +302,13 @@ class Dashboard extends React.Component {
   }
   
   editChild(id) {
-    const cStr = this.state.childrenStructure.filter(c => c.attrs.key === id)[0] || null;
-    this.setState({ editChild: cStr, editMode: true });
+    // const cStr = this.state.childrenStructure.filter(c => c.attrs.key === id)[0] || null;
+    const endpoint = `${this.props.editUrl}?${qs.stringify({ compId: id })}`;
+    if (this.props.history) {
+      this.props.history.push(endpoint);
+    }
+    window.location.assign(endpoint);
+    // this.setState({ editChild: cStr, editMode: true });
   }
   
   /*

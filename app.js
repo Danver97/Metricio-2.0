@@ -115,6 +115,15 @@ app.use('/users', users);
 app.use('/dashboard', dashboards);
 app.use('/dashsuites', dashsuites);
 
+app.get('*.js', (req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    console.log('asking for gzip ' + req.url);
+    req.url += '.gz';
+    res.set('Content-Encoding', 'gzip');
+  }
+  next();
+});
+
 if (process.env.NODE_ENV === 'production') {
   app.use('/dist', express.static('dist'));
 } else {
@@ -147,7 +156,14 @@ app.post('/jobs', ensureAutenticated, (req, res) => {
   res.end();
 });
 
-app.get('*', ensureAutenticated, (req, res) => {
+/* app.get('/dist/*.js', ensureAutenticated, (req, res) => {
+  // console.log(req.session);
+  res.render('index', {
+    name: 'react-router',
+  });
+}); */
+
+app.get('*', (req, res) => {
   // console.log(req.session);
   res.render('index', {
     name: 'react-router',

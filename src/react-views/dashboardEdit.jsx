@@ -1,12 +1,33 @@
 import React from 'react';
 
+import ComponentStructure from '../lib/structures/component';
 import DashboardEdit from '../react-views/dashboard-edit/widget';
+import DefaultFrame from '../react-elements/default-frame/widget';
 import urlPaths from '../lib/url_paths';
-import { post } from '../lib/requests';
+import { get, post } from '../lib/requests';
 
 import '../styles/default.scss';
 
 export default class DashboardView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editChild: null,
+    };
+  }
+  
+  componentDidMount() {
+    const query = this.props.location.search;
+    const dashboard = this.props.match.params.dashboard;
+    get(`${urlPaths.dashboard.get.getComponentStructure(dashboard)}${query}`, { Accept: 'application/json' }, xhttp => {
+      const response = JSON.parse(xhttp.responseText);
+      this.setState({ editChild: new ComponentStructure(response.type, response.attrs) });
+    });
+    this.saveEdit = this.saveEdit.bind(this);
+    this.cancelEdit = this.cancelEdit.bind(this);
+    this.back = this.back.bind(this);
+  }
+  
   saveEdit(childStr) {
     const structure = childStr.stringify();
     post(
@@ -26,13 +47,18 @@ export default class DashboardView extends React.Component {
   back() {
     if (this.props.history) {
       this.props.history.goBack();
+      this.props.history
+        .replace(urlPaths.dashboard.get.dashboard(this.props.match.params.dashboard));
       return;
     }
-    window.location.assign(urlPaths.dashboard.post.dashboard(this.props.match.params.dashboard));
+    window.location.assign(urlPaths.dashboard.get.dashboard(this.props.match.params.dashboard));
   }
   
   render() {
-    // return (<DashboardEdit childStructure={this.state.editChild} className="widget__edit" saveHandler={this.saveEdit} cancelHandler={this.cancelEdit} />);
-    return [];
+    return (
+      <DefaultFrame history={this.props.history}>
+        <DashboardEdit childStructure={this.state.editChild} className="widget__edit" saveHandler={this.saveEdit} cancelHandler={this.cancelEdit} />
+      </DefaultFrame>
+    );
   }
 }

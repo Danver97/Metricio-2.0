@@ -2,18 +2,47 @@ const express = require('express');
 const router = express.Router();
 const Dashboard = require('../models/dashboard');
 import { ensureAutenticated, ensureAndVerifyToken } from '../lib/utils';
-/*
-router.get('/:dashboard', ensureAndVerifyToken, (req, res) => {
-  res.render('index', {
-    name: req.params.dashboard,
-    layout: false,
-  });
-});
-*/
+
+const badRequest = (res, message) => {
+  res.status(400);
+  res.json({ error: message });
+};
+
+const notFound = (res, message) => {
+  res.status(404);
+  res.json({ error: message });
+};
+
 router.get('/:dashboard/getStructure', ensureAndVerifyToken, (req, res) => {
   Dashboard.findByUserAndDashboardName(req.decodedToken.user._id, req.params.dashboard, (err, doc) => {
     if (err) throw err;
+    if (!doc) {
+      notFound(res, 'Dashboard not found.');
+      return;
+    }
     res.json(doc);
+  });
+});
+
+router.get('/:dashboard/getComponentStructure', ensureAndVerifyToken, (req, res) => {
+  const query = req.query;
+  if (!query.compId) {
+    badRequest(res, 'Missing param compId.')
+    return;
+  }
+  Dashboard.findByUserAndDashboardName(req.decodedToken.user._id, req.params.dashboard, (err, doc) => {
+    if (err) throw err;
+    if (!doc) {
+      notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const compStr = doc.children.filter(c => c.attrs.id === query.compId ||
+                                        c.attrs.key === query.compId)[0];
+    if (!compStr) {
+      notFound(res, 'Component not found.');
+      return;
+    }
+    res.json(compStr);
   });
 });
 
@@ -38,9 +67,9 @@ router.post('/:dashboard/edit', ensureAutenticated, (req, res) => {
     if (err) throw err;
     let structure;
     try {
-      structure = JSON.parse(req.body.structure)
+      structure = JSON.parse(req.body.structure);
       console.log(structure);
-    } catch(e){
+    } catch (e) {
       res.end(e);
     }
     const idx = doc.children.findIndex(x => x.attrs.key === structure.attrs.key);
@@ -48,9 +77,8 @@ router.post('/:dashboard/edit', ensureAutenticated, (req, res) => {
     Dashboard.updateOne({
       user: doc.user,
       name: doc.name,
-    }, doc, { upsert: true }, (err) => {
-      if (err) throw err;
-      // res.end('/dashboard/' + doc.name);
+    }, doc, { upsert: true }, (error) => {
+      if (error) throw error;
       res.end('edit: got it!');
     });
   });

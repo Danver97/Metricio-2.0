@@ -30,7 +30,7 @@ export default class DashboardEdit extends React.Component {
   constructor(props) {
     super(props);
     this.toggle = this.toggle.bind(this);
-    
+    console.log(this.props.childStructure);
     this.state = {
       activeTab: '1',
       childStructure: this.props.childStructure || new ComponentStructure('NumberWidget', {
@@ -76,6 +76,26 @@ export default class DashboardEdit extends React.Component {
     this.onInput = this.onInput.bind(this);
     this.onBlur = this.onBlur.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
+  }
+  
+  shouldComponentUpdate(nextProps) {
+    console.log('shouldComponentUpdate');
+    console.log(nextProps);
+    if (!this.props.childStructure && nextProps.childStructure !== this.state.childStructure) {
+      nextProps.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
+      this.setState({
+        childStructure: nextProps.childStructure,
+        initialChildStructure: JSON.parse(nextProps.childStructure.stringify()),
+        chilStrReferenceId: nextProps.childStructure.attrs.id,
+        child: this.getElemFromStructure(nextProps.childStructure),
+      });
+    }
+    return true;
+  }
+  
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    console.log('componentWillUnmount');
   }
   
   getElemFromStructure(structure) {

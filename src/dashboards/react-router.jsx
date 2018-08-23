@@ -7,6 +7,7 @@ import Dashsuite from '../react-views/dashsuites';
 import DashsuiteCreate from '../react-views/dashsuiteCreate';
 import DashsuiteView from '../react-views/dashsuiteView';
 import Dashboard from '../react-views/dashboard';
+import DashboardEdit from '../react-views/dashboardEdit';
 import Users from '../react-views/users';
 import Login from '../react-views/login';
 import withAuth from '../react-views/withAuth';
@@ -18,6 +19,7 @@ const domain = window.location.host;
 const home = () => (<h1>Csioa</h1>);
 const dashsuite = withAuth(Dashsuite, domain);
 const dashboard = withAuth(Dashboard, domain);
+const dashboardEdit = withAuth(DashboardEdit, domain);
 const users = withAuth(Users, domain);
 const dashsuiteCreate = withAuth(DashsuiteCreate, domain);
 const dashsuiteView = withAuth(DashsuiteView, domain);
@@ -37,6 +39,7 @@ const App = () => (
         <Route exact path="/" component={home} />
         <Route exact path="/home" component={Home} />
         <Route exact path={urlPaths.dashboard.get.dashboard()} component={dashboard} />
+        <Route exact path={urlPaths.dashboard.get.edit()} component={dashboardEdit} />
         <Route exact path="/dashsuites" component={dashsuite} />
         <Route exact path="/dashsuites/create" component={dashsuiteCreate} />
         <Route exact path="/dashsuites/view/:dashsuite" component={dashsuiteView} />

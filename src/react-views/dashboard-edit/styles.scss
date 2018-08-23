@@ -14,6 +14,33 @@
   padding: 20px;
   //color: black;
   
+  form.form {
+    height: auto;
+    label {
+      float: none;
+      color: white;
+    }
+    input {
+      margin-left: 0;
+      font-family: 'Saira', sans-serif;
+      
+      &::placeholder {
+        color: rgba(0,0,0,0.35)
+      }
+    }
+  }
+  
+  button {
+    box-shadow: $shadow;
+    transition: $transitions;
+    &:hover {
+      box-shadow: $shadow-hover;
+    }
+    &:active {
+      box-shadow: $shadow-active;
+    }
+  }
+  
   .tab-pane:not(.active) {
     display: none;
   }

@@ -28,6 +28,10 @@ export default class MultipleProgressWidget extends BaseWidget {
     l.maxH = 100;
     return l;
   }
+  
+  static get className() {
+    return 'MultipleProgressWidget';
+  }
 
   getValue(actual, max, str) {
     if (!str)

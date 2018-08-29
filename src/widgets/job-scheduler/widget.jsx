@@ -35,6 +35,10 @@ export default class DashboardJobScheduler extends BaseWidget {
     l.isDraggable = false;
     return l;
   }
+  
+  static get className() {
+    return 'DashboardJobScheduler';
+  }
 
   getDropdownOptions() {
     return ['MySql', 'ElasticSearch'];

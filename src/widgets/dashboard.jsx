@@ -15,6 +15,7 @@ import DashTreeList from '../react-elements/dashboard-tree-list/widget';
 // Utils
 // rst
 import Widgets from './Widgets';
+console.log(Widgets);
 import ComponentStructure from '../lib/structures/component';
 import DynamicComponents from '../dynamic_components';
 import { post, getSync, get } from '../lib/requests';
@@ -340,14 +341,14 @@ class Dashboard extends React.Component {
   
   render() {
     const toolbarChildren = [
-      <DashTreeList history={this.props.history} onNavigate={this.refreshDashboard} />,
-      <Button key="toolbarbutton1" name="Save" title="Save" clickHandler={this.saveOnClick} />,
-      <Button key="toolbarbutton2" name="Add Panel" title="Add Panel" clickHandler={this.addPanel} />,
-      <Button key="toolbarbutton3" name="Add Job" title="Add Job" clickHandler={this.addJob} />,
+      <DashTreeList key="dashtreelist" history={this.props.history} onNavigate={this.refreshDashboard} />,
+      <Button key="toolbarbutton1" icon="save" title="Save" clickHandler={this.saveOnClick} />,
+      <Button key="toolbarbutton2" icon="library_add" title="Add Panel" clickHandler={this.addPanel} />,
+      <Button key="toolbarbutton3" icon="build" title="Add Job" clickHandler={this.addJob} />,
     ];
     return (
       <DefaultFrame history={this.props.history} toolbarChildren={toolbarChildren} containerStyle={{ padding: '0' }}>
-        {this.state.editMode ? this.getDashboardEdit() : this.getDashboardGrid()}
+        {this.getDashboardGrid()}
         {
           gridItemCM(
             (e, data) => this.editChild(data.name),
@@ -357,28 +358,7 @@ class Dashboard extends React.Component {
       </DefaultFrame>
     );
   }
-/*
-
-      <DashboardFrame>
-        <Toolbar name="toolbar">
-          {this.state.showMenu && 
-            <Menu clickHandler={this.toggleMenu}/>
-          }
-          <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />
-          {toolbarChildren}
-        </Toolbar>
-        {this.state.editMode ? this.getDashboardEdit() : this.getDashboardGrid()}
-        {
-          gridItemCM(
-            (e, data) => this.editChild(data.name),
-            (e, data) => this.removeChildStructure(null, data.name)
-          )
-        }
-      </DashboardFrame>
-*/
-
-// {editMode ? this.getDashboardEdit() : null}
-// <div className="dashboard"> {renderWidgets(this.state)}</div>
+// {this.state.editMode ? this.getDashboardEdit() : this.getDashboardGrid()}
 // {renderWidgets(this.props)}
 }
 

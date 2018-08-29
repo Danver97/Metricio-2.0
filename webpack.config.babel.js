@@ -13,7 +13,7 @@ function getNamesAndPaths(folder) {
   }, {});
 }
 
-console.log("NOME PATH!!!! \n" + JSON.stringify(getNamesAndPaths(paths.dashboards)));
+// console.log("NOME PATH!!!! \n" + JSON.stringify(getNamesAndPaths(paths.dashboards)));
 
 const webConfig = {
   devServer: {

@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 // User Schema
 const DashboardSchema = mongoose.Schema({
   user: {
-    type: String, // mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
   dashsuite: {
     type: mongoose.Schema.Types.ObjectId,
@@ -54,7 +55,7 @@ Dashboard.createDash = (dashboard, cb) => {
   if (!cb)
     return Dashboard.create(dashboard);
   Dashboard.create(dashboard, cb);
-  return undefined;
+  return null;
 };
 
 Dashboard.updateDash = (dashboard, cb) => {
@@ -63,7 +64,7 @@ Dashboard.updateDash = (dashboard, cb) => {
   if (!cb)
     return Dashboard.findOneAndUpdate({ user: dashboard.user, name: dashboard.name }, newDash, { upsert: true, new: true }).exec();
   Dashboard.updateOne({ user: dashboard.user, name: dashboard.name }, newDash, { upsert: true, new: true }, cb);
-  return undefined;
+  return null;
 };
 
 Dashboard.findByUser = (user, cb) => {
@@ -71,7 +72,7 @@ Dashboard.findByUser = (user, cb) => {
   if (!cb)
     return Dashboard.find(query).exec();
   Dashboard.find(query, cb);
-  return undefined;
+  return null;
 };
 
 Dashboard.findByUserAndDashboardName = (user, dashboardName, cb) => {
@@ -79,7 +80,7 @@ Dashboard.findByUserAndDashboardName = (user, dashboardName, cb) => {
   if (!cb)
     return Dashboard.findOne(query).exec();
   Dashboard.findOne(query, cb);
-  return undefined;
+  return null;
 };
 
 Dashboard.findByUserAndDashboardNames = (user, dashboardNames, projection, cb) => {
@@ -89,7 +90,23 @@ Dashboard.findByUserAndDashboardNames = (user, dashboardNames, projection, cb) =
   if (!cb)
     return Dashboard.find(query, projection).exec();
   Dashboard.find(query, projection, cb);
-  return undefined;
+  return null;
+};
+
+Dashboard.deleteById = (idArr, cb) => {
+  const query = { _id: { $in: idArr } };
+  if (!cb)
+    return Dashboard.deleteMany(query).exec();
+  Dashboard.deleteMany(query, cb);
+  return null;
+};
+
+Dashboard.deleteByName = (user, dashboardNames, cb) => {
+  const query = { user, name: { $in: dashboardNames } };
+  if (!cb)
+    return Dashboard.deleteMany(query).exec();
+  Dashboard.deleteMany(query, cb);
+  return null;
 };
 
 module.exports = Dashboard;

@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 // User Schema
 const DashboardSuiteSchema = mongoose.Schema({
   user: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
   },
   name: {
     type: String,
@@ -54,16 +55,16 @@ DashboardSuite.createDash = (dashsuite, cb) => {
 };
 
 DashboardSuite.updateDash = (dashsuite, cb) => {
-  const newDash = dashsuite.toObject();
-  delete newDash._id;
+  const newSuite = dashsuite.toObject();
+  delete newSuite._id;
   if (!cb) 
-    return DashboardSuite.findOneAndUpdate({ user: dashsuite.user, name: dashsuite.name }, newDash, { upsert: true, new: true }).exec();
+    return DashboardSuite.findOneAndUpdate({ user: dashsuite.user, name: dashsuite.name }, newSuite, { upsert: true, new: true }).exec();
   DashboardSuite.findOneAndUpdate(
     {
       user: dashsuite.user,
       name: dashsuite.name,
     },
-    newDash, { upsert: true, new: true }, cb
+    newSuite, { upsert: true, new: true }, cb
   );
   return null;
 };
@@ -91,7 +92,7 @@ DashboardSuite.findByUserAndDashSuiteName = (user, dashSuiteName, populate, cb) 
   return null;
 };
 
-DashboardSuite.delete = (user, dashsuiteName, cb) => {
+DashboardSuite.deleteDash = (user, dashsuiteName, cb) => {
   if (cb) {
     DashboardSuite.deleteOne({ user, name: dashsuiteName }, cb);
     return null;

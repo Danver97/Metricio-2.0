@@ -14,7 +14,7 @@ class DashTreeList extends React.Component {
   getDashboardToolbarTree() {
     const Title = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} />;
     const TitleDisabled = (e, i) => <DashboardToolbarDashboardListTitle key={`toollistelem${i}`} title={e.name} clickHandler={this.dashListItemClick} disabled />;
-    const Separator = <DashboardToolbarDashboardListTitle separator />;
+    const Separator = (i) => <DashboardToolbarDashboardListTitle key={`separator${i}`} separator />;
 
     const dth = new DashTreeHandler();
 
@@ -26,13 +26,13 @@ class DashTreeList extends React.Component {
       else if (i === window.dashTree.length - 1)
         return (
           <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
-            {Separator}
+            {Separator(i)}
             {TitleDisabled(e, i)}
           </div>
         );
       return (
         <div key={`tooltreeelem${i}`} style={{ display: 'inline-block' }}>
-          {Separator}
+          {Separator(i)}
           {Title(e, i)}
         </div>
       );
@@ -50,7 +50,7 @@ class DashTreeList extends React.Component {
 
   render() {
     return (
-      <DashboardToolbarDashboardList key="dashtreelist">
+      <DashboardToolbarDashboardList key="dashtreetoolbarlist">
         {this.getDashboardToolbarTree()}
       </DashboardToolbarDashboardList>
     );

@@ -7,8 +7,6 @@ export default class DashboardToolbarMenuButton extends React.Component {
 
   constructor(props) {
     super(props);
-    //this.handleClick = this.handleClick.bind(this);
-    //console.log(props);
     this.handleClick = this.handleClick.bind(this);
   }
   
@@ -17,7 +15,12 @@ export default class DashboardToolbarMenuButton extends React.Component {
   }
 
   render() {
-    return (<div className="button menu-button" onClick={this.handleClick}><p>{this.props.title}</p></div>);
+    return (
+      <div className="button menu-button" onClick={this.handleClick}>
+        <i class="material-icons">menu</i>
+        <p>{this.props.title}</p>
+      </div>
+    );
   }
 }
 

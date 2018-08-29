@@ -13,6 +13,10 @@ export default class GraphWidget extends React.Component {
     return Widget.layout;
   }
   
+  static get className() {
+    return 'GraphWidget';
+  }
+  
   render() {
     return ((withHighcharts(Widget, Highcharts))(this.props));
   }

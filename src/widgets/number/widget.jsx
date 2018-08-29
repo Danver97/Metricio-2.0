@@ -14,6 +14,10 @@ export default class NumberWidget extends BaseWidget {
       updatedAt: undefined,
     };
   }
+  
+  static get className() {
+    return 'NumberWidget';
+  }
 
   render() {
     const classList = classNames(...this.classList, 'widget__number');

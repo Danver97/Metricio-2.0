@@ -22,6 +22,10 @@ export default class SplinegraphWidget extends React.Component {
     };
   }
   
+  static get className() {
+    return 'SplinegraphWidget';
+  }
+  
   render() {
     return ((withHighcharts(Widget, Highcharts))(this.props));
   }

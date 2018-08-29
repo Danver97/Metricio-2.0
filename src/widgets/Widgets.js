@@ -20,22 +20,22 @@ import DashboardWidgetCollection from '../react-elements/dashboard-widget-collec
 
 const Widgets = {};
 
-// Widgets[Dashboard.name] = Dashboard;
-Widgets[NumberWidget.name] = NumberWidget;
-Widgets[PingWidget.name] = PingWidget;
-Widgets[BuildStatusWidget.name] = BuildStatusWidget;
-Widgets[SparklineWidget.name] = SparklineWidget;
-Widgets[ProgressWidget.name] = ProgressWidget;
-Widgets[MultipleProgressWidget.name] = MultipleProgressWidget;
-// Widgets[HistogramWidget.name] = HistogramWidget;
-// Widgets[SplinegraphWidget.name] = SplinegraphWidget;
-Widgets[GraphWidget.name] = GraphWidget;
-Widgets[DashboardWidgetCollection.name] = DashboardWidgetCollection;
-Widgets[DashboardJobScheduler.name] = DashboardJobScheduler;
+// Widgets[Dashboard.className] = Dashboard;
+Widgets[NumberWidget.className] = NumberWidget;
+Widgets[PingWidget.className] = PingWidget;
+Widgets[BuildStatusWidget.className] = BuildStatusWidget;
+Widgets[SparklineWidget.className] = SparklineWidget;
+Widgets[ProgressWidget.className] = ProgressWidget;
+Widgets[MultipleProgressWidget.className] = MultipleProgressWidget;
+// Widgets[HistogramWidget.className] = HistogramWidget;
+// Widgets[SplinegraphWidget.className] = SplinegraphWidget;
+Widgets[GraphWidget.className] = GraphWidget;
+Widgets[DashboardWidgetCollection.className] = DashboardWidgetCollection;
+Widgets[DashboardJobScheduler.className] = DashboardJobScheduler;
 /*
-// Widgets[DashboardToolbar.name] = DashboardToolbar;
-// Widgets[DashboardToolbarButton.name] = DashboardToolbarButton;
-// Widgets[DashboardWidgetSelector.name] = DashboardWidgetSelector;
+// Widgets[DashboardToolbar.className] = DashboardToolbar;
+// Widgets[DashboardToolbarButton.className] = DashboardToolbarButton;
+// Widgets[DashboardWidgetSelector.className] = DashboardWidgetSelector;
 */
 
 export default Widgets;

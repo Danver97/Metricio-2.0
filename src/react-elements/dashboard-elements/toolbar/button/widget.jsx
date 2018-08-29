@@ -17,7 +17,12 @@ export default class DashboardToolbarButton extends React.Component {
   }
 
   render() {
-    return (<div className="toolbar-button button" onClick={this.handleClick}><p>{this.props.title}</p></div>);
+    return (
+      <div className="toolbar-button button" onClick={this.handleClick}>
+        <i className="material-icons">{this.props.icon}</i>
+        <p className={this.props.icon ? 'text' : ''}>{this.props.title}</p>
+      </div>
+    );
   }
 }
 

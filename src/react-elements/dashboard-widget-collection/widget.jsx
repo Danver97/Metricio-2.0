@@ -21,6 +21,10 @@ export default class DashboardWidgetCollection extends BaseWidget {
     l.minH = 3;
     return l;
   }
+  
+  static get className() {
+    return 'DashboardWidgetCollection';
+  }
 
   render() {
     const classList = classNames(

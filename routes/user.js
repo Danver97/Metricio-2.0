@@ -7,7 +7,7 @@ const BearerStrategy = require('passport-http-bearer').Strategy;
 const User = require('../models/user');
 const ENV = require('../config/env');
 
-import { ifLoggedNotLog, ensureAndVerifyToken } from '../lib/utils';
+import { ifLoggedNotLog, ensureAndVerifyToken, getUserFromRequest } from '../lib/utils';
 
 const router = express.Router();
 
@@ -20,8 +20,7 @@ passport.use(new LocalStrategy((username, password, done) => {
           message: 'Unknown User'
         });
       }
-      User.comparePassword(password, user.password, (err, isMatch) => {
-        if (err) throw err;
+      User.comparePassword(password, user.password, (isMatch) => {
         if (isMatch) {
           return done(null, user);
         } else {
@@ -70,11 +69,13 @@ router.get('/login', ifLoggedNotLog, (req, res) => {
 });
 */
 
-router.get('/list', ensureAndVerifyToken, (req, res) => {
+router.get('/list', getUserFromRequest, (req, res) => {
   res.json([{
+    _id: 1,
     name: 'Carlos',
     role: 'Moderator',
   }, {
+    _id: 2,
     name: 'Niko',
     role: 'User',
   }]);
@@ -82,31 +83,34 @@ router.get('/list', ensureAndVerifyToken, (req, res) => {
 
 router.post(
   '/login',
-  // passport.authenticate('local', {failureRedirect: '/users/login'}),
-  // passport.authenticate('bearer', {session: false}),
   (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    console.log(req.headers);
     User.getByName(username, (err, doc) => {
       if (err) throw err;
+      console.log(doc);
       try {
         if (!doc) throw new Error('No user found');
-        User.comparePassword(password, doc.password, (err, isMatch) => {
+        User.comparePassword(password, doc.password, (isMatch) => {
           if (isMatch) {
             delete doc.password;
             const expiration = (new Date(Date.now() + 1200000));
             const token = jwt.sign({ user: doc, exp: expiration.getTime() / 1000 }, ENV.jwtSecret);
             res.header('Autorization', `Bearer ${token}`);
-            res.header('Set-Cookie', `access_token=${token}; Expires=${expiration.toString()}; Domain=localhost; Path=/`);
+            // res.header('Set-Cookie', `access_token=${token}; Expires=${expiration.toString()}; Domain=localhost; Path=/;`);
+            res.cookie('access_token', token, { expires: expiration, domain: 'localhost', path: '/' });
+            res.cookie('user', JSON.stringify(doc), { expires: expiration, domain: 'localhost', path: '/' });
+            console.log('success');
             res.status(200);
             res.json({ token });
           } else {
             res.status(400);
+            console.log('Wrong username or password');
             res.json({ error: 'Wrong username or password' });
           }
         });
       } catch(e) {
+        console.log('Wrong username or password');
         res.status(400);
         res.json({ error: 'Wrong username or password' });
       }
@@ -115,22 +119,21 @@ router.post(
   }
 );
 
-router.post('/create', (req, res) => {
+router.post('/create', getUserFromRequest, (req, res) => {
   const user = new User({
     name: req.body.name,
     role: req.body.role,
     password: req.body.password,
   });
-  User.create(user, (err) => {
+  User.createUser(user, (err) => {
     if (err) throw err;
-    // console.log(doc);
     res.redirect('/users/list');
   });
 });
 
-router.post('/changePassword', ensureAndVerifyToken, (req, res) => {
-  const id = req.decodedToken.user._id;
-  const name = req.decodedToken.user.name;
+router.post('/changePassword', getUserFromRequest, (req, res) => {
+  const id = req.user.id;
+  const name = req.user.name;
   const newPassword = req.body.password;
   if (!newPassword || (!id && !name)) {
     res.statusCode = 500;

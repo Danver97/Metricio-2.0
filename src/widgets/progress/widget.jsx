@@ -26,6 +26,10 @@ export default class ProgressWidget extends BaseWidget {
       maxW: 4,
     };
   }
+  
+  static get className() {
+    return 'ProgressWidget';
+  }
 
   parseProgress(percent) {
     return [{ x: 1, y: percent }, { x: 2, y: 100 - percent, fill: '#b57b9b' }];

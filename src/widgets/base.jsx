@@ -62,4 +62,5 @@ BaseWidget.propTypes = {
   size: PropTypes.string,
   name: PropTypes.string.isRequired,
   socket: PropTypes.shape.isRequired,
+  // children: PropTypes.node,
 };

@@ -20,6 +20,10 @@ export default class PingWidget extends BaseWidget {
     l.minW += 1;
     return l;
   }
+  
+  static get className() {
+    return 'PingWidget';
+  }
 
   render() {
     const parsedTime = this.state.time ? parseTime(this.state.time) : { unit: '---', metric: '' };

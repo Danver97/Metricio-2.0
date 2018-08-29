@@ -22,6 +22,10 @@ export default class HistogramWidget extends React.Component {
     };
   }
   
+  static get className() {
+    return 'HistogramWidget';
+  }
+  
   render() {
     return ((withHighcharts(Widget, Highcharts))(this.props));
   }

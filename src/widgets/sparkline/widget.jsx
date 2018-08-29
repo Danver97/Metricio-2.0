@@ -20,6 +20,10 @@ export default class SparklineWidget extends BaseWidget {
     const l = super.layout;
     return l;
   }
+  
+  static get className() {
+    return 'SparklineWidget';
+  }
 
   render() {
     const latestValue = (this.state.value && Array.isArray(this.state.value)) ? this.state.value.slice(-1).pop() : 0;

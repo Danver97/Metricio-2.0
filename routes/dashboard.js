@@ -134,7 +134,7 @@ router.post('/create', async (req, res) => {
     });
     const doc = await Dashboard.createDash(newDash);
     dashsuite.dashboards.push(doc._id);
-    await Dashsuite.update(dashsuite);
+    await Dashsuite.updateDash(dashsuite);
     res.status(200);
     res.end();
   } catch (e) {

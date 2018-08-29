@@ -19,6 +19,10 @@ class DynamicComponents {
     if (!item.attrs)
       item.attrs = {};
     // item.attrs.structure = item;
+    console.log('dynamicComponents');
+    console.log(Widgets);
+    console.log(Widgets[item.type]);
+    console.log(item.type);
     const elem = React.createElement(
       Widgets[item.type],
       Object.assign({}, item.attrs, { structure: item }),

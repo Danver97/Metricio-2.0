@@ -24,18 +24,24 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: urlPaths.users.get.list(),
   },
-  delete: {
-    type: String,
-    default: urlPaths.users.post.delete(),
-  },
+});
+
+UserSchema.pre('save', function (next) {
+  this.delete = urlPaths.dashboard.post.delete(this.name);
+  next();
+});
+
+UserSchema.pre('update', function (next) {
+  this.delete = urlPaths.dashboard.post.delete(this.name);
+  next();
 });
 
 const User = mongoose.model('User', UserSchema);
 
-User.create = (user, cb) => {
+User.createUser = (user, cb) => {
   bcrypt.hash(user.password, saltRounds, (err, hash) => {
     user.password = hash;
-    user.save(cb);
+    User.createUser(user, cb);
   });
 };
 
@@ -51,21 +57,41 @@ User.changePassword = (user, password, cb) => {
 };
 
 User.getByName = (name, cb) => {
-  User.findOne({
-    name,
-  }, cb);
+  if (!cb)
+    return User.findOne({ name }).exec();
+  console.log('cb');
+  User.findOne({ name }, cb);
+  return null;
 };
 
 User.getById = (id, cb) => {
+  if (!cb)
+    return User.findById(id).exec();
   User.findById(id, cb);
+  return null;
+};
+
+User.listById = (idArr, cb) => {
+  if (!cb)
+    return User.find({ _id: { $in: idArr } }).exec();
+  User.find({ _id: { $in: idArr } }, cb);
+  return null;
 };
 
 User.comparePassword = (candidatePassword, hash, cb) => {
   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
     if (err) throw err;
-    if(cb)
-      cb(null, isMatch);
+    if (cb)
+      cb(isMatch);
   });
+};
+
+User.deleteByNames = (nameArr, cb) => {
+  const query = { name: { $in: nameArr } };
+  if (!cb)
+    return User.deleteMany(query).exec();
+  User.deleteMany(query, cb);
+  return null;
 };
 
 module.exports = User;

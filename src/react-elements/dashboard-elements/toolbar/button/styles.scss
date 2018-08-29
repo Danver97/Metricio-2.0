@@ -3,4 +3,15 @@
 .toolbar-button {
   margin-left: 6px;
   float: right;
+  position: relative;
+  
+  p.text {
+    vertical-align: top;
+    position: relative;
+    display: inline-block;
+    margin-left: 0.5rem;
+    @media screen and (max-width: 720px) {
+      display: none;
+    }
+  }
 }

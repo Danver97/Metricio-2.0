@@ -3,4 +3,13 @@
 .menu-button {
   margin-right: 6px;
   float: left;
+  
+  p {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 0.5rem;
+    @media screen and (max-width: 720px) {
+      display: none;
+    }
+  }
 }

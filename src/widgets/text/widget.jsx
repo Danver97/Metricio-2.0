@@ -10,6 +10,10 @@ export default class TextWidget extends BaseWidget {
     super(props);
     this.state = { value: '---' };
   }
+  
+  static get className() {
+    return 'TextWidget';
+  }
 
   render() {
     const classList = classNames(...this.classList, 'widget__text');

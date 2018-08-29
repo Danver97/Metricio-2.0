@@ -54,7 +54,9 @@ router.post('/create', getUserFromRequest, async (req, res) => {
 
 router.post('/delete/:dashsuite', getUserFromRequest, async (req, res) => {
   try {
-    Dashsuite.delete(req.user.id, req.params.dashsuite);
+    const doc = await Dashsuite.findByUserAndDashSuiteName(req.user.id, req.params.dashsuite);
+    await Dashboard.deleteById(doc.dashboards);
+    await Dashsuite.deleteDash(req.user.id, req.params.dashsuite);
     res.status(200);
     res.json({ message: 'success' });
   } catch (e) {

@@ -15,6 +15,10 @@ export default class Home extends React.Component {
     this.toggleMenu = this.toggleMenu.bind(this);
   }
   
+  static get className() {
+    return 'Home';
+  }
+  
   getUsers() {
     // request...
     const keyOrder = ['name', 'role'];

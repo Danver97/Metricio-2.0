@@ -20,6 +20,10 @@ export default class BuildStatusWidget extends BaseWidget {
     return l;
   }
   
+  static get className() {
+    return 'BuildStatusWidget';
+  }
+  
   /*
   componentDidMount() {
     const script = document.createElement("script");

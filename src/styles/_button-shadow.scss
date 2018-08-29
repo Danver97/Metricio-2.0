@@ -1,0 +1,27 @@
+@import './_shadow.scss';
+
+button, .button, input[type="submit"] {
+  box-shadow: $shadow;
+  border: 0;
+  
+  &:hover {
+    box-shadow: $shadow-hover;
+  }
+  
+  &:active {
+    box-shadow: $shadow-active;
+  }
+  
+  &:disabled {
+    box-shadow: $shadow-disabled;
+    
+    &:hover {
+      box-shadow: $shadow-disabled;
+    }
+
+    &:active {
+      box-shadow: $shadow-disabled;
+    }
+    
+  }
+}

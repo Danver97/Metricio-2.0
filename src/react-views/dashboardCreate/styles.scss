@@ -1,0 +1,43 @@
+@import '../../styles/_button-shadow.scss';
+
+.createView {
+  .form {
+    min-width: 15rem;
+    width: 30%;
+    height: auto;
+    
+    label {
+      font-weight: 100;
+      float: none;
+    }
+    
+    input[type="text"] {
+      margin-left: 0;
+      font-family: 'Saria', monospace;
+    }
+    
+    input[type="checkbox"] {
+      position: relative;
+      margin: 0;
+      display: inline-block;
+      height: auto;
+      margin-left: 0.5rem;
+      &:focus {
+        box-shadow: none;
+      }
+    }
+    .inline-checkbox-container {
+      display: flex;
+      align-items: center;
+      .custom-checkbox {
+        padding-left: 1rem;
+        &:focus{
+          outline: none;
+        }
+      }
+    }
+  }
+  button {
+    margin-right: 0.5rem;
+  }
+}

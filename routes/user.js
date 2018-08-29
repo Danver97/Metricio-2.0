@@ -70,10 +70,6 @@ router.get('/login', ifLoggedNotLog, (req, res) => {
 });
 */
 
-router.get('/create', (req, res) => {
-  res.end('/create');
-});
-
 router.get('/list', ensureAndVerifyToken, (req, res) => {
   res.json([{
     name: 'Carlos',

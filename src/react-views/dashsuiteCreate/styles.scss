@@ -1,7 +1,10 @@
+@import '../../styles/_button-shadow.scss';
+
 .createView {
   .form {
     min-width: 15rem;
     width: 30%;
+    height: auto;
     
     label {
       font-weight: 100;
@@ -11,5 +14,8 @@
     input[type="text"] {
       margin-left: 0;
     }
+  }
+  button {
+    margin-right: 0.5rem;
   }
 }

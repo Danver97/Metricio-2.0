@@ -83,6 +83,7 @@ export default class DashboardGrid extends React.PureComponent {
       id: k,
       layout: l,
       children: child,
+      history: this.props.history,
     });
     return dg.render();
   }

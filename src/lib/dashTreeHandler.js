@@ -1,3 +1,5 @@
+import urlPaths from './url_paths';
+
 export default class DashTreeHandler {
   constructor(history) {
     if (!window.dashTree)
@@ -13,16 +15,23 @@ export default class DashTreeHandler {
       throw new Error(`Missing the following property: ${!elem.href ? 'href' : ''} ${!elem.name ? 'name' : ''}`);
     if (this.dashTree.filter(d => d.name === elem.name).length < 1)
       this.dashTree.push(elem);
+    else
+      this.popAllUntil(elem.name);
     this.ensureReferenceIsMantained();
   }
   
+  escapeRegExp(string) {
+    return string.replace(/\//g, '\\$&');
+  }
+  
   newElement() {
-    const regex = /\/dashboard\/([A-Za-z0-9]+)(?:\?)?(?:.)*/;
+    // const regex = /\/dashboard\/get\/([A-Za-z0-9]+)(?:\?)?(?:.)*/;
+    const regex = new RegExp(this.escapeRegExp(urlPaths.dashboard.get.dashboard('([A-Za-z0-9]+)(?:\\?)?(?:.)*')));
     const pathname = window.location.pathname;
     if (!regex.test(pathname))
       return null;
     const elem = {
-      name: regex.exec(pathname)[1] || 'index2',
+      name: regex.exec(pathname)[1], // || 'index2',
       href: window.location.href,
       index: this.dashTree.length,
     };
@@ -54,5 +63,10 @@ export default class DashTreeHandler {
   
   ensureReferenceIsMantained() {
     window.dashTree = this.dashTree;
+  }
+  
+  clear() {
+    this.dashTree = [];
+    this.ensureReferenceIsMantained();
   }
 }

@@ -13,7 +13,9 @@ import './styles.scss';
 export default class DefaultFrame extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      title: this.props.title,
+    };
     this.keycounter = 0;
     this.toggleMenu = this.toggleMenu.bind(this);
   }
@@ -31,13 +33,13 @@ export default class DefaultFrame extends React.Component {
     return (
       <div key={key}>
         <div className="title">
-          <h4>{t.title || 'No title'}</h4>
+          <h4>{t.title}</h4>
           {
             t.titleLink && typeof t.titleLink === 'string' && t.titleLink !== ''
              && <div className="link" onClick={this.onLinkClick.bind(this, t.titleLink)}>{t.titleButton || 'Add User'}</div>
           }
         </div>
-        <Table elements={t.elements} />
+        <Table history={this.props.history} elements={t.elements} />
       </div>
     );
   }
@@ -77,7 +79,7 @@ export default class DefaultFrame extends React.Component {
           {this.props.toolbarChildren}
         </Toolbar>
         <div className="default_container" style={this.props.containerStyle}>
-          <h1>{this.props.title}</h1>
+          <h1>{this.state.title}</h1>
           {this.props.children}
           {this.getTitledTables()}
         </div>

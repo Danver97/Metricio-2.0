@@ -1,0 +1,35 @@
+.userCreateView{
+  .form {
+    height: auto;
+    position: relative;
+    width: 33%;
+    
+    label {
+      float: none;
+      font-weight: 100;
+    }
+    
+    .input-group-text {
+      z-index: 1;
+    }
+    
+    input, input[type="password"], input[type="text"] {
+      font-family: 'Saira';
+      margin-left: 0;
+    }
+  }
+
+  button {
+    margin-right: 0.5rem;
+  }
+}
+
+.modal-content {
+  .modalheader {
+    color: black;
+  }
+  .modalbody {
+    color: black;
+    font-size: 1rem;
+  }
+}

@@ -8,7 +8,9 @@ import {
   Input,
   UncontrolledTooltip,
 } from 'reactstrap';
+
 import { post } from '../../lib/requests';
+import urlPaths from '../../lib/url_paths';
 import DefaultFrame from '../../react-elements/default-frame/widget';
 
 import './styles.scss';
@@ -86,10 +88,25 @@ export default class CreateView extends React.Component {
   
   onSave(e) {
     e.preventDefault();
-    post('/dashsuites/create', [{
-        tag: 'Content-Type',
-        value: 'application/x-www-form-urlencoded',
-      }], `name=${this.state.dashsuitename}&dashboards=${this.getDashStringList()}`);
+    post(
+      // '/dashsuites/create',
+      urlPaths.dashsuites.post.create(),
+      { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+      `name=${this.state.dashsuitename}&dashboards=${this.getDashStringList()}`
+    );
+    this.back();
+  }
+  
+  onCancel(e) {
+    e.preventDefault();
+    this.back();
+  }
+  
+  back() {
+    if (this.props.history)
+      this.props.history.goBack();
+    if (this.props.cancelLink)
+      window.location.assign(this.props.cancelLink);
   }
   
   render() {
@@ -107,8 +124,9 @@ export default class CreateView extends React.Component {
               {this.state.dashNamesFormElems}
               <Button onClick={e => this.onDashboardAddClick(e)} style={{display:'block'}}>Add new</Button>
             </FormGroup>
-            <Button color="primary" onClick={e => this.onSave(e)} style={{display:'block'}}>Save</Button>
           </Form>
+          <Button color="primary" onClick={e => this.onSave(e)}>Save</Button>
+          <Button color="secondary" onClick={e => this.onCancel(e)}>Cancel</Button>
         </div>
       </DefaultFrame>
     );

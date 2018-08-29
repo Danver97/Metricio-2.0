@@ -16,7 +16,8 @@
     "react/prop-types": 0,
     "prefer-destructuring": 0,
     "curly": 0,
-    "valid-typeof": 0
+    "valid-typeof": 0,
+    "max-len": [2, { "code": 150, "tabWidth": 2 }]
   },
   "parserOptions": {
     "ecmaVersion": 2017,

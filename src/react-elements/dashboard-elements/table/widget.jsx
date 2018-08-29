@@ -14,8 +14,13 @@ export default class Table extends React.Component {
   
   onClick(element) {
     console.log(element);
-    if (element.link)
+    if (element.link) {
+      if (this.props.history){
+        this.props.history.push(element.link);
+        return;
+      }
       window.location.assign(element.link);
+    }
   }
   
   getElements() {

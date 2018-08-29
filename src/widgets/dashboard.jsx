@@ -20,6 +20,7 @@ import DynamicComponents from '../dynamic_components';
 import { post, getSync, get } from '../lib/requests';
 import AuthService from '../lib/authService';
 import { gridItemCM } from './context-menu-holder';
+import urlPaths from '../lib/url_paths';
 // import checker from '../lib/checkers';
 // rcl
 
@@ -103,8 +104,10 @@ class Dashboard extends React.Component {
   }
 
   getSavedDashboard() {
-    getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+    // getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+    getSync(urlPaths.dashboard.get.getStructure(this.props.title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
+      console.log(structure);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
       window.dashStructure = [structure];
@@ -114,7 +117,13 @@ class Dashboard extends React.Component {
   
   getDashboardGrid() {
     return (
-      <DashboardGrid key="dash" layout={this.state.layout} childrenStructure={this.state.childrenStructure} onLayoutChange={this.onLayoutChange}>
+      <DashboardGrid 
+        key="dash" 
+        layout={this.state.layout} 
+        history={this.props.history} 
+        childrenStructure={this.state.childrenStructure} 
+        onLayoutChange={this.onLayoutChange}
+      >
         {renderWidgets(this.state)}
       </DashboardGrid>
     );
@@ -127,7 +136,8 @@ class Dashboard extends React.Component {
   refreshDashboard(title) {
     if (!title)
       return;
-    get(this.dashboardReqUrl(title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+    // get(this.dashboardReqUrl(title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+    get(urlPaths.dashboard.get.getStructure(title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
@@ -152,7 +162,12 @@ class Dashboard extends React.Component {
   
   postStructure() {
     const structure = JSON.stringify(window.dashStructure, (k, v) => { return k === 'socket' ? undefined : v; });
-    post(this.dashboardReqUrl(window.dashStructure[0].name, 'save'), { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.Auth.getToken()}` }, `layout=${structure}`);
+    post(
+      // this.dashboardReqUrl(window.dashStructure[0].name, 'save'), 
+      urlPaths.dashboard.post.save(window.dashStructure[0].name), 
+      { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.Auth.getToken()}` }, 
+      `layout=${structure}`
+    );
   }
 
   dashboardReqUrl(dashName, end) {
@@ -288,7 +303,9 @@ class Dashboard extends React.Component {
   saveEdit(childStr) {
     const structure = childStr.stringify();
     post(
-      this.dashboardReqUrl(window.dashStructure[0].name, 'edit'), [{
+      // this.dashboardReqUrl(window.dashStructure[0].name, 'edit'), 
+      urlPaths.dashboard.post.edit(window.dashStructure[0].name), 
+      [{
         tag: 'Content-Type',
         value: 'application/x-www-form-urlencoded',
       }],

@@ -1,3 +1,5 @@
+import urlPaths from '../src/lib/url_paths';
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -16,15 +18,15 @@ const UserSchema = new mongoose.Schema({
   },
   create: {
     type: String,
-    default: '/users/create',
+    default: urlPaths.users.get.create(),
   },
   list: {
     type: String,
-    default: '/users/list',
+    default: urlPaths.users.get.list(),
   },
   delete: {
     type: String,
-    default: '/users/delete',
+    default: urlPaths.users.post.delete(),
   },
 });
 

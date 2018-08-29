@@ -1,76 +1,65 @@
-import DashSuite from '../models/dashSuite';
 import Dashboard from '../models/dashboard';
-import { ensureAutenticated, ensureAndVerifyToken } from '../lib/utils';
+import { getUserFromRequest } from '../lib/utils';
 
 const express = require('express');
 
+const Dashsuite = require('../models/dashsuite');
+const responses = require('../lib/responses');
+
 const router = express.Router();
-/*
-router.get('/', ensureAutenticated, (req, res) => {
-  res.render('index', {
-    name: 'dashsuites',
-  });
-});
 
-router.get('/create', ensureAutenticated, (req, res) => {
-  //res.end('/dashsuites/create');
-  res.render('index', {
-    name: 'dashsuiteCreate',
-  });
-});
-
-router.get('/view/:dashsuite', ensureAutenticated, (req, res) => {
-  //res.end('/dashsuites/view');
-  res.render('index', {
-    name: 'dashsuiteView',
-  });
-});
-*/
-router.get('/dashboards/:dashsuite', ensureAndVerifyToken, (req, res) => {
-  DashSuite.findByUserAndDashSuiteName(req.decodedToken.user._id, req.params.dashsuite, true, (err, doc) => {
+router.get('/dashboards/:dashsuite', getUserFromRequest, (req, res) => {
+  Dashsuite.findByUserAndDashSuiteName(req.user.id, req.params.dashsuite, true, (err, doc) => {
     if (err) throw err;
-    console.log(doc);
-    if(!doc){
-      res.status(400);
-      res.json({error: "a"});
+    if (!doc) {
+      responses.notFound(res);
       return;
     }
     res.json(doc);
   });
 });
 
-router.get('/list', ensureAndVerifyToken, (req, res) => {
-  DashSuite.findByUser(req.decodedToken.user._id, (err, docs) => {
+router.get('/list', getUserFromRequest, (req, res) => {
+  Dashsuite.findByUser(req.user.id, (err, docs) => {
     if (err) throw err;
+    if (!docs) {
+      responses.notFound(res);
+      return;
+    }
     res.json(docs);
   });
 });
 
-router.post('/create', ensureAndVerifyToken, async (req, res) => {
-  let dashboardsArr;
+router.post('/create', getUserFromRequest, async (req, res) => {
+  const body = req.body;
+  if (!body.name) {
+    responses.badRequest(res, 'Missing body "name" parameter.');
+    return;
+  }
   try {
-    dashboardsArr = JSON.parse(req.body.dashboards);
+    const dashS = new Dashsuite({
+      user: req.user.id,
+      name: body.name,
+      link: `/dashsuites/view/${body.name}`,
+      lastModified: req.user.id,
+    });
+    await Dashsuite.createDash(dashS);
+    res.status(200);
+    res.end();
   } catch (e) {
-    dashboardsArr = [];
+    console.log(e);
+    responses.badRequest(res, e.message);
   }
+});
+
+router.post('/delete/:dashsuite', getUserFromRequest, async (req, res) => {
   try {
-    const result = await Dashboard.findByUserAndDashboardNames(req.decodedToken.user._id, dashboardsArr, { _id: 1 });
-    dashboardsArr = result.map(e => e._id);
-  } catch(e) {
-    throw e;
+    Dashsuite.delete(req.user.id, req.params.dashsuite);
+    res.status(200);
+    res.json({ message: 'success' });
+  } catch (e) {
+    responses.badRequest(res, e.message);
   }
-  const dashS = new DashSuite({
-    user: '5b505aa4b3b22f3474706874',
-    name: req.body.name || 'name',
-    dashboards: dashboardsArr,
-    link: `/dashsuites/view/${req.body.name}`,
-    lastModified: '5b505aa4b3b22f3474706874',
-  });
-  console.log(dashS);
-  DashSuite.create(dashS, (err) => {
-    if (err) throw err;
-  });
-  res.end();
 });
 
 module.exports = router;

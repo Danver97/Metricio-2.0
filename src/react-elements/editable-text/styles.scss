@@ -1,0 +1,107 @@
+$total-icons-width: 0.5rem + 2.25rem + 2.25rem;
+$input-width: 25rem;
+
+.editable-text {
+  position: relative;
+  width: auto;
+  height: auto;
+  
+  .nomodify {
+    display: flex;
+    align-items: baseline;
+  }
+  
+  .iconButton {
+    border-radius: 1000px;
+    padding: 0.5rem;
+    //margin-left: 0.5rem;
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+  .iconButton.small {
+    padding: 0.25rem;
+  }
+  .iconButton.white { 
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+  .iconButton.black { 
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    &:active {
+      background: rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  div {
+    width: auto;
+    display: inline-block;
+  }
+  
+  p, h1 {
+    display: inline;
+  }
+  
+  .material-icons {
+    //margin-left: 0.5rem;
+  }
+  .material-icons.md-dark {
+    color: rgba(0, 0, 0, 0.54);
+  }
+  .material-icons.md-dark.md-inactive {
+    color: rgba(0, 0, 0, 0.26);
+  }
+  .material-icons.md-light {
+    color: rgba(255, 255, 255, 1);
+  }
+  .material-icons.md-light.md-inactive {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  .material-icons.md-18 {
+    font-size: 1.125rem;
+  }
+  .material-icons.md-24 {
+    font-size: 1.5rem;
+  }
+  .material-icons.md-30 {
+    font-size: 1.875rem;
+  }
+  .material-icons.md-36 {
+    font-size: 2.25rem;
+  }
+  .material-icons.md-48 {
+    font-size: 3rem;
+  }
+  
+  input {
+    position: relative;
+    width: $input-width;
+    margin: 0;
+    height: auto;
+    padding: 0.25rem 0.625rem;
+    padding-right: $total-icons-width;
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .controlIcons {
+    //padding: 0.25rem 0.625rem;
+    padding-left: 0;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    width: $total-icons-width;
+    left: $input-width - $total-icons-width;
+    top: 0;
+    height: 100%;
+  }
+}

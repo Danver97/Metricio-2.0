@@ -1,3 +1,6 @@
+import qs from 'query-string';
+import urlPaths from '../url_paths';
+
 export default class ComponentStructure {
   constructor(type, attrs, children) {
     if (!type || !attrs)
@@ -41,25 +44,29 @@ export default class ComponentStructure {
   }
   
   stringifyVars(params) {
-    let result = '';
-    console.log(this);
+    // let result = '';
     if (!params)
-      return result;
-    result += '?';
+      return '';
+    /* result += '?';
     Object.keys(params).forEach(p => {
       if (p)
         result += `${p}=${params[p]}&`;
     });
-    return result.slice(0, -1);
+    return result.slice(0, -1); */
+    Object.keys(params).forEach(p => {
+      if (p)
+        params[p] = JSON.stringify(params[p]);
+    });
+    return `?${qs.stringify(params)}`;
   }
   
   setSubdashLinkName(name) {
     if (!name)
       return;
-    if(!this.attrs.subdashLink)
+    if (!this.attrs.subdashLink)
       this.attrs.subdashLink = {};
     this.attrs.subdashLink.name = name;
-    this.attrs.subdashLink.href = '/dashboard/' + name;
+    this.attrs.subdashLink.href = urlPaths.dashboard.get.dashboard(name);
   }
   
   getSubdashLink() {

@@ -3,7 +3,8 @@ import React from 'react';
 import '../styles/default.scss';
 
 import DefaultFrame from '../react-elements/default-frame/widget';
-import { getSuitesStruct } from '../lib/titledTableStructures';
+import { getSuitesStructWithTitle } from '../lib/titledTableStructures';
+import urlPaths from '../lib/url_paths';
 
 class Dashsuites extends React.Component {
   constructor(props) {
@@ -11,7 +12,15 @@ class Dashsuites extends React.Component {
   }
   
   render() {
-    return (<DefaultFrame history={this.props.history} titledTables={[getSuitesStruct('Add New', '/dashsuites/create')]} />);
+    return (
+      <DefaultFrame 
+        title="Dashsuites" 
+        history={this.props.history} 
+        titledTables={[
+          getSuitesStructWithTitle('All your dashsuites', 'Add New', urlPaths.dashsuites.get.create()),
+        ]} 
+      />
+    );
   }
 }
 

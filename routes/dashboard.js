@@ -1,20 +1,39 @@
+import { getUserFromRequest } from '../lib/utils';
+
 const express = require('express');
-const router = express.Router();
 const Dashboard = require('../models/dashboard');
-import { ensureAutenticated, ensureAndVerifyToken } from '../lib/utils';
+const Dashsuite = require('../models/dashsuite');
+
+const router = express.Router();
 
 const badRequest = (res, message) => {
   res.status(400);
-  res.json({ error: message });
+  if (message)
+    res.json({ error: message });
+  else 
+    res.end();
 };
 
 const notFound = (res, message) => {
   res.status(404);
-  res.json({ error: message });
+  if (message)
+    res.json({ error: message });
+  else 
+    res.end();
 };
 
-router.get('/:dashboard/getStructure', ensureAndVerifyToken, (req, res) => {
-  Dashboard.findByUserAndDashboardName(req.decodedToken.user._id, req.params.dashboard, (err, doc) => {
+const internalServerError = (res, message) => {
+  res.status(500);
+  if (message)
+    res.json({ error: message });
+  else 
+    res.end();
+};
+
+router.use(getUserFromRequest);
+
+router.get('/getStructure/:dashboard', (req, res) => {
+  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
     if (err) throw err;
     if (!doc) {
       notFound(res, 'Dashboard not found.');
@@ -24,13 +43,13 @@ router.get('/:dashboard/getStructure', ensureAndVerifyToken, (req, res) => {
   });
 });
 
-router.get('/:dashboard/getComponentStructure', ensureAndVerifyToken, (req, res) => {
+router.get('/getComponentStructure/:dashboard', (req, res) => {
   const query = req.query;
   if (!query.compId) {
-    badRequest(res, 'Missing param compId.')
+    badRequest(res, 'Missing param compId.');
     return;
   }
-  Dashboard.findByUserAndDashboardName(req.decodedToken.user._id, req.params.dashboard, (err, doc) => {
+  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
     if (err) throw err;
     if (!doc) {
       notFound(res, 'Dashboard not found.');
@@ -46,7 +65,21 @@ router.get('/:dashboard/getComponentStructure', ensureAndVerifyToken, (req, res)
   });
 });
 
-router.post('/:dashboard/save', ensureAutenticated, (req, res) => {
+router.get('/listAll', async (req, res) => {
+  try {
+    const docs = await Dashboard.findByUser(req.user.id);
+    if (!docs) {
+      notFound(res);
+      return;
+    }
+    res.status(200);
+    res.json(docs);
+  } catch (e) {
+    internalServerError(res, e.message);
+  }
+});
+
+router.post('/save/:dashboard', (req, res) => {
   const dashLayout = JSON.parse(req.body.layout);
   const newDash = new Dashboard({
     user: 'Christian',
@@ -55,14 +88,14 @@ router.post('/:dashboard/save', ensureAutenticated, (req, res) => {
     subdashboard: [],
     layouts: dashLayout[0].layouts,
   });
-  Dashboard.create(newDash, (err, dash) => {
+  Dashboard.updateDash(newDash, (err, dash) => {
     if (err) throw err;
     console.log(dash);
   });
   res.end();
 });
 
-router.post('/:dashboard/edit', ensureAutenticated, (req, res) => {
+router.post('/edit/:dashboard', (req, res) => {
   Dashboard.findByUserAndDashboardName('Christian', req.params.dashboard, (err, doc) => {
     if (err) throw err;
     let structure;
@@ -77,11 +110,37 @@ router.post('/:dashboard/edit', ensureAutenticated, (req, res) => {
     Dashboard.updateOne({
       user: doc.user,
       name: doc.name,
-    }, doc, { upsert: true }, (error) => {
+    }, doc, { upsert: true, new: true }, (error) => {
       if (error) throw error;
       res.end('edit: got it!');
     });
   });
+});
+
+router.post('/create', async (req, res) => {
+  const body = req.body;
+  if (!body.name || !body.dashsuite) {
+    badRequest(res, `Missing param ${!body.name ? 'name' : ''} ${!body.dashsuite ? 'dashsuite' : ''}`);
+    return;
+  }
+  try {
+    const dashsuite = await Dashsuite.findByUserAndDashSuiteName(req.user.id, body.dashsuite, false);
+    const newDash = new Dashboard({
+      user: req.user.id,
+      name: body.name,
+      isMain: body.ismain,
+      dashsuite: dashsuite._id,
+      variables: JSON.parse(body.variables),
+    });
+    const doc = await Dashboard.createDash(newDash);
+    dashsuite.dashboards.push(doc._id);
+    await Dashsuite.update(dashsuite);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    internalServerError(res, e.message);
+  }
 });
 
 module.exports = router;

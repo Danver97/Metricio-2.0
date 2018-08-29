@@ -1,0 +1,36 @@
+.dashsuitetitle {
+  display: flex;
+  align-items: center;
+  h1 {
+    display: inline-block;
+  }
+  button {
+    margin-left: 0.5rem;
+  }
+}
+
+.modal-content {
+  .modalheader {
+    color: black;
+  }
+  .modalbody {
+    color: black;
+    font-size: 1rem;
+  }
+  button {
+    box-shadow: none;
+  }
+  button.close {
+    box-shadow: none;
+    &:hover {
+      box-shadow: none;
+    }
+    &:active {
+      box-shadow: none;
+    }
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+  }
+}

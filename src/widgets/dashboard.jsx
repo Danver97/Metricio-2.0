@@ -15,7 +15,6 @@ import DashTreeList from '../react-elements/dashboard-tree-list/widget';
 // Utils
 // rst
 import Widgets from './Widgets';
-console.log(Widgets);
 import ComponentStructure from '../lib/structures/component';
 import DynamicComponents from '../dynamic_components';
 import { post, getSync, get } from '../lib/requests';
@@ -94,8 +93,22 @@ class Dashboard extends React.Component {
     }
     return true;
   }
+  
+  /* componentDidMount() {
+    console.log('componentDidMount');
+    get(urlPaths.dashboard.get.getStructure(this.props.title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
+      const structure = JSON.parse(xhttp.responseText);
+      console.log(JSON.stringify(structure.layouts));
+      structure.children = structure.children
+        .map(c => new ComponentStructure(c.type, c.attrs, c.children));
+      window.dashStructure = [structure];
+      this.refreshStateStruct();
+    });
+  } */
 
   onLayoutChange(layout) {
+    /* console.log('onLayoutChange');
+    console.log(JSON.stringify(layout)); */
     window.dashStructure[0].layouts = layout;
     this.setState({ layout, isSaved: false });
   }

@@ -17,7 +17,7 @@ export default class DashboardToolbarMenuButton extends React.Component {
   render() {
     return (
       <div className="button menu-button" onClick={this.handleClick}>
-        <i class="material-icons">menu</i>
+        <i className="material-icons">menu</i>
         <p>{this.props.title}</p>
       </div>
     );

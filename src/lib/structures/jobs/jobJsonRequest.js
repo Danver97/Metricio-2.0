@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 
 import JobStructure from './jobStructure';
 
-async function performFunc() {
+async function perform() {
   const results = [];
   let promises = [];
   this.requests.forEach(r => {
@@ -27,7 +27,7 @@ export class JobJsonRequest extends JobStructure {
   constructor(jobname, interval) {
     super(jobname, interval);
     this.requests = [];
-    this.perform = performFunc.bind(this);
+    this.perform = perform.bind(this);
   }
   
   static get className() {
@@ -48,7 +48,7 @@ export class JobJsonRequest extends JobStructure {
     this.requests.push({
       target,
       endpoint,
-      method: opt.method,
+      method: opt.method || 'GET',
       body: opt.body,
       headers: opt.headers,
     });

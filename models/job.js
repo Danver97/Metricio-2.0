@@ -14,6 +14,10 @@ const JobSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  interval: {
+    type: String,
+    required: true,
+  },
   tasks: {
     type: [{
       taskName: {

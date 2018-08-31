@@ -65,6 +65,7 @@ router.post('/create', async (req, res) => {
     const job = new Job({
       user: req.user.id,
       jobName: body.jobName,
+      interval: body.interval,
       type: body.type,
       tasks: JSON.parse(body.tasks),
     });

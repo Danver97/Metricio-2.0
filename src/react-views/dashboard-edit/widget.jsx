@@ -244,6 +244,8 @@ export default class DashboardEdit extends React.Component {
       const prop = this.idToProperty[e.target.name];
       childStructure.attrs[prop] = data || this.state.initialChildStructure.attrs[prop];
     }
+    /* childStructure.attrs.removeAllListeners(`widget:update:${childStructure.attrs.name}`);
+    childStructure.attrs.socket.disconnect(); */
     childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
     childStructure.newKey();
     

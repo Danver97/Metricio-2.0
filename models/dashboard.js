@@ -7,12 +7,15 @@ const DashboardSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true,
   },
   dashsuite: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
   },
   name: {
     type: String,
+    required: true,
   },
   isMain: {
     type: Boolean,

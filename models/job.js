@@ -4,19 +4,25 @@ const jobEvents = require('../listeners/jobListener');
 const JobSchema = new mongoose.Schema({
   user: {
     type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
   },
   jobName: {
     type: String,
+    required: true,
   },
   tasks: {
-    type: {
+    type: [{
       taskName: {
         type: String,
       },
       task: {
         type: {},
       },
-    },
+    }],
   },
 });
 

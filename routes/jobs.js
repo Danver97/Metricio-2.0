@@ -63,11 +63,14 @@ router.post('/create', async (req, res) => {
   const body = req.body;
   try {
     const job = new Job({
-      name: body.name,
+      user: req.user.id,
       jobName: body.jobName,
+      type: body.type,
       tasks: JSON.parse(body.tasks),
     });
-    Job.createJob(job);
+    await Job.createJob(job);
+    res.status(200);
+    res.end();
   } catch (e) {
     responses.internalServerError(res, e.message);
   }

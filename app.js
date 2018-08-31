@@ -48,7 +48,7 @@ const store = new MongoDBStoreSession({
   uri: 'mongodb://localhost:27017',
   databaseName: 'metricio',
   collection: 'users_sessions',
-}, (err) => console.log(err));
+}, (err) => { if (err) logger('err', err); });
 
 store.on('error', (error) => {
   assert.ifError(error);
@@ -137,13 +137,6 @@ if (process.env.NODE_ENV === 'production') {
 app.set('view engine', 'hbs');
 app.set('views', 'src/views');
 app.set('port', process.env.PORT || 3000);
-
-/* app.get('/dist/*.js', ensureAutenticated, (req, res) => {
-  // console.log(req.session);
-  res.render('index', {
-    name: 'react-router',
-  });
-}); */
 
 app.get('*', (req, res) => {
   // console.log(req.session);

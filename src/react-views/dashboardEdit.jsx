@@ -8,7 +8,7 @@ import { get, post } from '../lib/requests';
 
 import '../styles/default.scss';
 
-export default class DashboardView extends React.Component {
+export default class DashboardEditView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -57,7 +57,13 @@ export default class DashboardView extends React.Component {
   render() {
     return (
       <DefaultFrame history={this.props.history}>
-        <DashboardEdit childStructure={this.state.editChild} className="widget__edit" saveHandler={this.saveEdit} cancelHandler={this.cancelEdit} />
+        <DashboardEdit 
+          cancelHandler={this.cancelEdit} 
+          childStructure={this.state.editChild} 
+          className="widget__edit" 
+          history={this.props.history} 
+          saveHandler={this.saveEdit} 
+        />
       </DefaultFrame>
     );
   }

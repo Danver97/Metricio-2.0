@@ -11,6 +11,7 @@ import DashsuiteView from '../react-views/dashsuiteView';
 import Dashboard from '../react-views/dashboard';
 import DashboardCreate from '../react-views/dashboardCreate';
 import DashboardEdit from '../react-views/dashboardEdit';
+import DashboardNewWidget from '../react-views/dashboardNewWidget';
 import Users from '../react-views/users';
 import UsersCreate from '../react-views/usersCreate';
 import Login from '../react-views/login';
@@ -30,6 +31,7 @@ const dashsuite = withDashTreeClear(withAuth(Dashsuite, domain));
 const dashboard = withAuth(Dashboard, domain);
 const dashboardCreate = withDashTreeClear(withAuth(DashboardCreate, domain));
 const dashboardEdit = withAuth(DashboardEdit, domain);
+const dashboardNewWidget = withAuth(DashboardNewWidget, domain);
 const users = withDashTreeClear(withAuth(Users, domain));
 const usersCreate = withDashTreeClear(withAuth(UsersCreate, domain));
 const dashsuiteCreate = withDashTreeClear(withAuth(DashsuiteCreate, domain));
@@ -56,6 +58,7 @@ const App = () => (
         <Route exact path={urlPaths.dashboard.get.dashboard()} component={dashboard} />
         <Route exact path={urlPaths.dashboard.get.create()} component={dashboardCreate} />
         <Route exact path={urlPaths.dashboard.get.edit()} component={dashboardEdit} />
+        <Route exact path={urlPaths.dashboard.get.newWidget()} component={dashboardNewWidget} />
         <Route exact path={urlPaths.dashsuites.get.dashsuites()} component={dashsuite} />
         <Route exact path={urlPaths.dashsuites.get.create()} component={dashsuiteCreate} />
         <Route exact path={urlPaths.dashsuites.get.view()} component={dashsuiteView} />

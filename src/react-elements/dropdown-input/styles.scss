@@ -1,0 +1,13 @@
+.dropdownInput {
+  font-size: 1rem;
+  * {
+    color: black;
+  }
+  div input {
+    color: black;
+    box-shadow: none;
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}

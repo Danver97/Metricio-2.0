@@ -17,10 +17,14 @@ import {
   UncontrolledTooltip,
 } from 'reactstrap';
 import classnames from 'classnames';
+import fetch from 'node-fetch';
 // import _ from 'lodash';
 import socketIOClient from 'socket.io-client';
 
+import urlPaths, { addQuery } from '../../lib/url_paths';
+import DropdownInput from '../../react-elements/dropdown-input';
 import NumberWidget from '../../widgets/number/widget';
+import Widgets from '../../widgets/Widgets';
 import DynamicComponents from '../../dynamic_components';
 import ComponentStructure from '../../lib/structures/component';
 
@@ -29,8 +33,7 @@ import './styles.scss';
 export default class DashboardEdit extends React.Component {
   constructor(props) {
     super(props);
-    this.toggle = this.toggle.bind(this);
-    console.log(this.props.childStructure);
+    // console.log(this.props.childStructure);
     this.state = {
       activeTab: '1',
       childStructure: this.props.childStructure || new ComponentStructure('NumberWidget', {
@@ -43,6 +46,10 @@ export default class DashboardEdit extends React.Component {
         format: '0.0a',
       }),
     };
+    console.log('constructor');
+    console.log(this.props.childStructure);
+    console.log(this.props.child);
+    console.log('constructor end');
     
     this.state.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
     this.state.initialChildStructure = JSON.parse(this.state.childStructure.stringify());
@@ -52,13 +59,16 @@ export default class DashboardEdit extends React.Component {
     // facendo ciò si perde il riferimento alla structure originaria
     // su cui effettuare l'update sul db.
     // state.chilStrReferenceId salva quindi il riferimento
-    // che viene ripristinato al momento del salvataggio.
+    // che viene ripristinato al momento del salvataggio su db.
     this.state.chilStrReferenceId = this.state.childStructure.attrs.id;
     this.state.child = this.props.child || this.getElemFromStructure(this.state.childStructure);
+    if (!this.props.childStructure && !this.props.child) {
+      this.state.isNewWidget = true;
+    }
 
     this.idToProperty = {
       title: 'title',
-      jobName: 'name',
+      jobName: 'jobName',
       taskName: 'name',
       format: 'format',
       size: 'size',
@@ -73,17 +83,25 @@ export default class DashboardEdit extends React.Component {
       metric: 'Metric',
     };
     
-    this.onInput = this.onInput.bind(this);
+    // Method binding
+    // rst
+    this.toggle = this.toggle.bind(this);
+    this.getJobNamesLike = this.getJobNamesLike.bind(this);
+    this.getTaskNamesLike = this.getTaskNamesLike.bind(this);
+    this.onDropdownInputChange = this.onDropdownInputChange.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.onBlur = this.onBlur.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onCancel = this.onCancel.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
+    // rcl
   }
   
   shouldComponentUpdate(nextProps) {
-    console.log('shouldComponentUpdate');
-    console.log(nextProps);
     if (!this.props.childStructure && nextProps.childStructure !== this.state.childStructure) {
       nextProps.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
       this.setState({
+        isNewWidget: !nextProps.childStructure && !nextProps.child,
         childStructure: nextProps.childStructure,
         initialChildStructure: JSON.parse(nextProps.childStructure.stringify()),
         chilStrReferenceId: nextProps.childStructure.attrs.id,
@@ -94,16 +112,149 @@ export default class DashboardEdit extends React.Component {
   }
   
   componentWillUnmount() {
-    super.componentWillUnmount();
-    console.log('componentWillUnmount');
+    // console.log('componentWillUnmount');
+  }
+  
+  // On Event Methods
+  // rst
+  onDropdownInputChange(e) {
+    const data = e.target.data ? e.target.data.value : null;
+    this.sendChangeOnChildStruct(e, data);
+  }
+  
+  onChange(e, data) {
+    this.sendChangeOnChildStruct(e, data);
+  }
+  
+  onBlur(e, data) {
+    this.sendChangeOnChildStruct(e, data, true);
+  }
+  
+  onSave() {
+    const childStr = this.state.childStructure;
+    childStr.newKey(this.state.chilStrReferenceId);
+    if (this.validateAll(childStr) && this.props.saveHandler && typeof this.props.saveHandler === 'function')
+      this.props.saveHandler(childStr); 
+    console.log(childStr);
+  }
+  
+  onCancel() {
+    if (this.props.cancelHandler && typeof this.props.cancelHandler === 'function')
+      this.props.cancelHandler();
+  }
+  // rcl
+  
+  // Get Methods
+  // rst
+  getModal() {
+    return (
+      <Modal isOpen={this.state.modalShow} toggle={this.toggleModal} className={this.props.className}>
+        <ModalHeader toggle={this.toggleModal}>{ this.state.modal && this.state.modal.title}</ModalHeader>
+        <ModalBody>
+          {this.state.modal && this.state.modal.body}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={this.toggleModal}>Ok</Button>
+        </ModalFooter>
+      </Modal>
+    );
   }
   
   getElemFromStructure(structure) {
     return (new DynamicComponents({ structure })).render();
   }
   
+  getWidgetTypes() {
+    return Object.keys(Widgets)
+      .filter(k => k !== 'DashboardWidgetCollection' && k !== 'DashboardJobScheduler')
+      .map(k => ({ label: k.replace(/Widget/, ''), value: k }));
+  }
+  
+  getJobNamesLike(like) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let result = await fetch(addQuery(urlPaths.jobs.get.getJobNamesLike(), { jobNameLike: like }));
+        const json = await result.json();
+        result = json.map(e => ({ label: e.jobName, value: e.jobName }));
+        resolve(result);
+      } catch(e) {
+        console.log(e);
+        reject(e);
+      }
+    });
+    /*const array = [
+      { value: 'like1', label: 'like1' },
+      { value: 'like2', label: 'like2' },
+      { value: 'like3', label: 'like3' },
+      { value: 'like4', label: 'like4' },
+    ];    
+    return Promise.resolve(array.filter(e => (new RegExp(like)).test(e.label)));*/
+  }
+  
+  getTaskNamesLike(like) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let result = await fetch(addQuery(urlPaths.jobs.get.getTaskNamesLike(), { jobName: this.state.childStructure.attrs.jobName, taskNameLike: like }));
+        const json = await result.json();
+        result = json.map(e => ({ label: e.taskName, value: e.taskName }));
+        resolve(result);
+      } catch(e) {
+        reject(e);
+      }
+    });
+    /*const array = [
+      { value: 'like1', label: 'like1' },
+      { value: 'like2', label: 'like2' },
+      { value: 'like3', label: 'like3' },
+      { value: 'like4', label: 'like4' },
+    ];
+    return Promise.resolve(array.filter(e => (new RegExp(like)).test(e.label)));*/
+  }
+  
+  getSubdashLinkVars(childStructure, data) {
+    if (!data)
+      return undefined; 
+    const rgx = /\w+(?:(?=\s?:))/g;
+    const rgx2 = /,\s*$/;
+    let vars = `${data.trim().replace(rgx, (match) => `"${match}"`)}`;
+    vars = vars.replace(rgx2, '').split('').reverse().join('');
+    vars = vars.replace(rgx, (match) => `"${match}"`).split('').reverse().join('');
+    vars = JSON.parse(`{${vars}}`);
+    return vars;
+  }
+  //rcl
+  
+  sendChangeOnChildStruct(e, data, isOnBlur) {
+    const childStructure = this.state.childStructure || {};
+    childStructure.attrs = childStructure.attrs || {};
+    if (e.target.name === 'widgettype') {
+      childStructure.type = data || childStructure.type;
+    }
+    if (isOnBlur && e.target.name === 'vars') {
+      try {
+        childStructure.attrs.subdashLink = childStructure.attrs.subdashLink || {};
+        childStructure.attrs.subdashLink.vars = this.getSubdashLinkVars(childStructure, data);
+      } catch (err) {
+        // console.log(err);
+      }
+    } else if (e.target.name === 'subdashboard') {
+      childStructure.attrs.subdashLink = childStructure.attrs.subdashLink || { name: '', vars: {} };
+      childStructure.setSubdashLinkName(data);
+    } else {
+      const prop = this.idToProperty[e.target.name];
+      childStructure.attrs[prop] = data || this.state.initialChildStructure.attrs[prop];
+    }
+    childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
+    childStructure.newKey();
+    
+    this.setState({
+      childStructure,
+      child: this.getElemFromStructure(childStructure),
+    });
+  }
+  
   isRequiredAttrs(key, options) {
-    const required = ['key', 'id', 'name', 'socket', 'title', 'layout', 'size', 'subdashLink'];
+    const required = ['key', 'id', 'name', 'jobName', 'socket', 'title', 'layout', 'size', 'subdashLink'];
     if (!options)
       return required.includes(key);
     return !options.includes(key);
@@ -111,79 +262,6 @@ export default class DashboardEdit extends React.Component {
   
   firstUppercase(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  toggle(tab) {
-    if (this.state.activeTab !== tab) {
-      this.setState({
-        activeTab: tab,
-      });
-    }
-  }
-  
-  onInput(e, data, target, other) {
-    // console.log(e.target.id);
-    // console.log(data);
-    let childStructure = this.state.childStructure;
-    childStructure = childStructure || {};
-    childStructure.attrs = childStructure.attrs || {};
-    if (e.target.id === 'subdashboard') {
-      childStructure.setSubdashLinkName(data);
-    } else {
-      const prop = this.idToProperty[e.target.id];
-      childStructure.attrs[prop] = data || this.state.initialChildStructure.attrs[prop];
-    }
-    
-    childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
-    childStructure.newKey();
-
-    this.setState({
-      childStructure,
-      child: this.getElemFromStructure(childStructure),
-    });
-  }
-  
-  onBlur(e, data, target, other) {
-    console.log(data);
-    const childStructure = this.state.childStructure || {};
-    childStructure.attrs = childStructure.attrs || {};
-    if (target.id === 'vars') {
-      try {
-        childStructure.attrs.subdashLink = childStructure.attrs.subdashLink || {};
-        childStructure.attrs.subdashLink.vars = this.getSubdashLinkVars(childStructure, data);
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      const prop = this.idToProperty[e.target.id];
-      childStructure.attrs[prop] = data || this.state.initialChildStructure.attrs[prop];
-    }
-    if (target.id === 'subdashboard') {
-      childStructure.attrs.subdashLink = childStructure.attrs.subdashLink || { name: '', vars: {} };
-      childStructure.setSubdashLinkName(data);
-    }
-    childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
-    childStructure.newKey();
-    
-    this.setState({
-      childStructure,
-      child: this.getElemFromStructure(childStructure),
-    });
-  }
-  
-  onSave(e) {
-    console.log('onSave!');
-    const childStr = this.state.childStructure;
-    childStr.newKey(this.state.chilStrReferenceId);
-    if (this.validateAll(childStr) && this.props.saveHandler && typeof this.props.saveHandler === 'function')
-      this.props.saveHandler(childStr);
-    console.log(childStr);
-    window.location.assign(window.location.href);
-  }
-  
-  onCancel(e) {
-    if (this.props.cancelHandler && typeof this.props.cancelHandler === 'function')
-      this.props.cancelHandler();
   }
   
   validateAll(childStr) {
@@ -212,47 +290,27 @@ export default class DashboardEdit extends React.Component {
     return validated;
   }
   
-  getSubdashLinkVars(childStructure, data) {
-    if (!data)
-      return undefined; 
-    const rgx = /\w+(?:(?=\s?:))/g;
-    const rgx2 = /,\s*$/;
-    let vars = `${data.trim().replace(rgx, (match) => `"${match}"`)}`;
-    vars = vars.replace(rgx2, '').split('').reverse().join('');
-    vars = vars.replace(rgx, (match) => `"${match}"`).split('').reverse().join('');
-    vars = JSON.parse(`{${vars}}`);
-    return vars;
-  }
-  
   toggleModal(modal) {
-    this.setState((prevState) => {
-      return {
-        modalShow: !prevState.modalShow,
-        modal: modal || prevState.modal,
-      };
-    });
+    this.setState(prevState => ({
+      modalShow: !prevState.modalShow,
+      modal: modal || prevState.modal,
+    }));
   }
   
-  getModal() {
-    return (
-      <Modal isOpen={this.state.modalShow} toggle={this.toggleModal} className={this.props.className}>
-        <ModalHeader toggle={this.toggleModal}>{ this.state.modal && this.state.modal.title}</ModalHeader>
-        <ModalBody>
-          {this.state.modal && this.state.modal.body}
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={this.toggleModal}>Ok</Button>
-        </ModalFooter>
-      </Modal>
-    );
+  toggle(tab) {
+    if (this.state.activeTab !== tab) {
+      this.setState({
+        activeTab: tab,
+      });
+    }
   }
-
-  render(){
+  
+  render() {
     const cStr = this.state.childStructure;
     let vars = this.state.childStructure.attrs.subdashLink ? JSON.stringify(this.state.childStructure.attrs.subdashLink.vars) : '';
     vars = vars || '';
     vars = vars.replace(/"|{|}/g, '');
-    return(
+    return (
       <div className="widget_edit">
         {this.getModal()}
         <div className="widget_viewport">
@@ -292,19 +350,62 @@ export default class DashboardEdit extends React.Component {
           <TabContent activeTab={this.state.activeTab}>
             <Form className="form">
               <TabPane tabId="1">
+                {this.state.isNewWidget && 
+                  <FormGroup>
+                    <Label for="widgettype">Widget type</Label>
+                    <DropdownInput 
+                      name="widgettype"
+                      onChange={this.onDropdownInputChange}
+                      options={this.getWidgetTypes()}
+                      placeholder={this.state.initialChildStructure.type.replace(/Widget/, '')}
+                    />
+                  </FormGroup>
+                }
                 {cStr.attrs.title && 
                   <FormGroup>
                     <Label for="title">Title</Label>
-                    <Input type="text" name="title" id="title" onInput={e => this.onInput(e, e.target.value)} placeholder="Title" defaultValue={this.state.childStructure.attrs.title} />
+                    <Input 
+                      type="text" 
+                      name="title" 
+                      id="title" 
+                      onChange={e => this.onChange(e, e.target.value)} 
+                      placeholder={this.state.childStructure.attrs.title} 
+                    />
                   </FormGroup>
                 }
                 <FormGroup>
-                  <Label for="jobName">Job</Label>
-                  <Input type="text" name="jobName" id="jobName" placeholder="Job" />
+                  <Label for="jobName" style={{ display: 'flex' }}>Job
+                    <i className="material-icons" id="iconJobName" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
+                  </Label>
+                  <UncontrolledTooltip placement="right" target="iconJobName">
+                    If the job searched is not found, probably is not defined yet.
+                  </UncontrolledTooltip>
+                  <DropdownInput 
+                    async
+                    defaultOptions
+                    isClearable
+                    loadOptions={this.getJobNamesLike}
+                    name="jobName"
+                    onChange={this.onDropdownInputChange}
+                    placeholder={this.state.childStructure.attrs.jobName}
+                  />
                 </FormGroup>
                 <FormGroup>
-                  <Label for="taskName">Task</Label>
-                  <Input type="text" name="taskName" id="taskName" onInput={e => this.onInput(e, e.target.value)} placeholder="Task" defaultValue={this.state.childStructure.attrs.name} />
+                  <Label for="taskName" style={{ display: 'flex' }}>Task 
+                    <i className="material-icons" id="iconTaskName" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
+                  </Label>
+                  <UncontrolledTooltip placement="right" target="iconTaskName">
+                    {'If no options are shown, try to set \'Job\' before this.'}
+                  </UncontrolledTooltip>
+                  <DropdownInput 
+                    async
+                    defaultOptions
+                    isClearable
+                    loadOptions={this.getTaskNamesLike}
+                    name="taskName"
+                    onChange={this.onDropdownInputChange}
+                    placeholder={this.state.childStructure.attrs.name}
+                  />
                 </FormGroup>
               </TabPane>
               {
@@ -313,16 +414,17 @@ export default class DashboardEdit extends React.Component {
                   {Object.keys(cStr.attrs)
                     .filter(k => !this.isRequiredAttrs(k, cStr.options))
                     .map((k, i) => (
-                      <FormGroup key={i*-3 +2}>
-                        <Label key={i*-3 +1} for={k}>{this.firstUppercase(k)}</Label>
+                      <FormGroup key={(i * -1) + 2}>
+                        <Label key={(i * -1) + 1} for={k}>{this.firstUppercase(k)}</Label>
                         <Input 
-                          key={i*-3} 
+                          key={i * -1} 
                           type="text" 
                           name={k} 
                           id={k} 
                           placeholder={this.firstUppercase(k)} 
-                          onInput={e => this.onInput(e, e.target.value)}
-                          defaultValue={this.state.childStructure.attrs[k]} />
+                          onChange={e => this.onChange(e, e.target.value)}
+                          value={this.state.childStructure.attrs[k]} 
+                        />
                       </FormGroup>
                     ))}
                 </TabPane>
@@ -334,13 +436,15 @@ export default class DashboardEdit extends React.Component {
                     type="text" 
                     name="subdashboard" 
                     id="subdashboard" 
-                    onInput={e => this.onInput(e, e.target.value)} 
+                    onChange={e => this.onChange(e, e.target.value)} 
                     placeholder="Subdashboard"
                     defaultValue={this.state.childStructure.attrs.subdashLink && this.state.childStructure.attrs.subdashLink.name}
                   />
                 </FormGroup>
                 <FormGroup>
-                  <Label id="labelvars" for="vars">Variables</Label>
+                  <Label id="labelvars" for="vars" style={{ display: 'flex' }}>Variables
+                    <i className="material-icons"  id="iconVars" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
+                  </Label>
                   <Input 
                     type="text" 
                     name="vars" 
@@ -350,7 +454,7 @@ export default class DashboardEdit extends React.Component {
                     onBlur={e => this.onBlur(e, e.target.value, e.target)}
                     defaultValue={vars}
                   />
-                  <UncontrolledTooltip placement="left" target="labelvars">
+                  <UncontrolledTooltip placement="right" target="iconVars">
                     This format is allowed: varname1: varvalue1, 
                     varname2: varvalue2, ... , varnameN: varvalueN
                   </UncontrolledTooltip>
@@ -365,16 +469,16 @@ export default class DashboardEdit extends React.Component {
     );
   }
 }
-
-// <NumberWidget name="ReasonPRs" title={this.state.title || "Pull Requests"} socket={socketIOClient(`http://${window.location.host}`)} />
-
 /*
-                  <FormGroup>
-                    <Label for="format">Format</Label>
-                    <Input type="text" name="format" id="format" onInput={e => this.onInput(e, e.target.value)} placeholder="Format" />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label for="metric">Metric</Label>
-                    <Input type="text" name="metric" id="metric" onInput={e => this.onInput(e, e.target.value)} placeholder="Metric" />
-                  </FormGroup>
+  <Input type="text" name="jobName" id="jobName" placeholder="Job" />
+*/
+/*
+  <Input 
+    type="text" 
+    name="taskName" 
+    id="taskName" 
+    onChange={e => this.onChange(e, e.target.value)} 
+    placeholder="Task" 
+    value={this.state.childStructure.attrs.name} 
+  />
 */

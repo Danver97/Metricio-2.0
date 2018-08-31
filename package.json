@@ -70,6 +70,7 @@
     "react-grid-layout": "^0.16.6",
     "react-jsx-highcharts": "^3.1.0",
     "react-router-dom": "^4.3.1",
+    "react-select": "^2.0.0",
     "react-sizeme": "^2.5.2",
     "react-sparklines": "^1.7.0",
     "reactstrap": "^6.3.0",

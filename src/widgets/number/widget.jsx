@@ -15,6 +15,10 @@ export default class NumberWidget extends BaseWidget {
     };
   }
   
+  static get allProp() {
+    return super.allProp.concat(['format', 'metric']);
+  }
+  
   static get className() {
     return 'NumberWidget';
   }

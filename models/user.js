@@ -59,7 +59,6 @@ User.changePassword = (user, password, cb) => {
 User.getByName = (name, cb) => {
   if (!cb)
     return User.findOne({ name }).exec();
-  console.log('cb');
   User.findOne({ name }, cb);
   return null;
 };

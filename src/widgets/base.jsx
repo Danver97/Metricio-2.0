@@ -15,7 +15,11 @@ export default class BaseWidget extends React.Component {
   }
   
   static get requiredProp() {
-    return ['size', 'name', 'socket'];
+    return ['id', 'key', 'layout', 'name', 'socket'];
+  }
+  
+  static get allProp() {
+    return ['id', 'key', 'layout', 'name', 'socket', 'color'];
   }
   
   static get layout() {

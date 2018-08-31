@@ -19,6 +19,7 @@ import { ensureAutenticated } from './lib/utils';
 import users from './routes/user';
 import dashboards from './routes/dashboard';
 import dashsuites from './routes/dashsuite';
+import jobs from './routes/jobs';
 // rcl
 
 const MongoDBStoreSession = require('connect-mongodb-session')(session);
@@ -114,6 +115,7 @@ app.use((req, res, next) => {
 app.use('/users', users);
 app.use('/dashboard', dashboards);
 app.use('/dashsuites', dashsuites);
+app.use('/jobs', jobs);
 
 app.get('*.js', (req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
@@ -135,26 +137,6 @@ if (process.env.NODE_ENV === 'production') {
 app.set('view engine', 'hbs');
 app.set('views', 'src/views');
 app.set('port', process.env.PORT || 3000);
-
-app.get('/jobs', ensureAutenticated, (req, res) => {
-  res.write('got it!');
-  res.end();
-});
-
-app.post('/jobs', ensureAutenticated, (req, res) => {
-  const newJob = new Job({
-    user: req.user.id,
-    jobName: req.body.jobname,
-    jobQuery: req.body.jobquery,
-    datasource: req.body.datasource,
-    aggregator: req.body.aggregator,
-  });
-  Job.create(newJob, (err, job) => {
-    if (err) throw err;
-    console.log(job);
-  });
-  res.end();
-});
 
 /* app.get('/dist/*.js', ensureAutenticated, (req, res) => {
   // console.log(req.session);

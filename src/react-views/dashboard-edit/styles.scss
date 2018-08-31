@@ -14,18 +14,25 @@
   padding: 20px;
   //color: black;
   
+  a.active.nav-link {
+    &:hover {
+      color: black;
+    }
+  }
+  
   form.form {
     height: auto;
     label {
       float: none;
       color: white;
+      font-weight: 100;
     }
     input {
       margin-left: 0;
       font-family: 'Saira', sans-serif;
       
       &::placeholder {
-        color: rgba(0,0,0,0.35)
+        color: rgba(0,0,0,0.45);
       }
     }
   }

@@ -29,9 +29,9 @@ export default {
   users: {
     get: {
       users: () => '/users',
+      create: () => '/users/create',
       list: () => '/users/list',
       login: () => '/users/login',
-      create: () => '/users/create',
     },
     post: {
       create: () => '/users/create',
@@ -48,25 +48,38 @@ export default {
       getStructure: (dash) => checkParam`/dashboard/getStructure/${dash}`(':dashboard'),
       getComponentStructure: (dash) => checkParam`/dashboard/getComponentStructure/${dash}`(':dashboard'),
       listAll: () => '/dashboard/listAll',
+      newWidget: (dash) => checkParam`/dashboard/newWidget/${dash}`(':dashboard'),
     },
     post: {
       create: () => '/dashboard/create',
-      save: (dash) => checkParam`/dashboard/save/${dash}`(':dashboard'),
-      edit: (dash) => checkParam`/dashboard/edit/${dash}`(':dashboard'),
       delete: (dash) => checkParam`/dashboard/delete/${dash}`(':dashboard'),
+      edit: (dash) => checkParam`/dashboard/edit/${dash}`(':dashboard'),
+      save: (dash) => checkParam`/dashboard/save/${dash}`(':dashboard'),
+      newWidget: (dash) => checkParam`/dashboard/newWidget/${dash}`(':dashboard'),
     },
   },
   dashsuites: {
     get: {
       dashsuites: () => '/dashsuites',
+      dashboards: (dashsuite) => checkParam`/dashsuites/dashboards/${dashsuite}`(':dashsuite'),
       create: () => '/dashsuites/create',
       list: () => '/dashsuites/list',
       view: (dashsuite) => checkParam`/dashsuites/view/${dashsuite}`(':dashsuite'),
-      dashboards: (dashsuite) => checkParam`/dashsuites/dashboards/${dashsuite}`(':dashsuite'),
     },
     post: {
       create: () => '/dashsuites/create',
       delete: (dashsuite) => checkParam`/dashsuites/delete/${dashsuite}`(':dashsuite'),
+    },
+  },
+  jobs: {
+    get: {
+      job: () => '/jobs/job',
+      list: () => '/jobs/list',
+      getJobNamesLike: () => '/jobs/getJobNamesLike',
+      getTaskNamesLike: () => '/jobs/getTaskNamesLike',
+    },
+    post: {
+      create: () => '/jobs/create',
     },
   },
 };

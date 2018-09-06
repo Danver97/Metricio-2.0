@@ -82,7 +82,7 @@ router.get('/listAll', async (req, res) => {
 router.post('/save/:dashboard', (req, res) => {
   const dashLayout = JSON.parse(req.body.layout);
   const newDash = new Dashboard({
-    user: 'Christian',
+    user: req.user.id,
     name: dashLayout.name,
     children: dashLayout.children,
     subdashboard: [],
@@ -107,6 +107,27 @@ router.post('/edit/:dashboard', (req, res) => {
     }
     const idx = doc.children.findIndex(x => x.attrs.key === structure.attrs.key);
     doc.children[idx] = structure;
+    Dashboard.updateOne({
+      user: doc.user,
+      name: doc.name,
+    }, doc, { upsert: true, new: true }, (error) => {
+      if (error) throw error;
+      res.end('edit: got it!');
+    });
+  });
+});
+
+router.post('/newWidget/:dashboard', (req, res) => {
+  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
+    if (err) throw err;
+    let structure;
+    try {
+      structure = JSON.parse(req.body.structure);
+      console.log(structure);
+    } catch (e) {
+      res.end(e);
+    }
+    doc.children.push(structure);
     Dashboard.updateOne({
       user: doc.user,
       name: doc.name,

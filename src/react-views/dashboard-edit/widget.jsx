@@ -30,24 +30,22 @@ import ComponentStructure from '../../lib/structures/component';
 
 import './styles.scss';
 
-const defaultChildStructure = new ComponentStructure('NumberWidget', {
-  id: 'e',
-  name: 'ReasonPRs',
-  title: 'Conversion',
-  socket: socketIOClient(`http://${window.location.host}`),
-  layout: NumberWidget.layout,
-  metric: '',
-  format: '0.0a',
-});
-
 export default class DashboardEdit extends React.Component {
   constructor(props) {
     super(props);
-    // console.log(this.props.childStructure);
+    this.defaultChildStructure = new ComponentStructure('NumberWidget', {
+      id: Date.now(),
+      name: 'ReasonPRs',
+      title: 'Conversion',
+      socket: socketIOClient(`http://${window.location.host}`),
+      layout: NumberWidget.layout,
+      metric: '',
+      format: '0.0a',
+    });
     this.state = {
       isNewWidget: this.props.newWidget,
       activeTab: '1',
-      childStructure: this.props.childStructure || defaultChildStructure,
+      childStructure: this.props.childStructure || this.defaultChildStructure,
     };
     /* console.log('constructor');
     console.log(this.props.childStructure);
@@ -102,7 +100,7 @@ export default class DashboardEdit extends React.Component {
     if (!this.props.childStructure && nextProps.childStructure !== this.state.childStructure && !this.state.isNewWidget) {
       if (nextProps.childStructure)
         nextProps.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
-      const nextStructure = nextProps.childStructure || defaultChildStructure;
+      const nextStructure = nextProps.childStructure || this.defaultChildStructure;
       this.setState({
         isNewWidget: nextProps.newWidget,
         childStructure: nextStructure,

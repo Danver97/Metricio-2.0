@@ -60,17 +60,7 @@ class Dashboard extends React.Component {
       this.getSavedDashboard();
     }
 
-    /*
-    TODO (done): togliere il supporto alla prop "childrenStructure" e
-    implementare una dashStructure di default
-    if (false && checker.checkArray(this.props.childrenStructure, ComponentStructure))
-      this.state.children = this.state.children
-        .concat((new DynamicComponents({ structure: this.state.childrenStructure }))
-          .render({ toArray: true }));
-    */
-
     this.saveOnClick = this.saveOnClick.bind(this);
-    this.widgetSelectorClickHandler = this.widgetSelectorClickHandler.bind(this);
     this.addPanel = this.addPanel.bind(this);
     this.addJob = this.addJob.bind(this);
     this.addChildStructure = this.addChildStructure.bind(this);
@@ -210,18 +200,21 @@ class Dashboard extends React.Component {
 
   saveOnClick() {
     console.log('Save on click');
+    console.log(this.dashStructure);
     if (this.state.isSaved) {
       return;
     }
     // this.postStructure();
     if (this.props.onSave) {
+      this.dashStructure.children = this.state.childrenStructure;
+      console.log(this.dashStructure);
       this.props.onSave(this.dashStructure);
       this.setState({ isSaved: true });
     }
   }
 
-  addPanel(newChild, collectionKey) {
-    /*const cn = newChild || CollectionName;
+  addPanel(/* newChild, collectionKey */) {
+    /* const cn = newChild || CollectionName;
     if (cn === CollectionName && this.state.collectionIsShown) {
       this.removeChildStructure(CollectionName, collectionKey);
       this.setState({ collectionIsShown: false });
@@ -235,7 +228,7 @@ class Dashboard extends React.Component {
         this.setState({ collectionId: id });
       if (cn === JobScheduler.name)
         this.setState({ jobPanelId: id });
-    });*/
+    }); */
     if (this.props.onAddPanel)
       this.props.onAddPanel();
   }
@@ -256,7 +249,6 @@ class Dashboard extends React.Component {
           title: childName,
           layout: Widgets[childName].layout,
           socket: socketIOClient(`http://${window.location.host}`),
-          selectorClickHandler: this.widgetSelectorClickHandler,
         }, children
       );
 
@@ -309,11 +301,6 @@ class Dashboard extends React.Component {
     let children = this.state.children.slice();
     children = children.filter(x => childStructure.attrs.id !== x.props.id);
     this.setState({ children });
-  }
-
-  async widgetSelectorClickHandler(newChild, collectionKey) {
-    await this.addPanel(newChild);
-    await this.addPanel('DashboardWidgetCollection', collectionKey);
   }
   
   saveEdit(childStr) {

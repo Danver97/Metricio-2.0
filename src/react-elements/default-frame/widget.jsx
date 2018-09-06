@@ -71,9 +71,9 @@ export default class DefaultFrame extends React.Component {
         <Toolbar name="toolbar">
           {this.state.showMenu && 
             <Menu history={this.props.history} clickHandler={this.toggleMenu} >
-              <MenuElement history={this.props.history} link={urlPaths.dashsuites.get.dashuites}>Dashboard Suites</MenuElement>
-              <MenuElement history={this.props.history} link={urlPaths.users.get.users}>Users</MenuElement>
-              <MenuElement history={this.props.history} link={urlPaths.jobs.get.jobs}>Jobs</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.dashsuites.get.dashsuites()}>Dashboard Suites</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.users.get.users()}>Users</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.jobs.get.jobs()}>Jobs</MenuElement>
             </Menu>
           }
           <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />

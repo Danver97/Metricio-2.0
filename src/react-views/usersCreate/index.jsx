@@ -107,12 +107,11 @@ export default class CreateView extends React.Component {
       this.setState(stateUpdate);
       this.toggleModal();
     } else {
-      /* post(
-        // '/dashsuites/create',
-        urlPaths.dashsuites.post.create(),
+      post(
+        urlPaths.users.post.create(),
         { 'Content-Type': 'application/x-www-form-urlencoded' }, 
-        `name=${this.state.dashsuitename}&password=${this.state.password}`
-      ); */
+        `name=${this.state.username}&password=${this.state.password}&role=${this.state.role}`
+      ); 
       this.back();
     }
   }
@@ -239,7 +238,6 @@ export default class CreateView extends React.Component {
                   placeholder="Confirm password" 
                   style={this.state.confirmpasswordBack || this.state.defaultStyleBack}
                 />
-                {this.getInputAddonIcon('check', 'append', this.state.confirmpasswordSide || this.state.defaultStyleSide)}
               </InputGroup>
             </FormGroup>
             <FormGroup>

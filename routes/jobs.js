@@ -10,11 +10,6 @@ const router = express.Router();
 
 router.use(getUserFromRequest);
 
-router.get('/', (req, res) => {
-  res.status(200);
-  res.json({ message: '/jobs' });
-});
-
 router.get('/list', async (req, res) => {
   try {
     const jobs = await Job.findByUser(req.user.id);
@@ -25,10 +20,11 @@ router.get('/list', async (req, res) => {
   }
 });
 
-router.get('/job', async (req, res) => {
-  const query = req.query;
+router.get('/job/:jobName', async (req, res) => {
+  const params = req.params;
   try {
-    const job = await Job.findByUserAndJobName(req.user.id, query.jobName);
+    const job = await Job.findByUserAndJobName(req.user.id, params.jobName);
+    // console.log(job);
     res.status(200);
     res.json(job);
   } catch (e) {
@@ -58,7 +54,6 @@ router.get('/getTaskNamesLike', async (req, res) => {
   }
 });
 
-
 router.post('/create', async (req, res) => {
   const body = req.body;
   try {
@@ -73,6 +68,38 @@ router.post('/create', async (req, res) => {
     res.status(200);
     res.end();
   } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/update/:jobName', async (req, res) => {
+  const params = req.params;
+  const body = req.body;
+  const job = new Job({
+    user: req.user.id,
+    jobName: body.jobName,
+    interval: body.interval,
+    type: body.type,
+    tasks: JSON.parse(body.tasks),
+  });
+  try {
+    await Job.updateJob(req.user.id, params.jobName, job);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/delete/:jobName', async (req, res) => {
+  const params = req.params;
+  try {
+    await Job.deleteJob(req.user.id, params.jobName);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
     responses.internalServerError(res, e.message);
   }
 });

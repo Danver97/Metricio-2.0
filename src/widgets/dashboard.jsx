@@ -53,13 +53,15 @@ class Dashboard extends React.Component {
       jobPanelIsShown: false,
       jobPanelId: NaN,
     };
+    
+    this.dashStructure = {};
 
     if (this.props.title) {
       this.getSavedDashboard();
     }
 
     /*
-    TODO: togliere il supporto alla prop "childrenStructure" e
+    TODO (done): togliere il supporto alla prop "childrenStructure" e
     implementare una dashStructure di default
     if (false && checker.checkArray(this.props.childrenStructure, ComponentStructure))
       this.state.children = this.state.children
@@ -101,7 +103,7 @@ class Dashboard extends React.Component {
       console.log(JSON.stringify(structure.layouts));
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
-      window.dashStructure = [structure];
+      this.dashStructure = structure;
       this.refreshStateStruct();
     });
   } */
@@ -109,7 +111,7 @@ class Dashboard extends React.Component {
   onLayoutChange(layout) {
     /* console.log('onLayoutChange');
     console.log(JSON.stringify(layout)); */
-    window.dashStructure[0].layouts = layout;
+    this.dashStructure.layouts = layout;
     this.setState({ layout, isSaved: false });
   }
 
@@ -124,7 +126,7 @@ class Dashboard extends React.Component {
       console.log(structure);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
-      window.dashStructure = [structure];
+      this.dashStructure = structure;
       this.refreshStateStruct(true);
     });
   }
@@ -155,30 +157,30 @@ class Dashboard extends React.Component {
       const structure = JSON.parse(xhttp.responseText);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
-      window.dashStructure = [structure];
+      this.dashStructure = structure;
       this.refreshStateStruct();
     });
   }
   
   refreshStateStruct(notMount) {
     if (notMount) {
-      this.state.layout = window.dashStructure[0].layouts;
-      this.state.childrenStructure = window.dashStructure[0].children;
-      this.state.children = window.dashStructure[0].children.map(c => this.getReactComponent(c));
+      this.state.layout = this.dashStructure.layouts;
+      this.state.childrenStructure = this.dashStructure.children;
+      this.state.children = this.dashStructure.children.map(c => this.getReactComponent(c));
       return;
     }
     this.setState({
-      layout: window.dashStructure[0].layouts,
-      childrenStructure: window.dashStructure[0].children,
-      children: window.dashStructure[0].children.map(c => this.getReactComponent(c)),
+      layout: this.dashStructure.layouts,
+      childrenStructure: this.dashStructure.children,
+      children: this.dashStructure.children.map(c => this.getReactComponent(c)),
     });
   }
   
   postStructure() {
-    const structure = JSON.stringify(window.dashStructure, (k, v) => { return k === 'socket' ? undefined : v; });
+    const structure = JSON.stringify(this.dashStructure, (k, v) => (k === 'socket' ? undefined : v));
     post(
-      // this.dashboardReqUrl(window.dashStructure[0].name, 'save'), 
-      urlPaths.dashboard.post.save(window.dashStructure[0].name), 
+      // this.dashboardReqUrl(this.dashStructure.name, 'save'), 
+      urlPaths.dashboard.post.save(this.dashStructure.name), 
       { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.Auth.getToken()}` }, 
       `layout=${structure}`
     );
@@ -189,7 +191,7 @@ class Dashboard extends React.Component {
   }
 
   addToDashStructure(childStructure) {
-    const dashStr = window.dashStructure[0];
+    const dashStr = this.dashStructure;
     if (!childStructure.is(CollectionName) && !childStructure.is(JobScheduler)) {
       dashStr.children.push(childStructure);
       dashStr.layouts.push(Object.assign({}, {
@@ -199,7 +201,7 @@ class Dashboard extends React.Component {
   }
 
   removeFromDashStructure(childStructure) {
-    const dashStr = window.dashStructure[0];
+    const dashStr = this.dashStructure;
     if (!childStructure.is(CollectionName) && !childStructure.is(JobScheduler)) {
       dashStr.children = dashStr.children.filter(x => x.attrs.id !== childStructure.attrs.id);
       dashStr.layouts = dashStr.layouts.filter(x => x.id !== childStructure.attrs.id.toString());
@@ -211,12 +213,15 @@ class Dashboard extends React.Component {
     if (this.state.isSaved) {
       return;
     }
-    this.postStructure();
-    this.setState({ isSaved: true });
+    // this.postStructure();
+    if (this.props.onSave) {
+      this.props.onSave(this.dashStructure);
+      this.setState({ isSaved: true });
+    }
   }
 
   addPanel(newChild, collectionKey) {
-    const cn = newChild || CollectionName;
+    /*const cn = newChild || CollectionName;
     if (cn === CollectionName && this.state.collectionIsShown) {
       this.removeChildStructure(CollectionName, collectionKey);
       this.setState({ collectionIsShown: false });
@@ -230,17 +235,14 @@ class Dashboard extends React.Component {
         this.setState({ collectionId: id });
       if (cn === JobScheduler.name)
         this.setState({ jobPanelId: id });
-    });
+    });*/
+    if (this.props.onAddPanel)
+      this.props.onAddPanel();
   }
 
   addJob() {
-    if (this.state.jobPanelIsShown) {
-      this.removeChildStructure(JobScheduler.name);
-      this.setState({ jobPanelIsShown: false });
-      return;
-    }
-    this.setState({ jobPanelIsShown: true });
-    this.addPanel(JobScheduler.name);
+    if (this.props.onJob)
+      this.props.onJob();
   }
 
   addChildStructure(childName, attrs, children, cb) {
@@ -317,8 +319,8 @@ class Dashboard extends React.Component {
   saveEdit(childStr) {
     const structure = childStr.stringify();
     post(
-      // this.dashboardReqUrl(window.dashStructure[0].name, 'edit'), 
-      urlPaths.dashboard.post.edit(window.dashStructure[0].name), 
+      // this.dashboardReqUrl(this.dashStructure.name, 'edit'), 
+      urlPaths.dashboard.post.edit(this.dashStructure.name), 
       [{
         tag: 'Content-Type',
         value: 'application/x-www-form-urlencoded',
@@ -337,6 +339,7 @@ class Dashboard extends React.Component {
     const endpoint = `${this.props.editUrl}?${qs.stringify({ compId: id })}`;
     if (this.props.history) {
       this.props.history.push(endpoint);
+      return;
     }
     window.location.assign(endpoint);
     // this.setState({ editChild: cStr, editMode: true });

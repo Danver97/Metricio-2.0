@@ -35,6 +35,7 @@ export default function withAuth(AuthComponent, domain) {
             match={this.props.match} 
             location={this.props.location} 
             user={this.state.user} 
+            auth={Auth}
           />
         );
       }

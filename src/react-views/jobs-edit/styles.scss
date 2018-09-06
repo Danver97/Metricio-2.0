@@ -1,0 +1,44 @@
+@import '../../styles/_button-shadow.scss';
+
+.createView {
+  .nopadding {
+    padding: 0;
+  }
+  
+  .form {
+    min-width: 15rem;
+    width: 40%;
+    height: auto;
+    
+    .fontSaira {
+      // font-family: 'Saira', sans-serif;
+    }
+    .panelContainer {
+      border-radius: 0.3125rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      transition: all 0.5s ease-in-out;
+    }
+    .marginBottom {
+      margin-bottom: 1rem;
+    }
+    
+    .labelDark {
+      color: #383838;
+    }
+    
+    label {
+      font-weight: 100;
+      float: none;
+    }
+    
+    input[type="text"] {
+      margin-left: 0;
+      box-shadow: none;
+      // font-family: 'Saira', sans-serif;
+    }
+  }
+  button {
+    margin-right: 0.5rem;
+  }
+}

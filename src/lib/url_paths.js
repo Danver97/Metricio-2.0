@@ -73,13 +73,18 @@ export default {
   },
   jobs: {
     get: {
-      job: () => '/jobs/job',
-      list: () => '/jobs/list',
+      create: () => '/jobs/create',
+      edit: (jobName) => checkParam`/jobs/edit/${jobName}`(':jobName'),
       getJobNamesLike: () => '/jobs/getJobNamesLike',
       getTaskNamesLike: () => '/jobs/getTaskNamesLike',
+      job: (jobName) => checkParam`/jobs/job/${jobName}`(':jobName'),
+      jobs: () => '/jobs',
+      list: () => '/jobs/list',
     },
     post: {
       create: () => '/jobs/create',
+      delete: (jobName) => checkParam`/jobs/delete/${jobName}`(':jobName'),
+      update: (jobName) => checkParam`/jobs/update/${jobName}`(':jobName'),
     },
   },
 };

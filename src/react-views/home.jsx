@@ -3,27 +3,25 @@ import React from 'react';
 import '../styles/default.scss';
 
 import DefaultFrame from '../react-elements/default-frame/widget';
-import { getSuitesStruct, getUsersStruct, getAllBoardsStruct } from '../lib/titledTableStructures';
+import { getSuitesStruct, getUsersStruct, getAllBoardsStruct, getJobsStruct } from '../lib/titledTableStructures';
 import urlPaths from '../lib/url_paths';
 
 const suitePath = urlPaths.dashsuites.get.dashsuites();
 const usersPath = urlPaths.users.get.users();
+const jobsPath = urlPaths.jobs.get.jobs();
 
 class Home extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  
   render() {
     return (
       <DefaultFrame 
         title="Home" 
         history={this.props.history} 
-        titledTables={[
+        titledTables={[ 
             getSuitesStruct('MORE', suitePath), 
             getUsersStruct('MORE', usersPath), 
-            getAllBoardsStruct(),
-          ]}
+            getAllBoardsStruct(), 
+            getJobsStruct('MORE', jobsPath), 
+          ]} 
       />
     );
   }

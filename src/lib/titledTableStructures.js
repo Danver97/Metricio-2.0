@@ -1,13 +1,13 @@
 import { getCollectionOfOrderedByKeyObjects } from './utils';
 import TitledTableStructure from './structures/titledTable';
-import { getDashsuites, getUsers, getDashboardsFromDashsuite, getAllDashboards } from './getJsons';
+import { getDashsuites, getUsers, getDashboardsFromDashsuite, getAllDashboards, getJobs } from './getJsons';
 import urlPaths from './url_paths';
 
 
-function getTitledTableStructure(title, coll, titleBut, link, defLink) {
+function getTitledTableStructure(title, coll, titleBut, link, defaultLink) {
   let buttonLink;
   if (titleBut)
-    buttonLink = link || defLink;
+    buttonLink = link || defaultLink;
   return new TitledTableStructure(title, coll, titleBut, buttonLink);
 }
 
@@ -44,7 +44,7 @@ export function getDashSuitesCollection() {
 export function getDashboardsCollection(dashsuiteName) {
   const response = getDashboardsFromDashsuite(dashsuiteName);
   const dashboards = [];
-  response.forEach(r => dashboards.push({ data: r, link: urlPaths.dashboard.get.dashboard(r.name), original: r }));
+  response.forEach(r => dashboards.push({ data: r, link: encodeURI(urlPaths.dashboard.get.dashboard(r.name)), original: r }));
   const keyOrder = ['name', 'children', 'subdashboards'];
   dashboards.forEach(d => {
     d.data.name = d.original.name;
@@ -67,12 +67,32 @@ export function getAllDashboardsCollection() {
   });
   return getCollectionOfOrderedByKeyObjects(dashboards, keyOrder, 'data');
 }
+
+export function getJobsCollection() {
+  const response = getJobs();
+  const dashboards = [];
+  response.forEach(r => dashboards.push({ data: r, link: urlPaths.jobs.get.edit(r.jobName), original: r }));
+  const keyOrder = ['jobName', 'type', 'taskNumber'];
+  dashboards.forEach(d => {
+    d.data.name = d.original.jobName;
+    d.data.type = d.original.type || 'none';
+    d.data.taskNumber = `Number of tasks: ${d.original.tasks.length}`;
+  });
+  return getCollectionOfOrderedByKeyObjects(dashboards, keyOrder, 'data');
+}
   
 export function getUsersCollection() {
   // request...
-  getUsers();
+  const usersArr = getUsers();
   const keyOrder = ['name', 'role'];
-  const users = [
+  const users = [];
+  usersArr.forEach(u => users.push({ data: u, link: u.link, original: u }));
+  users.forEach(u => {
+    u.data.role = u.original.role ? `${u.original.role.charAt(0).toUpperCase()}${u.original.role.substr(1).toLowerCase()}` : '';
+  });
+  
+  /*
+  [
     {
       data: {
         name: 'Christian',
@@ -86,6 +106,7 @@ export function getUsersCollection() {
       },
     },
   ];
+  */
 
   return getCollectionOfOrderedByKeyObjects(users, keyOrder, 'data');
 }
@@ -130,7 +151,7 @@ export function getBoardsStructWithTitle(title, dashsuiteName, titleButton, link
 }
 // rcl
 
-// All dashboard
+// All dashboards
 // rst
 export function getAllBoardsStructUtil(title, titleButton, link) {
   const coll = getAllDashboardsCollection();
@@ -167,5 +188,25 @@ export function getUsersStructNoTitle(titleButton, link) {
 
 export function getUsersStructWithTitle(title, titleButton, link) {
   return getUsersStructUtil(title, titleButton, link);
+}
+// rcl
+
+// Jobs
+// rst
+export function getJobsStructUtil(title, titleButton, link) {
+  const coll = getJobsCollection();
+  return getTitledTableStructure(title, coll, titleButton, link, urlPaths.jobs.get.list);
+}
+
+export function getJobsStruct(titleButton, link) {
+  return getJobsStructUtil('Jobs', titleButton, link);
+}
+
+export function getJobsStructNoTitle(titleButton, link) {
+  return getJobsStructUtil('', titleButton, link);
+}
+
+export function getJobsStructWithTitle(title, titleButton, link) {
+  return getJobsStructUtil(title, titleButton, link);
 }
 // rcl

@@ -44,7 +44,7 @@ export default class DashboardNewWidget extends React.Component {
   render() {
     return (
       <DefaultFrame history={this.props.history}>
-        <DashboardEdit className="widget__edit" saveHandler={this.saveNew} cancelHandler={this.cancelNew} />
+        <DashboardEdit newWidget className="widget__edit" saveHandler={this.saveNew} cancelHandler={this.cancelNew} />
       </DefaultFrame>
     );
   }

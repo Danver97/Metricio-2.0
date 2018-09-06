@@ -3,20 +3,20 @@ import fetch from 'node-fetch';
 
 import JobStructure from './jobStructure';
 
-async function perform() {
+async function perform(self) {
   const results = [];
   let promises = [];
-  this.requests.forEach(r => {
+  self.requests.forEach(r => {
     promises.push(fetch(r.endpoint, {
       method: r.method,
       headers: r.headers,
       body: r.body,
     }));
   });
-  promises = Promise.all(promises);
+  promises = await Promise.all(promises);
   promises.forEach((result, i) => {
     results.push({
-      target: results[i].target,
+      target: self.requests[i].target,
       data: { value: result },
     });
   });
@@ -27,7 +27,7 @@ export class JobJsonRequest extends JobStructure {
   constructor(jobname, interval) {
     super(jobname, interval);
     this.requests = [];
-    this.perform = perform.bind(this);
+    this.perform = () => perform(this);
   }
   
   static get className() {
@@ -55,9 +55,10 @@ export class JobJsonRequest extends JobStructure {
   }
   
   addGetRequest(target, endpoint, options) {
+    const query = options.query ? `?${qs.stringify(options.query)}` : '';
     this.requests.push({
       target,
-      endpoint: `${endpoint}?${qs.stringify(options.query)}`,
+      endpoint: `${endpoint}${query}`,
       method: 'GET',
       body: null,
       headers: options.headers,
@@ -69,7 +70,7 @@ export class JobJsonRequest extends JobStructure {
       target,
       endpoint: `${endpoint}`,
       method: 'POST',
-      body: options.body,
+      body: qs.stringify(options.body),
       headers: options.headers,
     });
   }

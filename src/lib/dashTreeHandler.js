@@ -24,14 +24,13 @@ export default class DashTreeHandler {
     return string.replace(/\//g, '\\$&');
   }
   
-  newElement() {
-    // const regex = /\/dashboard\/get\/([A-Za-z0-9]+)(?:\?)?(?:.)*/;
+  newElement(name) {
     const regex = new RegExp(this.escapeRegExp(urlPaths.dashboard.get.dashboard('([A-Za-z0-9]+)(?:\\?)?(?:.)*')));
     const pathname = window.location.pathname;
-    if (!regex.test(pathname))
+    if (!name && !regex.test(pathname))
       return null;
     const elem = {
-      name: regex.exec(pathname)[1], // || 'index2',
+      name: name || regex.exec(pathname)[1], // || 'index2',
       href: window.location.href,
       index: this.dashTree.length,
     };

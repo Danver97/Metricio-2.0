@@ -97,9 +97,6 @@ class DashboardCreateView extends React.Component {
   
   onBlur(e) {
     const obj = {};
-    console.log(this.state);
-    console.log(e.target);
-    console.log(this.validateField(e.target.name, e.target.value));
     if (this.validateField(e.target.name, e.target.value))
       this.checkState(e.target.name, obj);
     else

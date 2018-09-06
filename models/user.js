@@ -44,7 +44,7 @@ const User = mongoose.model('User', UserSchema);
 User.createUser = (user, cb) => {
   bcrypt.hash(user.password, saltRounds, (err, hash) => {
     user.password = hash;
-    User.createUser(user, cb);
+    User.create(user, cb);
   });
 };
 
@@ -77,6 +77,13 @@ User.listById = (idArr, cb) => {
   if (!cb)
     return User.find({ _id: { $in: idArr } }).exec();
   User.find({ _id: { $in: idArr } }, cb);
+  return null;
+};
+
+User.getAll = (cb) => {
+  if (!cb)
+    return User.find({}).exec();
+  User.find({}, cb);
   return null;
 };
 

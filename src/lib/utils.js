@@ -17,7 +17,7 @@ export function getURLQueryFromObject(obj, filter) {
 export function getParameterByName(name, url) {
   if (!url) url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`);
   const results = regex.exec(url);
   if (!results) return null;
   if (!results[2]) return '';
@@ -31,10 +31,10 @@ export function getCollectionOfOrderedByKeyObjects(collection, keyOrder, prop) {
     if (prop) {
       newElem = Object.assign({}, elem);
       newElem[prop] = {};
-      keyOrder.forEach(k => newElem[prop][k] = elem[prop][k]);
+      keyOrder.forEach(k => { newElem[prop][k] = elem[prop][k]; });
     } else {
       newElem = {};
-      keyOrder.forEach(k => newElem[k] = elem[k]);
+      keyOrder.forEach(k => { newElem[k] = elem[k]; });
     }
     orderedCollection.push(newElem);
   });

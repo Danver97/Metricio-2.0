@@ -17,7 +17,10 @@
     "prefer-destructuring": 0,
     "curly": 0,
     "valid-typeof": 0,
-    "max-len": [2, { "code": 150, "tabWidth": 2 }]
+    "max-len": [2, { "code": 150, "tabWidth": 2 }],
+    "prefer-rest-params": 0,
+    "import/no-named-as-default-member": 0,
+    "no-underscore-dangle": 0
   },
   "parserOptions": {
     "ecmaVersion": 2017,

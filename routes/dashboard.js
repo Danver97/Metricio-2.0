@@ -83,10 +83,10 @@ router.post('/save/:dashboard', (req, res) => {
   const dashLayout = JSON.parse(req.body.layout);
   const newDash = new Dashboard({
     user: 'Christian',
-    name: dashLayout[0].name,
-    children: dashLayout[0].children,
+    name: dashLayout.name,
+    children: dashLayout.children,
     subdashboard: [],
-    layouts: dashLayout[0].layouts,
+    layouts: dashLayout.layouts,
   });
   Dashboard.updateDash(newDash, (err, dash) => {
     if (err) throw err;
@@ -96,7 +96,7 @@ router.post('/save/:dashboard', (req, res) => {
 });
 
 router.post('/edit/:dashboard', (req, res) => {
-  Dashboard.findByUserAndDashboardName('Christian', req.params.dashboard, (err, doc) => {
+  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
     if (err) throw err;
     let structure;
     try {

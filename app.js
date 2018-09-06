@@ -7,15 +7,15 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import socketIo from 'socket.io';
 import mongoose from 'mongoose';
-import path from 'path';
+// import path from 'path';
 
 import webpackMiddleWare, { webpackHotMw } from './webpack.middleware';
 import appMeta from './package.json';
 import config from './config';
 import logger from './lib/logger';
-import startJobs from './lib/jobs';
+import startJobs from './lib/resque/resqueJobs';
 import * as storage from './lib/storage';
-import { ensureAutenticated } from './lib/utils';
+// import { ensureAutenticated } from './lib/utils';
 import users from './routes/user';
 import dashboards from './routes/dashboard';
 import dashsuites from './routes/dashsuite';
@@ -25,8 +25,8 @@ import jobs from './routes/jobs';
 const MongoDBStoreSession = require('connect-mongodb-session')(session);
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const Job = require('./models/job');
-const cookieParser = require('cookie-parser')
+// const Job = require('./models/job');
+const cookieParser = require('cookie-parser');
 
 /* const MongoStore = require('express-session-mongo');
 /*
@@ -87,7 +87,7 @@ app.use(session({
   },
 }));// */
 
-//Middlewares
+// Middlewares
 // rst
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -119,7 +119,7 @@ app.use('/jobs', jobs);
 
 app.get('*.js', (req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
-    console.log('asking for gzip ' + req.url);
+    // console.log(`asking for gzip ${req.url}`);
     req.url += '.gz';
     res.set('Content-Encoding', 'gzip');
   }

@@ -1,0 +1,17 @@
+.expansiblePanel {
+  transition: all 0.25s ease-in-out;
+  
+  
+  .panelContent {
+    padding: 0 0.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  i {
+    transition: all 0.15s ease-in-out;
+  }
+  
+  p, i, label {
+    user-select: none;
+  }
+}

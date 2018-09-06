@@ -45,7 +45,8 @@ export default class CreateView extends React.Component {
     e.stopPropagation();
     const dashNamesFormElems = this.state.dashNamesFormElems.slice();
     const key = this.keycounter++;
-    const node = (<FormGroup key={key} id={key} row>
+    const node = (
+      <FormGroup key={key} id={key} row>
         <Label for={'dashboardname' + key} hidden>Dashboard name:</Label>
         <Col sm={10} >
           <Input type="text" name="dashboardname" id={'dashboardname' + key} onInput={e => this.addDashName(e, key)} placeholder="Name" />
@@ -53,7 +54,8 @@ export default class CreateView extends React.Component {
         <Col sm={2} >
           <Button onClick={e => this.onXClick(e, key)}>X</Button>
         </Col>
-      </FormGroup>);
+      </FormGroup>
+    );
     dashNamesFormElems.push(node);
     this.setState({dashNamesFormElems: dashNamesFormElems});
   }
@@ -82,7 +84,7 @@ export default class CreateView extends React.Component {
   
   getDashStringList() {
     const result = JSON.stringify(this.state.dashNames.map(e => e.text));
-    console.log(result)
+    // console.log(result);
     return result;
   }
   

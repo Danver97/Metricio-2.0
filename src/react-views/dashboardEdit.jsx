@@ -14,6 +14,9 @@ export default class DashboardEditView extends React.Component {
     this.state = {
       editChild: null,
     };
+    this.saveEdit = this.saveEdit.bind(this);
+    this.cancelEdit = this.cancelEdit.bind(this);
+    this.back = this.back.bind(this);
   }
   
   componentDidMount() {
@@ -23,9 +26,6 @@ export default class DashboardEditView extends React.Component {
       const response = JSON.parse(xhttp.responseText);
       this.setState({ editChild: new ComponentStructure(response.type, response.attrs) });
     });
-    this.saveEdit = this.saveEdit.bind(this);
-    this.cancelEdit = this.cancelEdit.bind(this);
-    this.back = this.back.bind(this);
   }
   
   saveEdit(childStr) {

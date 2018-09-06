@@ -1,5 +1,7 @@
 import React from 'react';
 
+import urlPaths from '../../lib/url_paths';
+
 import Toolbar from '../dashboard-elements/toolbar/widget';
 import Menu from '../dashboard-elements/toolbar/menu/widget';
 import MenuElement from '../dashboard-elements/toolbar/menu/menu-element/widget';
@@ -58,11 +60,9 @@ export default class DefaultFrame extends React.Component {
   }
   
   toggleMenu() {
-    this.setState((prevState) => {
-      return {
-        showMenu: !prevState.showMenu,
-      };
-    });
+    this.setState((prevState) => ({
+      showMenu: !prevState.showMenu,
+    }));
   }
   
   render() {
@@ -71,8 +71,9 @@ export default class DefaultFrame extends React.Component {
         <Toolbar name="toolbar">
           {this.state.showMenu && 
             <Menu history={this.props.history} clickHandler={this.toggleMenu} >
-              <MenuElement history={this.props.history} link="/dashsuites">Dashboard Suites</MenuElement>
-              <MenuElement history={this.props.history} link="/users">Users</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.dashsuites.get.dashuites}>Dashboard Suites</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.users.get.users}>Users</MenuElement>
+              <MenuElement history={this.props.history} link={urlPaths.jobs.get.jobs}>Jobs</MenuElement>
             </Menu>
           }
           <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />

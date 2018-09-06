@@ -30,26 +30,29 @@ import ComponentStructure from '../../lib/structures/component';
 
 import './styles.scss';
 
+const defaultChildStructure = new ComponentStructure('NumberWidget', {
+  id: 'e',
+  name: 'ReasonPRs',
+  title: 'Conversion',
+  socket: socketIOClient(`http://${window.location.host}`),
+  layout: NumberWidget.layout,
+  metric: '',
+  format: '0.0a',
+});
+
 export default class DashboardEdit extends React.Component {
   constructor(props) {
     super(props);
     // console.log(this.props.childStructure);
     this.state = {
+      isNewWidget: this.props.newWidget,
       activeTab: '1',
-      childStructure: this.props.childStructure || new ComponentStructure('NumberWidget', {
-        id: 'e',
-        name: 'ReasonPRs',
-        title: 'Conversion',
-        socket: socketIOClient(`http://${window.location.host}`),
-        layout: NumberWidget.layout,
-        metric: '',
-        format: '0.0a',
-      }),
+      childStructure: this.props.childStructure || defaultChildStructure,
     };
-    console.log('constructor');
+    /* console.log('constructor');
     console.log(this.props.childStructure);
     console.log(this.props.child);
-    console.log('constructor end');
+    console.log('constructor end'); */
     
     this.state.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
     this.state.initialChildStructure = JSON.parse(this.state.childStructure.stringify());
@@ -62,9 +65,6 @@ export default class DashboardEdit extends React.Component {
     // che viene ripristinato al momento del salvataggio su db.
     this.state.chilStrReferenceId = this.state.childStructure.attrs.id;
     this.state.child = this.props.child || this.getElemFromStructure(this.state.childStructure);
-    if (!this.props.childStructure && !this.props.child) {
-      this.state.isNewWidget = true;
-    }
 
     this.idToProperty = {
       title: 'title',
@@ -88,6 +88,7 @@ export default class DashboardEdit extends React.Component {
     this.toggle = this.toggle.bind(this);
     this.getJobNamesLike = this.getJobNamesLike.bind(this);
     this.getTaskNamesLike = this.getTaskNamesLike.bind(this);
+    this.getTaskNamesOptionsState = this.getTaskNamesOptionsState.bind(this);
     this.onDropdownInputChange = this.onDropdownInputChange.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onBlur = this.onBlur.bind(this);
@@ -98,14 +99,16 @@ export default class DashboardEdit extends React.Component {
   }
   
   shouldComponentUpdate(nextProps) {
-    if (!this.props.childStructure && nextProps.childStructure !== this.state.childStructure) {
-      nextProps.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
+    if (!this.props.childStructure && nextProps.childStructure !== this.state.childStructure && !this.state.isNewWidget) {
+      if (nextProps.childStructure)
+        nextProps.childStructure.attrs.socket = socketIOClient(`http://${window.location.host}`);
+      const nextStructure = nextProps.childStructure || defaultChildStructure;
       this.setState({
-        isNewWidget: !nextProps.childStructure && !nextProps.child,
-        childStructure: nextProps.childStructure,
-        initialChildStructure: JSON.parse(nextProps.childStructure.stringify()),
-        chilStrReferenceId: nextProps.childStructure.attrs.id,
-        child: this.getElemFromStructure(nextProps.childStructure),
+        isNewWidget: nextProps.newWidget,
+        childStructure: nextStructure,
+        initialChildStructure: JSON.parse(nextStructure.stringify()),
+        chilStrReferenceId: nextStructure.attrs.id,
+        child: this.getElemFromStructure(nextStructure),
       });
     }
     return true;
@@ -177,38 +180,34 @@ export default class DashboardEdit extends React.Component {
         const json = await result.json();
         result = json.map(e => ({ label: e.jobName, value: e.jobName }));
         resolve(result);
-      } catch(e) {
+      } catch (e) {
         console.log(e);
         reject(e);
       }
     });
-    /*const array = [
-      { value: 'like1', label: 'like1' },
-      { value: 'like2', label: 'like2' },
-      { value: 'like3', label: 'like3' },
-      { value: 'like4', label: 'like4' },
-    ];    
-    return Promise.resolve(array.filter(e => (new RegExp(like)).test(e.label)));*/
   }
   
   getTaskNamesLike(like) {
+    const stateStruct = this.state.childStructure;
     return new Promise(async (resolve, reject) => {
       try {
-        let result = await fetch(addQuery(urlPaths.jobs.get.getTaskNamesLike(), { jobName: this.state.childStructure.attrs.jobName, taskNameLike: like }));
+        let result = await fetch(addQuery(urlPaths.jobs.get.getTaskNamesLike(), {
+          jobName: stateStruct.attrs.jobName,
+          taskNameLike: like,
+        }));
         const json = await result.json();
         result = json.map(e => ({ label: e.taskName, value: e.taskName }));
         resolve(result);
-      } catch(e) {
+      } catch (e) {
         reject(e);
       }
     });
-    /*const array = [
-      { value: 'like1', label: 'like1' },
-      { value: 'like2', label: 'like2' },
-      { value: 'like3', label: 'like3' },
-      { value: 'like4', label: 'like4' },
-    ];
-    return Promise.resolve(array.filter(e => (new RegExp(like)).test(e.label)));*/
+  }
+  
+  getTaskNamesOptionsState(/* jobName */) {
+    this.getTaskNamesLike('').then(result => {
+      this.setState({ taskOptions: result });
+    });
   }
   
   getSubdashLinkVars(childStructure, data) {
@@ -222,7 +221,7 @@ export default class DashboardEdit extends React.Component {
     vars = JSON.parse(`{${vars}}`);
     return vars;
   }
-  //rcl
+  // rcl
   
   sendChangeOnChildStruct(e, data, isOnBlur) {
     const childStructure = this.state.childStructure || {};
@@ -389,6 +388,7 @@ export default class DashboardEdit extends React.Component {
                     loadOptions={this.getJobNamesLike}
                     name="jobName"
                     onChange={this.onDropdownInputChange}
+                    onInputChange={this.getTaskNamesOptionsState}
                     placeholder={this.state.childStructure.attrs.jobName}
                   />
                 </FormGroup>
@@ -397,15 +397,14 @@ export default class DashboardEdit extends React.Component {
                     <i className="material-icons" id="iconTaskName" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
                   </Label>
                   <UncontrolledTooltip placement="right" target="iconTaskName">
-                    {'If no options are shown, try to set \'Job\' before this.'}
+                    {'If no options are shown, try to set \'Job\' before this and then search for the task name.'}
                   </UncontrolledTooltip>
                   <DropdownInput 
-                    async
                     defaultOptions
                     isClearable
-                    loadOptions={this.getTaskNamesLike}
                     name="taskName"
                     onChange={this.onDropdownInputChange}
+                    options={this.state.taskOptions}
                     placeholder={this.state.childStructure.attrs.name}
                   />
                 </FormGroup>

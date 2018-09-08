@@ -10,7 +10,7 @@ export default class ProgressWidget extends BaseWidget {
   constructor(props) {
     super(props);
     this.state = {
-      progress: undefined,
+      value: undefined,
       updatedAt: undefined,
     };
   }
@@ -53,7 +53,7 @@ export default class ProgressWidget extends BaseWidget {
               verticalAnchor="middle"
               x={200}
               y={200}
-              text={Math.round(newProps.progress)}
+              text={Math.round(newProps.value)}
               style={{
                 fill: '#fff',
                 fontSize: 125,
@@ -69,13 +69,13 @@ export default class ProgressWidget extends BaseWidget {
 
   render() {
     const classList = classNames(...this.classList, 'widget__progress');
-    const progress = this.parseProgress(this.state.progress);
+    const progress = this.parseProgress(this.state.value);
 
     return (
       <div className={classList}>
         <h1 className="widget__title">{this.props.title}</h1>
-        {this.state.progress === undefined && <h2 className="widget__value">---</h2>}
-        {this.state.progress !== undefined && this.renderSVG(progress)}
+        {this.state.value === undefined && <h2 className="widget__value">---</h2>}
+        {this.state.value !== undefined && this.renderSVG(progress)}
         {this.state.updatedAt && <p className="widget__updatedAt">{this.state.updatedAt}</p>}
       </div>
     );

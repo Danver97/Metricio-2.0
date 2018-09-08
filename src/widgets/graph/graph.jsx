@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HighchartsChart, Chart, Tooltip, XAxis, YAxis, Legend, ColumnSeries, SplineSeries } from 'react-jsx-highcharts';
 
+import logger from '../../../lib/logger';
 import BaseWidget from '../base';
 
 import './styles.scss';
@@ -98,13 +99,23 @@ export default class GraphWidget extends BaseWidget {
     return l;
   }
   
+  componentWillMount() {
+    super.componentWillMount();
+    this.props.socket.on(`widget:update:${this.props.jobName}:${this.props.name}`, datas => {
+      this.setState({
+        categories: this.getCategories(datas.value),
+        data: this.getData(datas.value),
+      });
+    });
+  }
+  
   getCategories(data) {
     let categories;
     if (typeof data === 'object')
       categories = data.categories.slice();
     else if (Array.isArray(data)) {
       categories = [];
-      this.state.categories = this.getCategories(data);
+      // this.state.categories = this.getCategories(data);
       data.forEach(s => {
         if (s.categories)
           s.categories.forEach(c => this.addCatToCatArray(categories, c));
@@ -189,16 +200,6 @@ export default class GraphWidget extends BaseWidget {
     this.chart.reflow();
   }
   
-  componentWillMount() {
-    super.componentWillMount();
-    this.props.socket.on(`widget:update:${this.props.name}`, datas => {
-      this.setState({
-        categories: this.getCategories(datas.value),
-        data: this.getData(datas.value),
-      });
-    });
-  }
-  
   render() {    
     // const colors = ['#DB2763', '#0B7A75', '#645DD7', '#FF4242', '#F2FF49'];
     
@@ -208,15 +209,26 @@ export default class GraphWidget extends BaseWidget {
         <HighchartsChart plotOptions={plotOptions} callback={this.getChart}>
           <Chart backgroundColor="none" style={{ width: '100%' }} />
           
-          <Tooltip useHTML headerFormat={'<small>{point.key}</small><table>'} pointFormat={'<tr><td style="color: {series.color}">{series.name}: </td><td style="text-align: right"><b>{point.y}</b></td></tr>'} footerFormat="</table>" valueDecimals={2} />
+          <Tooltip 
+            useHTML 
+            headerFormat={'<small>{point.key}</small><table>'} 
+            pointFormat={'<tr><td style="color: {series.color}">{series.name}: </td><td style="text-align: right"><b>{point.y}</b></td></tr>'} 
+            footerFormat="</table>" 
+            valueDecimals={2} 
+          />
 
           <Legend itemStyle={{ color: 'white' }} />
 
-          <XAxis labels={{ style: { color: 'white' } }} categories={this.props.type === 'histogram' && (this.state.categories || ['Apples', 'Oranges', 'Pears', 'Bananas', 'Plums'])} />
+          <XAxis 
+            labels={{ style: { color: 'white' } }} 
+            categories={this.props.type === 'histogram' && (this.state.categories || ['Apples', 'Oranges', 'Pears', 'Bananas', 'Plums'])} 
+          />
 
           <YAxis labels={{ style: { color: 'white' } }}>
-            { this.props.type === 'histogram' && this.state.data.map((d, i) => <ColumnSeries key={'columnserie'+i} name={d.name} data={d.data} />)} 
-            { this.props.type !== 'histogram' && this.state.data.map((d, i) => <SplineSeries key={'splineserie'+i} name={d.name} data={d.data} />)}
+            { this.props.type === 'histogram' && 
+              this.state.data.map((d, i) => <ColumnSeries key={'columnserie'+i} name={d.name} data={d.data} />)} 
+            { this.props.type !== 'histogram' && 
+              this.state.data.map((d, i) => <SplineSeries key={'splineserie'+i} name={d.name} data={d.data} />)}
             {
               this.state.aggregators.map((a, i) => 
                 <SplineSeries key={'splineserie'+i} name={a.name} data={this.getAggregatorSerie(a)} />)

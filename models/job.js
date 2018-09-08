@@ -1,3 +1,5 @@
+import logger from '../lib/logger';
+
 const mongoose = require('mongoose');
 const jobEvents = require('../listeners/jobListener');
 
@@ -23,6 +25,9 @@ const JobSchema = new mongoose.Schema({
       taskName: {
         type: String,
       },
+      type: {
+        type: String,
+      },
       task: {
         type: {},
       },
@@ -36,12 +41,16 @@ const Job = mongoose.model('Job', JobSchema);
 
 Job.createJob = async (job, cb) => {
   if (!cb) {
-    await Job.create(job);
-    jobEvents.emit('createJob', job);
+    try {
+      await Job.create(job);
+      jobEvents.emit('createJob', job);
+    } catch (e) {
+      throw e;
+    }
     return;
   }
   Job.create(job, (err, doc) => {
-    jobEvents.emit('createJob', job);
+    if (!err) jobEvents.emit('createJob', job);
     cb(err, doc);
   });
 };
@@ -149,5 +158,71 @@ Job.updateJob = async (user, jobName, job, cb) => {
       cb(err, doc);
   });
 };
+
+const demos = new Job({
+  user: '5b505aa4b3b22f3474706874',
+  jobName: 'demos',
+  interval: '* * * * *',
+  type: 'LocalJob',
+  tasks: [
+    {
+      taskName: 'DemoUsers',
+      type: 'numberIntSerie',
+      task: {
+        min: 1000,
+        max: 1500,
+        iteration: 50,
+      },
+    },
+    {
+      taskName: 'DemoMaster',
+      type: 'text',
+      task: {
+        texts: ['success', 'failed'],
+      },
+    },
+    {
+      taskName: 'DemoDevelop',
+      type: 'text',
+      task: {
+        texts: ['success', 'failed'],
+      },
+    },
+    {
+      taskName: 'DemoConversion',
+      type: 'number',
+      task: {
+        min: 1.3,
+        max: 1.4,
+      },
+    },
+    {
+      taskName: 'DemoProgress',
+      type: 'numberInt',
+      task: {
+        min: 1,
+        max: 100,
+      },
+    },
+    {
+      taskName: 'DemoHistogram',
+      type: 'graphSerie',
+      task: {
+        min: 1,
+        max: 10,
+        iteration: 3,
+        categories: ['Apples', 'Blackberries', 'Bananas'],
+        seriesNames: ['John', 'Carl', 'Susan'],
+      },
+    },
+  ],
+});
+
+try {
+  Job.createJob(demos);
+} catch (e) {
+  logger('jobs', '\'demos\' job already saved in db.');
+}
+
 
 module.exports = Job;

@@ -34,7 +34,7 @@ export default class SparklineWidget extends BaseWidget {
         <div className="sparkline">
           {typeof this.state.value !== 'undefined' && (
             <div>
-              <Sparklines data={this.state.value}>
+              <Sparklines data={Array.isArray(this.state.value) ? this.state.value : []}>
                 <SparklinesLine color="white" />
                 <SparklinesSpots />
               </Sparklines>

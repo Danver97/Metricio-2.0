@@ -9,7 +9,6 @@ export default class BaseWidget extends React.Component {
     this.state = {};
     this.state.children = this.props.children;
     this.state.structure = props.structure;
-    this.state.socketListener = {};
     this.classList = ['widget', `widget__${this.props.name}`];
     if (this.props.size) this.classList.push(`widget--${this.props.size}`);
   }
@@ -39,22 +38,15 @@ export default class BaseWidget extends React.Component {
   }
 
   componentWillMount() {
-    const socketListener = this.props.socket.on(`widget:update:${this.props.name}`, data => {
-      logger('info', `updating widget: ${this.props.name}`, data);
+    this.props.socket.on(`widget:update:${this.props.jobName}:${this.props.name}`, data => {
+      logger('info', `updating widget: ${this.props.jobName}:${this.props.name}`, data);
       this.setState(data);
     });
-    this.setState({ socketListener });
   }
   
   componentWillUnmount() {
-    this.props.socket.removeAllListeners(`widget:update:${this.props.name}`);
+    this.props.socket.removeAllListeners(`widget:update:${this.props.jobName}:${this.props.name}`);
     this.props.socket.disconnect();
-  }
-  
-  addChild(childStructure) {
-    const structure = Object.assign(this.state.structure);
-    structure.addChild(childStructure);
-    this.setState(this.state.children.concat([React.createComponent(DynamicComponent, childStructure.attrs)]));
   }
 }
 

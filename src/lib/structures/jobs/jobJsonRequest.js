@@ -27,7 +27,8 @@ export class JobJsonRequest extends JobStructure {
   constructor(jobname, interval) {
     super(jobname, interval);
     this.requests = [];
-    this.perform = () => perform(this);
+    // this.perform = () => perform(this);
+    this.assignPerform(perform);
   }
   
   static get className() {

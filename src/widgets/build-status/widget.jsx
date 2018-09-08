@@ -9,7 +9,7 @@ export default class BuildStatusWidget extends BaseWidget {
   constructor(props) {
     super(props);
     this.state = {
-      outcome: undefined,
+      value: undefined,
       updatedAt: undefined,
     };
   }
@@ -37,23 +37,23 @@ export default class BuildStatusWidget extends BaseWidget {
     const classList = classNames(
       ...this.classList,
       'widget__buildStatus',
-      `widget--${this.state.outcome}`,
+      `widget--${this.state.value}`,
     );
 
     return (
       <div className={classList}>
         <h1 className="widget__title">{this.props.title}</h1>
-        <h2 className="widget__value">{this.state.outcome ? this.state.outcome : '---'}</h2>
+        <h2 className="widget__value">{this.state.value ? this.state.value : '---'}</h2>
         {this.state.updatedAt && <p className="widget__updatedAt">{this.state.updatedAt}</p>}
       </div>
     );
   }
 }
 
-//<h2 className="widget__value">{this.state.outcome ? this.state.outcome : '---'}</h2>
+// <h2 className="widget__value">{this.state.value ? this.state.value : '---'}</h2>
 /*
           <svg viewBox="0 0 150 25">
-            <text x="0" y="18" fill="white">{this.state.outcome ? this.state.outcome.toUpperCase() : '---'}</text>
+            <text x="0" y="18" fill="white">{this.state.value ? this.state.value.toUpperCase() : '---'}</text>
           </svg>
 */
 

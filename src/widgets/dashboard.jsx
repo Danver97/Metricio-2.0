@@ -36,8 +36,6 @@ function renderWidgets(props) {
   }));
 }
 
-// let keys = 15;
-
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
@@ -74,8 +72,6 @@ class Dashboard extends React.Component {
     this.editChild = this.editChild.bind(this);
     this.refreshDashboard = this.refreshDashboard.bind(this);
     this.refreshStateStruct = this.refreshStateStruct.bind(this);
-    // this.dashListItemClick = this.dashListItemClick.bind(this);
-    // this.toggleMenu = this.toggleMenu.bind(this);
   }
   
   shouldComponentUpdate(nextProps, nextState) {
@@ -113,7 +109,7 @@ class Dashboard extends React.Component {
     // getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
     getSync(urlPaths.dashboard.get.getStructure(this.props.title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
-      console.log(structure);
+      // console.log(structure);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
       this.dashStructure = structure;
@@ -213,22 +209,7 @@ class Dashboard extends React.Component {
     }
   }
 
-  addPanel(/* newChild, collectionKey */) {
-    /* const cn = newChild || CollectionName;
-    if (cn === CollectionName && this.state.collectionIsShown) {
-      this.removeChildStructure(CollectionName, collectionKey);
-      this.setState({ collectionIsShown: false });
-      return null;
-    }
-    if (cn === CollectionName)
-      this.setState({ collectionIsShown: true });
-
-    return this.addChildStructure(cn, null, null, (id) => {
-      if (cn === CollectionName)
-        this.setState({ collectionId: id });
-      if (cn === JobScheduler.name)
-        this.setState({ jobPanelId: id });
-    }); */
+  addPanel() {
     if (this.props.onAddPanel)
       this.props.onAddPanel();
   }
@@ -331,16 +312,6 @@ class Dashboard extends React.Component {
     window.location.assign(endpoint);
     // this.setState({ editChild: cStr, editMode: true });
   }
-  
-  /*
-  toggleMenu() {
-    this.setState((prevState) => {
-      return {
-        showMenu: !prevState.showMenu,
-      };
-    });
-  }
-  */
   
   render() {
     const toolbarChildren = [

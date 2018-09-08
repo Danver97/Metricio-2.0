@@ -35,6 +35,7 @@ export default class DashboardEdit extends React.Component {
     super(props);
     this.defaultChildStructure = new ComponentStructure('NumberWidget', {
       id: Date.now(),
+      jobName: 'demos',
       name: 'ReasonPRs',
       title: 'Conversion',
       socket: socketIOClient(`http://${window.location.host}`),

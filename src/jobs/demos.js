@@ -18,13 +18,13 @@ export const perform = async () => [{
 {
   target: 'DemoMaster',
   data: {
-    outcome: 'success',
+    value: 'success',
   },
 },
 {
   target: 'DemoDevelop',
   data: {
-    outcome: 'success',
+    value: 'success',
   },
 },
 {
@@ -36,7 +36,7 @@ export const perform = async () => [{
 {
   target: 'DemoProgress',
   data: {
-    progress: getRandomInt(1, 100),
+    value: getRandomInt(1, 100),
   },
 },
 {

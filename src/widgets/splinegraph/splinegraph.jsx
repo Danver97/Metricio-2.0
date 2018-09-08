@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { HighchartsChart, Chart, Tooltip, XAxis, YAxis, Legend, SplineSeries } from 'react-jsx-highcharts';
 
+import logger from '../../../lib/logger';
 import BaseWidget from '../base';
 
 import './styles.scss';
@@ -143,7 +144,8 @@ export default class SplinegraphWidget extends BaseWidget {
   
   componentWillMount() {
     super.componentWillMount();
-    this.props.socket.on(`widget:update:${this.props.name}`, datas => {
+    this.props.socket.on(`widget:update:${this.props.jobName}:${this.props.name}`, datas => {
+      logger('info', `updating widget: ${this.props.jobName}:${this.props.name}`, datas);
       this.setState({
         data: this.getData(datas.value),
       });

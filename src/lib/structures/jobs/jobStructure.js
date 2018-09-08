@@ -15,6 +15,10 @@ export default class JobStructure {
     throw new Error('JobStructure: this.fromObject() not implemented.');
   }
   
+  assignPerform(func) {
+    this.perform = () => func(this);
+  }
+  
   getJob() {
     const job = { jobName: this.jobName };
     job[this.jobName] = { interval: this.interval, perform: this.perform };

@@ -2,9 +2,6 @@ import { getUserFromRequest } from '../lib/utils';
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const BearerStrategy = require('passport-http-bearer').Strategy;
-// const LocalStrategy = require('passport-local').Strategy;
 
 const User = require('../models/user');
 const ENV = require('../config/env');
@@ -12,19 +9,6 @@ const ENV = require('../config/env');
 const responses = require('../lib/responses');
 
 const router = express.Router();
-
-passport.use(new BearerStrategy((token, cb) => {
-  const decoded = jwt.verify(token, ENV.jwtSecret);
-  console.log(decoded);
-  User.getByName(decoded.user.name, (err, doc) => {
-    console.log(doc);
-    if (err)
-      return cb(err);
-    if (!doc)
-      return cb(null, false);
-    return cb(null, doc);
-  });
-}));
 
 router.get('/list', getUserFromRequest, async (req, res) => {
   try {

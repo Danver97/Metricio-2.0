@@ -52,7 +52,6 @@ export default class DashboardView extends React.Component {
         history={this.props.history} 
         title={this.dashboard || 'index2'} 
         name="dash" 
-        key="dash" 
         onSave={this.onSave} 
         onJob={this.onJob} 
         onAddPanel={this.onNewWidget} 

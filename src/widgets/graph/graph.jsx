@@ -86,6 +86,9 @@ export default class GraphWidget extends BaseWidget {
       aggregators: this.props.aggregators || [],
     };
     
+    this.colors = ['#DB2763', '#0B7A75', '#645DD7', '#FF4242'/* , '#F2FF49' */];
+    this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+    
     this.getChart = this.getChart.bind(this);
     this.handleResize = this.handleResize.bind(this);
   }
@@ -200,11 +203,9 @@ export default class GraphWidget extends BaseWidget {
     this.chart.reflow();
   }
   
-  render() {    
-    // const colors = ['#DB2763', '#0B7A75', '#645DD7', '#FF4242', '#F2FF49'];
-    
+  render() {
     return (
-      <div className="widget widget__graph">
+      <div className="widget widget__graph" style={{ backgroundColor: this.color }}>
         <h1 className="widget__title">{this.props.title}</h1>
         <HighchartsChart plotOptions={plotOptions} callback={this.getChart}>
           <Chart backgroundColor="none" style={{ width: '100%' }} />

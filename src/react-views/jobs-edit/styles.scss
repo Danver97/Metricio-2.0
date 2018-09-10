@@ -35,7 +35,12 @@
     input[type="text"] {
       margin-left: 0;
       box-shadow: none;
-      // font-family: 'Saira', sans-serif;
+    }
+    
+    textarea {
+      margin-left: 0;
+      margin-bottom: 1rem;
+      box-shadow: none;
     }
   }
   button {

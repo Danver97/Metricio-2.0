@@ -1,5 +1,6 @@
 // rst
 import { createServer } from 'http';
+// import https from 'https';
 import assert from 'assert';
 import express from 'express';
 import exphbs from 'express-handlebars';
@@ -7,7 +8,6 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import socketIo from 'socket.io';
 import mongoose from 'mongoose';
-// import path from 'path';
 
 import webpackMiddleWare, { webpackHotMw } from './webpack.middleware';
 import appMeta from './package.json';
@@ -15,7 +15,6 @@ import config from './config';
 import logger from './lib/logger';
 import startJobs from './lib/resque/resqueJobs';
 import * as storage from './lib/storage';
-// import { ensureAutenticated } from './lib/utils';
 import users from './routes/user';
 import dashboards from './routes/dashboard';
 import dashsuites from './routes/dashsuite';
@@ -24,21 +23,8 @@ import jobs from './routes/jobs';
 
 const MongoDBStoreSession = require('connect-mongodb-session')(session);
 const bodyParser = require('body-parser');
-const passport = require('passport');
 // const Job = require('./models/job');
 const cookieParser = require('cookie-parser');
-
-/* const MongoStore = require('express-session-mongo');
-/*
-const MongoClient = require('mongodb').MongoClient;
-let DB;
-MongoClient.connect('mongodb://localhost:27017', function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
-
-  DB = client.db('metricio');
-});
-*/
 
 mongoose.connect('mongodb://localhost:27017/metricio');
 // const db = mongoose.connection;
@@ -54,7 +40,6 @@ store.on('error', (error) => {
   assert.ifError(error);
   assert.ok(false);
 });
-// store.on('connected', () => console.log(store));//*/
 
 
 const env = process.env.NODE_ENV || 'development';
@@ -75,37 +60,19 @@ const sessionMiddleware = session({
 
 // app.use(sessionMiddleware);
 
-app.use(session({
-  secret: 'secret',
-  resave: true,
-  saveUninitialized: false,
-  rolling: true,
-  store,
-  cookie: {
-    secure: env !== 'development',
-    maxAge: 1000 * 60 * 20,
-  },
-}));// */
-
 // Middlewares
 // rst
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 io.use((socket, next) => sessionMiddleware(socket.request, socket.request.res, next));
 
-app.engine(
-  'hbs',
-  exphbs({
-    defaultLayout: 'index',
-    extname: '.hbs',
-    layoutsDir: 'src/views/',
-  }),
-);
+app.engine('hbs', exphbs({
+  defaultLayout: 'index',
+  extname: '.hbs',
+  layoutsDir: 'src/views/',
+}));
 
 app.use((req, res, next) => {
   res.locals.user = req.user || null;
@@ -139,7 +106,6 @@ app.set('views', 'src/views');
 app.set('port', process.env.PORT || 3000);
 
 app.get('*', (req, res) => {
-  // console.log(req.session);
   res.render('index', {
     name: 'react-router',
   });

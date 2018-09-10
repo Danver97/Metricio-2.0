@@ -11,7 +11,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  // UncontrolledTooltip,
+  UncontrolledTooltip,
 } from 'reactstrap';
 
 import cronValidator from 'sancronos-validator';
@@ -21,9 +21,6 @@ import cronValidator from 'sancronos-validator';
 import Divider from '@material-ui/core/Divider';
 import ExpansiblePanel from '../../react-elements/expansible-panel';
 import DropdownInput from '../../react-elements/dropdown-input';
-// import { post } from '../../lib/requests';
-// import urlPaths from '../../lib/url_paths';
-// import Auth from '../../lib/authService';
 import DefaultFrame from '../../react-elements/default-frame/widget';
 import InputGroupIcon from '../../react-elements/input-prepend-icon';
 // rcl
@@ -225,7 +222,6 @@ export default class CreateView extends React.Component {
     // const inputStyle = { backgroundColor: '#efefef', boxShadow: 'none' };
     const inputGroupStyle = { marginBottom: '1rem' };
     // const inputGroupIconStyle = { border: '0', backgroundColor: '#e4e4e4' };
-    // console.log(this.state.tasks);
     return this.state.tasks.map((e, i) => {
       const id = e.id;
       const children = this.getTaskHeadersElems(id);
@@ -241,7 +237,7 @@ export default class CreateView extends React.Component {
             onExpand={exp => this.onPanelExpanded(id, exp)} 
             onClose={() => this.onDeleteTaskClick(null, id)} 
           >
-            <Label className="labelDark" for={`taskName${id}`}>Task name:</Label>
+            <Label className="labelDark" for={`taskName${id}`}>Task name</Label>
             <InputGroup style={inputGroupStyle}>
               <InputGroupIcon style={Styles.InputAppendDark} materialIconName="assignment" />
               <Input 
@@ -254,7 +250,7 @@ export default class CreateView extends React.Component {
                 style={Styles.InputDark} 
               />
             </InputGroup>
-            <Label className="labelDark" for={`method${id}`}>Task method:</Label>
+            <Label className="labelDark" for={`method${id}`}>Task method</Label>
             <DropdownInput 
               className="marginBottom"
               name="method"
@@ -265,7 +261,7 @@ export default class CreateView extends React.Component {
               onChange={ev => this.addTask(ev, id)} 
               value="GET"
             />
-            <Label className="labelDark" for={`endpoint${id}`}>Task endpoint:</Label>
+            <Label className="labelDark" for={`endpoint${id}`}>Task endpoint</Label>
             <InputGroup style={inputGroupStyle}>
               <InputGroupIcon style={Styles.InputAppendDark} materialIconName="http" />
               <Input 
@@ -278,6 +274,21 @@ export default class CreateView extends React.Component {
                 style={Styles.InputDark} 
               />
             </InputGroup>
+            <Label className="labelDark" for={`endpoint${id}`} style={{ display: 'flex' }}>Json fields to select
+              <i className="material-icons" id="iconProjection" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
+            </Label>
+            <UncontrolledTooltip placement="right" target="iconProjection">
+              Please insert the JSON field separated by commas, spaces or carriage returns.
+            </UncontrolledTooltip>
+            <Input 
+              type="textarea" 
+              name="projection" 
+              id={`projection${id}`} 
+              onChange={ev => this.addTask(ev, id)} 
+              placeholder="Field" 
+              dafeaultValue={e.options.projection}
+              style={Styles.InputDark} 
+            />
             {e.options.method === 'POST' && 
               <div style={{ marginBottom: '1rem' }}>
                 <Label className="labelDark" for={`headers${id}`}>Body parameters:</Label>
@@ -406,7 +417,20 @@ export default class CreateView extends React.Component {
     }
     if (e.target.name === 'method')
       task.options.method = e.target.data.value;
-    else
+    else if (e.target.name === 'projection') {
+      if (/^\$/.test(e.target.value))
+        task.options.projection = e.target.value.replace(/^\$/g, '');
+      else {
+        const projection = e.target.value
+          .replace(/[^\w-,\s\n]/g, '')
+          .replace(/,+/g, ' ')
+          .replace(/[\n\s]+/g, ' ')
+          .replace(/([\w-]+)/g, '"$1" ')
+          .replace(/\s+(?="|\w)/g, ', ')
+          .replace(/"\s+/g, '"');
+        task.options.projection = `[${projection}]`;
+      }
+    } else
       task[e.target.name] = e.target.value;
     if (toPush) tasks.push(task);
     this.setState({ tasks });

@@ -14,13 +14,8 @@ export default class DashboardGrid extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      layout: this.props.layout,
       itemCallbacks: {},
     };
-    // console.log('layout');
-    // console.log(this.state.layout);
-    if (!this.state.layout || !Array.isArray(this.state.layout))
-      this.state.layout = [];
 
     // this.onAddItem = this.onAddItem.bind(this);
     this.onBreakpointChange = this.onBreakpointChange.bind(this);
@@ -68,14 +63,9 @@ export default class DashboardGrid extends React.PureComponent {
     if (typeof k === 'number') {
       k = k.toString();
     }
-    // console.log(child);
-    // console.log(layout);
+    
     let l = layout;
     if (!l) l = undefined;
-    /*
-    l.maxW = 12;
-    l.minH = 1;
-    */
     
     child.props.structure.itemCallback = this.itemCallback;
     
@@ -90,7 +80,8 @@ export default class DashboardGrid extends React.PureComponent {
 
   render() {
     // {lg: layout1, md: layout2, ...}
-    const l = this.state.layout;
+    let l = this.props.layout || [];
+    l = Array.isArray(l) ? l : [];
     let layouts;
     if (!this.state.layouts) {
       layouts = {
@@ -108,17 +99,4 @@ export default class DashboardGrid extends React.PureComponent {
       </ResponsiveGridLayout>
     );
   }
-
-  // {this.state.items.map(e => this.createElement(e))}
-  /*
-  render() {
-    return (
-      <ReactGridLayout layout={this.state.layout}
-      onLayoutChange={this.onLayoutChange} {...this.props}>
-        {this.state.layout.map(e => this.createElement(e))}
-        <div className="item" key="5" data-grid={this.state.layout[0]}>ciao</div>
-      </ReactGridLayout>
-    );
-  }
-  */
 }

@@ -12,7 +12,8 @@ router.use(getUserFromRequest);
 
 router.get('/list', async (req, res) => {
   try {
-    const jobs = await Job.findByUser(req.user.id);
+    let jobs = await Job.findByUser(req.user.id);
+    jobs = jobs.filter(j => j.jobName !== 'demos');
     res.status(200);
     res.json(jobs);
   } catch (e) {
@@ -22,9 +23,12 @@ router.get('/list', async (req, res) => {
 
 router.get('/job/:jobName', async (req, res) => {
   const params = req.params;
+  if (params.jobName === 'demos') {
+    responses.internalServerError(res, 'No such job');
+    return;
+  }
   try {
     const job = await Job.findByUserAndJobName(req.user.id, params.jobName);
-    // console.log(job);
     res.status(200);
     res.json(job);
   } catch (e) {

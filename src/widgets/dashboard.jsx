@@ -29,11 +29,8 @@ import JobScheduler from './job-scheduler/widget';
 
 const CollectionName = 'DashboardWidgetCollection';
 
-function renderWidgets(props) {
-  const socket = socketIOClient(`http://${window.location.host}`);
-  return React.Children.map(props.children, child => React.cloneElement(child, {
-    socket,
-  }));
+function renderWidgets(props, socket) {
+  return React.Children.map(props.children, child => React.cloneElement(child, { socket }));
 }
 
 class Dashboard extends React.Component {
@@ -52,6 +49,7 @@ class Dashboard extends React.Component {
       jobPanelId: NaN,
     };
     
+    this.socket = socketIOClient(`http://${window.location.host}`);
     this.dashStructure = {};
 
     if (this.props.title) {
@@ -61,9 +59,7 @@ class Dashboard extends React.Component {
     this.saveOnClick = this.saveOnClick.bind(this);
     this.addPanel = this.addPanel.bind(this);
     this.addJob = this.addJob.bind(this);
-    this.addChildStructure = this.addChildStructure.bind(this);
     this.removeChildStructure = this.removeChildStructure.bind(this);
-    this.addChild = this.addChild.bind(this);
     this.removeChild = this.removeChild.bind(this);
     this.getReactComponent = this.getReactComponent.bind(this);
     this.onLayoutChange = this.onLayoutChange.bind(this);
@@ -82,6 +78,10 @@ class Dashboard extends React.Component {
     return true;
   }
   
+  componentWillUnmount() {
+    this.socket.disconnect();
+  }
+  
   /* componentDidMount() {
     console.log('componentDidMount');
     get(urlPaths.dashboard.get.getStructure(this.props.title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
@@ -95,8 +95,6 @@ class Dashboard extends React.Component {
   } */
 
   onLayoutChange(layout) {
-    /* console.log('onLayoutChange');
-    console.log(JSON.stringify(layout)); */
     this.dashStructure.layouts = layout;
     this.setState({ layout, isSaved: false });
   }
@@ -106,7 +104,6 @@ class Dashboard extends React.Component {
   }
 
   getSavedDashboard() {
-    // getSync(this.dashboardReqUrl(this.props.title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
     getSync(urlPaths.dashboard.get.getStructure(this.props.title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
       // console.log(structure);
@@ -126,7 +123,7 @@ class Dashboard extends React.Component {
         childrenStructure={this.state.childrenStructure} 
         onLayoutChange={this.onLayoutChange}
       >
-        {renderWidgets(this.state)}
+        {renderWidgets(this.state, this.socket)}
       </DashboardGrid>
     );
   }
@@ -138,12 +135,12 @@ class Dashboard extends React.Component {
   refreshDashboard(title) {
     if (!title)
       return;
-    // get(this.dashboardReqUrl(title, 'getStructure'), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
     get(urlPaths.dashboard.get.getStructure(title), { Authorization: `'Bearer ${this.Auth.getToken()}` }, (xhttp) => {
       const structure = JSON.parse(xhttp.responseText);
       structure.children = structure.children
         .map(c => new ComponentStructure(c.type, c.attrs, c.children));
       this.dashStructure = structure;
+      this.socket = socketIOClient(`http://${window.location.host}`);
       this.refreshStateStruct();
     });
   }
@@ -160,20 +157,6 @@ class Dashboard extends React.Component {
       childrenStructure: this.dashStructure.children,
       children: this.dashStructure.children.map(c => this.getReactComponent(c)),
     });
-  }
-  
-  postStructure() {
-    const structure = JSON.stringify(this.dashStructure, (k, v) => (k === 'socket' ? undefined : v));
-    post(
-      // this.dashboardReqUrl(this.dashStructure.name, 'save'), 
-      urlPaths.dashboard.post.save(this.dashStructure.name), 
-      { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.Auth.getToken()}` }, 
-      `layout=${structure}`
-    );
-  }
-
-  dashboardReqUrl(dashName, end) {
-    return `http://${window.location.host}/dashboard/${dashName}/${end}`;
   }
 
   addToDashStructure(childStructure) {
@@ -200,10 +183,8 @@ class Dashboard extends React.Component {
     if (this.state.isSaved) {
       return;
     }
-    // this.postStructure();
     if (this.props.onSave) {
       this.dashStructure.children = this.state.childrenStructure;
-      console.log(this.dashStructure);
       this.props.onSave(this.dashStructure);
       this.setState({ isSaved: true });
     }
@@ -219,7 +200,7 @@ class Dashboard extends React.Component {
       this.props.onJob();
   }
 
-  addChildStructure(childName, attrs, children, cb) {
+  /* addChildStructure(childName, attrs, children, cb) {
     // console.log('ADDING CHILD STRUCTURE');
     const childrenStructure = this.state.childrenStructure.slice();
     const childStructure =
@@ -247,7 +228,7 @@ class Dashboard extends React.Component {
 
     if (cb && typeof cb === 'function') cb(childStructure.attrs.key.toString());
     return this.addChild(childStructure, index);
-  }
+  } */
 
   removeChildStructure(childName, childKey) {
     const cn = childName || CollectionName;
@@ -268,14 +249,14 @@ class Dashboard extends React.Component {
     this.removeChild(childStructure);
   }
 
-  addChild(childStructure, index) {
+  /* addChild(childStructure, index) {
     // console.log('ADDING CHILD ELEMENT');
 
     const children = this.state.children.slice();
     const component = this.getReactComponent(childStructure);
     children.splice(index, 0, component);
     return this.setState({ children });
-  }
+  } */
 
   removeChild(childStructure) {
     // console.log('REMOVING CHILD ELEMENT');
@@ -287,7 +268,6 @@ class Dashboard extends React.Component {
   saveEdit(childStr) {
     const structure = childStr.stringify();
     post(
-      // this.dashboardReqUrl(this.dashStructure.name, 'edit'), 
       urlPaths.dashboard.post.edit(this.dashStructure.name), 
       [{
         tag: 'Content-Type',
@@ -332,8 +312,6 @@ class Dashboard extends React.Component {
       </DefaultFrame>
     );
   }
-// {this.state.editMode ? this.getDashboardEdit() : this.getDashboardGrid()}
-// {renderWidgets(this.props)}
 }
 
 export default Dashboard;

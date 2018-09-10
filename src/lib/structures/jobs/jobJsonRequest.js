@@ -3,6 +3,17 @@ import fetch from 'node-fetch';
 
 import JobStructure from './jobStructure';
 
+function project(obj, projection) {
+  if (typeof projection === 'string')
+    return obj[projection];
+  if (Array.isArray(projection)) {
+    const result = {};
+    projection.forEach(p => { result[p] = obj[p]; });
+    return result;
+  }
+  return obj;
+}
+
 async function perform(self) {
   const results = [];
   let promises = [];
@@ -17,7 +28,7 @@ async function perform(self) {
   promises.forEach((result, i) => {
     results.push({
       target: self.requests[i].target,
-      data: { value: result },
+      data: { value: project(result, self.requests[i].projection) },
     });
   });
   return results;
@@ -52,27 +63,34 @@ export class JobJsonRequest extends JobStructure {
       method: opt.method || 'GET',
       body: opt.body,
       headers: opt.headers,
+      projection: opt.projection,
     });
   }
   
   addGetRequest(target, endpoint, options) {
     const query = options.query ? `?${qs.stringify(options.query)}` : '';
-    this.requests.push({
+    options.method = 'GET';
+    options.body = null;
+    this.addJsonRequest(target, `${endpoint}${query}`, options);
+    /* this.requests.push({
       target,
       endpoint: `${endpoint}${query}`,
       method: 'GET',
       body: null,
       headers: options.headers,
-    });
+    }); */
   }
   
   addPostRequest(target, endpoint, options) {
-    this.requests.push({
+    options.method = 'POST';
+    options.body = qs.stringify(options.body);
+    this.addJsonRequest(target, endpoint, options);
+    /* this.requests.push({
       target,
-      endpoint: `${endpoint}`,
+      endpoint,
       method: 'POST',
       body: qs.stringify(options.body),
       headers: options.headers,
-    });
+    }); */
   }
 }

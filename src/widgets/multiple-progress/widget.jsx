@@ -89,6 +89,13 @@ export default class MultipleProgressWidget extends BaseWidget {
               {this.getValue(38, 100, true)}
             </Tooltip>
           </div>
+          <div className="data-element">
+            <div className="data-title"><span>Tool 2</span><span>-</span><strong>{this.getValue(13, 100) + '%'}</strong></div>
+            <a id="TooltipExample2"><MyProg value={13} max={100} /></a>
+            <Tooltip placement="top" isOpen={this.state.tooltipOpen['TooltipExample2']} target="TooltipExample2" toggle={this.toggleTooltip.bind(this, 'TooltipExample2')}>
+              {this.getValue(13, 100, true)}
+            </Tooltip>
+          </div>
           
         </div>
         {this.state.updatedAt && <p className="widget__updatedAt">{this.state.updatedAt}</p>}

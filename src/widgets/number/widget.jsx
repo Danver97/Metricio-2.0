@@ -24,7 +24,7 @@ export default class NumberWidget extends BaseWidget {
   }
 
   render() {
-    const classList = classNames(...this.classList, 'widget__number');
+    const classList = classNames(...this.classList, 'widget__number', 'notSelectable');
     const value = this.props.format
       ? numeral(this.state.value).format(this.props.format)
       : this.state.value;

@@ -67,22 +67,24 @@ export default class DefaultFrame extends React.Component {
   
   render() {
     return (
-      <div className="frame">
-        <Toolbar name="toolbar">
-          {this.state.showMenu && 
-            <Menu history={this.props.history} clickHandler={this.toggleMenu} >
-              <MenuElement history={this.props.history} link={urlPaths.dashsuites.get.dashsuites()}>Dashboard Suites</MenuElement>
-              <MenuElement history={this.props.history} link={urlPaths.users.get.users()}>Users</MenuElement>
-              <MenuElement history={this.props.history} link={urlPaths.jobs.get.jobs()}>Jobs</MenuElement>
-            </Menu>
-          }
-          <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />
-          {this.props.toolbarChildren}
-        </Toolbar>
-        <div className="default_container" style={this.props.containerStyle}>
-          <h1>{this.state.title}</h1>
-          {this.props.children}
-          {this.getTitledTables()}
+      <div>
+        {this.state.showMenu && 
+          <Menu history={this.props.history} clickHandler={this.toggleMenu} >
+            <MenuElement history={this.props.history} link={urlPaths.dashsuites.get.dashsuites()}>Dashboard Suites</MenuElement>
+            <MenuElement history={this.props.history} link={urlPaths.users.get.users()}>Users</MenuElement>
+            <MenuElement history={this.props.history} link={urlPaths.jobs.get.jobsAll()}>Jobs</MenuElement>
+          </Menu>
+        }
+        <div className="frame">
+          <Toolbar name="toolbar">
+            <MenuButton name="Menu" title="Menu" clickHandler={this.toggleMenu} />
+            {this.props.toolbarChildren}
+          </Toolbar>
+          <div className="default_container" style={this.props.containerStyle}>
+            <h1>{this.state.title}</h1>
+            {this.props.children}
+            {this.getTitledTables()}
+          </div>
         </div>
       </div>
     );

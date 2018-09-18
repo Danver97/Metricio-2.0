@@ -227,6 +227,7 @@ export default class DashboardEdit extends React.Component {
     childStructure.attrs = childStructure.attrs || {};
     if (e.target.name === 'widgettype') {
       childStructure.type = data || childStructure.type;
+      childStructure.attrs.layout = Widgets[childStructure.type].layout;
     }
     if (isOnBlur && e.target.name === 'vars') {
       try {
@@ -443,7 +444,7 @@ export default class DashboardEdit extends React.Component {
                 </FormGroup>
                 <FormGroup>
                   <Label id="labelvars" for="vars" style={{ display: 'flex' }}>Variables
-                    <i className="material-icons"  id="iconVars" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
+                    <i className="material-icons" id="iconVars" style={{ fontSize: '16px', marginLeft: '0.25rem' }}>info</i>
                   </Label>
                   <Input 
                     type="text" 
@@ -469,16 +470,3 @@ export default class DashboardEdit extends React.Component {
     );
   }
 }
-/*
-  <Input type="text" name="jobName" id="jobName" placeholder="Job" />
-*/
-/*
-  <Input 
-    type="text" 
-    name="taskName" 
-    id="taskName" 
-    onChange={e => this.onChange(e, e.target.value)} 
-    placeholder="Task" 
-    value={this.state.childStructure.attrs.name} 
-  />
-*/

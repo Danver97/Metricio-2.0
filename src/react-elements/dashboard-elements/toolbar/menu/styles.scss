@@ -10,7 +10,15 @@
   .menu {
     background-color: #111;
     position: relative;
-    width: 25%;
+    @media screen and (max-width: 600px) {
+      width: 50%;
+    }
+    @media screen and (min-width: 601px) {
+      width: 33.334%;
+    }
+    @media screen and (min-width: 780px) {
+      width: 25%;
+    }
     height: 100%;
     padding: 1.25rem;
     float: left;
@@ -22,7 +30,15 @@
     background-color: black;
     position: relative;
     float: left;
-    width: 75%;
+    @media screen and (max-width: 780px) {
+      width: 50%;
+    }
+    @media screen and (min-width: 601px) {
+      width: 66.666%;
+    }
+    @media screen and (min-width: 780px) {
+      width: 75%;
+    }
     height: 100%;
     opacity: 0.5;
     z-index: 100;

@@ -11,8 +11,13 @@ const DashboardSchema = mongoose.Schema({
   },
   dashsuite: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: 'Dashsuite',
     required: true,
   },
+  jobs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Job',
+  }],
   name: {
     type: String,
     required: true,
@@ -28,6 +33,17 @@ const DashboardSchema = mongoose.Schema({
     type: Array,
     default: [],
   },
+  vars: {
+    type: [{
+      name: {
+        type: String,
+      },
+      type: {
+        type: String,
+      },
+    }],
+    default: [],
+  },
   layouts: {
     type: Array,
     default: [],
@@ -36,6 +52,8 @@ const DashboardSchema = mongoose.Schema({
     type: String,
     default: urlPaths.dashboard.get.create(),
   },
+  delete: String,
+  view: String,
 });
 
 DashboardSchema.pre('save', function (next) {
@@ -70,6 +88,13 @@ Dashboard.updateDash = (dashboard, cb) => {
   return null;
 };
 
+Dashboard.findUsingId = (id, cb) => {
+  if (!cb)
+    return Dashboard.findById(id).exec();
+  Dashboard.findById(id, cb);
+  return null;
+};
+
 Dashboard.findByUser = (user, cb) => {
   const query = { user };
   if (!cb)
@@ -78,14 +103,22 @@ Dashboard.findByUser = (user, cb) => {
   return null;
 };
 
-Dashboard.findByUserAndDashboardName = (user, dashboardName, cb) => {
+Dashboard.findByUserAndDashboardName = (user, dashboardName, populate, cb) => {
   const query = { user, name: dashboardName };
-  if (!cb)
+  if (!cb) {
+    if (populate)
+      return Dashboard.findOne(query).populate('jobs').exec();
     return Dashboard.findOne(query).exec();
+  }
+  if (populate) {
+    Dashboard.findOne(query).populate('jobs').exec(cb);
+    return null;
+  }
   Dashboard.findOne(query, cb);
   return null;
 };
 
+// @deprecated
 Dashboard.findByUserAndDashboardNames = (user, dashboardNames, projection, cb) => {
   const query = { user, name: { $in: dashboardNames } };
   if (!projection)
@@ -96,7 +129,14 @@ Dashboard.findByUserAndDashboardNames = (user, dashboardNames, projection, cb) =
   return null;
 };
 
-Dashboard.deleteById = (idArr, cb) => {
+Dashboard.deleteById = (id, cb) => {
+  if (!cb)
+    return Dashboard.findByIdAndDelete(id).exec();
+  Dashboard.findByIdAndDelete(id, cb);
+  return null;
+};
+
+Dashboard.deleteMultiple = (idArr, cb) => {
   const query = { _id: { $in: idArr } };
   if (!cb)
     return Dashboard.deleteMany(query).exec();
@@ -104,11 +144,11 @@ Dashboard.deleteById = (idArr, cb) => {
   return null;
 };
 
-Dashboard.deleteByName = (user, dashboardNames, cb) => {
-  const query = { user, name: { $in: dashboardNames } };
+Dashboard.deleteByName = (user, dashboardName, cb) => {
+  const query = { user, name: dashboardName };
   if (!cb)
-    return Dashboard.deleteMany(query).exec();
-  Dashboard.deleteMany(query, cb);
+    return Dashboard.findOneAndDelete(query).exec();
+  Dashboard.findOneAndDelete(query, cb);
   return null;
 };
 

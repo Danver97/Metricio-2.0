@@ -13,7 +13,7 @@ import urlPaths, { addQuery } from '../../lib/url_paths';
 
 const dashboardCreatePath = urlPaths.dashboard.get.create();
 
-class Dashsuites extends React.Component {
+class DashsuitesViewView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,7 +73,7 @@ class Dashsuites extends React.Component {
   }
 }
 
-export default Dashsuites;
+export default DashsuitesViewView;
 /*
         <h1 style={{ display: 'inline' }}>{this.dashsuite}</h1>
         <EditableText text={this.dashsuite} onConfirm={this.onModify} />

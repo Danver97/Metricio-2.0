@@ -21,8 +21,7 @@ export default class ToolbarMenu extends React.Component {
     return (
       <div className="menu-holder">
         <div className="menu">
-          <h1>My Menu</h1>
-          <p>Home</p>
+          <h1>Menu</h1>
           <Element history={this.props.history} link="/">Home</Element>
           {this.props.children}
         </div>

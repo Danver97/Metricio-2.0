@@ -14,6 +14,7 @@ export const InputDropdown = { borderColor: 'white' };
 
 export const InputGroup = { borderRadius: '0.3125rem', boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)' };
 
+export const RoundButton = { marginRight: '0.5rem', padding: '0.375rem', borderRadius: '10000px' };
 
 export default {
   fontSaira,
@@ -26,4 +27,5 @@ export default {
   InputWrong,
   InputCorrect,
   InputGroup,
+  RoundButton,
 };

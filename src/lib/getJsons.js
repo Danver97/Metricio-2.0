@@ -45,9 +45,10 @@ export function getAllDashboards() {
   }
 }
 
-export function getJobs() {
+export function getJobs(dashboard) {
   let dashboards;
-  getSync(urlPaths.jobs.get.list(), { Accept: 'application/json' }, xhttp => { dashboards = xhttp.responseText; });
+  const path = dashboard ? urlPaths.jobs.get.list(dashboard) : urlPaths.jobs.get.listAll();
+  getSync(path, { Accept: 'application/json' }, xhttp => { dashboards = xhttp.responseText; });
   try {
     dashboards = JSON.parse(dashboards);
     return dashboards;

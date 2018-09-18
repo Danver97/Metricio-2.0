@@ -31,6 +31,7 @@ export default class PingWidget extends BaseWidget {
       ...this.classList,
       'widget__ping',
       `widget__ping--${parseStatusCode(this.state.status)}`,
+      'notSelectable',
     );
 
     return (

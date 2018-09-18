@@ -1,86 +1,149 @@
 import { getUserFromRequest } from '../lib/utils';
 
 const express = require('express');
-const Dashboard = require('../models/dashboard');
-const Dashsuite = require('../models/dashsuite');
+
+const dashboardMgr = require('../managers/dashboardManager');
+const dashsuiteMgr = require('../managers/dashsuiteManager');
+const responses = require('../lib/responses');
 
 const router = express.Router();
 
-const badRequest = (res, message) => {
-  res.status(400);
-  if (message)
-    res.json({ error: message });
-  else 
-    res.end();
-};
-
-const notFound = (res, message) => {
-  res.status(404);
-  if (message)
-    res.json({ error: message });
-  else 
-    res.end();
-};
-
-const internalServerError = (res, message) => {
-  res.status(500);
-  if (message)
-    res.json({ error: message });
-  else 
-    res.end();
-};
-
 router.use(getUserFromRequest);
 
-router.get('/getStructure/:dashboard', (req, res) => {
-  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
-    if (err) throw err;
+router.get('/getStructure/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
     if (!doc) {
-      notFound(res, 'Dashboard not found.');
+      responses.notFound(res, 'Dashboard not found.');
       return;
     }
     res.json(doc);
-  });
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
 });
 
-router.get('/getComponentStructure/:dashboard', (req, res) => {
+router.get('/getComponentStructure/:dashboard', async (req, res) => {
   const query = req.query;
   if (!query.compId) {
-    badRequest(res, 'Missing param compId.');
+    responses.badRequest(res, 'Missing query param \'compId.\'');
     return;
   }
-  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
-    if (err) throw err;
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
     if (!doc) {
-      notFound(res, 'Dashboard not found.');
+      responses.notFound(res, 'Dashboard not found.');
       return;
     }
-    const compStr = doc.children.filter(c => c.attrs.id === query.compId ||
-                                        c.attrs.key === query.compId)[0];
+    const compStr = doc.children.filter(c => c.attrs.id === query.compId || c.attrs.key === query.compId)[0];
     if (!compStr) {
-      notFound(res, 'Component not found.');
+      responses.notFound(res, 'Component not found.');
       return;
     }
     res.json(compStr);
-  });
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.get('/getVars/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    res.json(doc.vars);
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
 });
 
 router.get('/listAll', async (req, res) => {
   try {
-    const docs = await Dashboard.findByUser(req.user.id);
+    const docs = await dashboardMgr.findByUser(req.user.id);
     if (!docs) {
-      notFound(res);
+      responses.notFound(res);
       return;
     }
     res.status(200);
     res.json(docs);
   } catch (e) {
-    internalServerError(res, e.message);
+    responses.internalServerError(res, e.message);
   }
 });
 
-router.post('/save/:dashboard', (req, res) => {
-  const dashLayout = JSON.parse(req.body.layout);
+router.post('/create', async (req, res) => {
+  const body = req.body;
+  if (!body.name || !body.dashsuite) {
+    responses.badRequest(res, `Missing param ${!body.name ? 'name' : ''} ${!body.dashsuite ? 'dashsuite' : ''}`);
+    return;
+  }
+  try {
+    const dashsuite = await dashsuiteMgr.findByUserAndDashSuiteName(req.user.id, body.dashsuite, false);
+    const newDash = {
+      user: req.user.id,
+      name: body.name,
+      isMain: body.ismain,
+      dashsuite: dashsuite._id,
+      variables: JSON.parse(body.variables),
+    };
+    await dashboardMgr.createDash(newDash);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/delete/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing param \'dashboard\'');
+    return;
+  }
+  try {
+    await dashboardMgr.deleteByName(req.user.id, req.params.dashboard);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/save/:dashboard', async (req, res) => {
+  if (!req.body.layout) {
+    responses.badRequest(res, 'Missing body \'layout\' param.');
+  }
+  try {
+    const dashLayout = JSON.parse(req.body.layout);
+    const newDash = {
+      user: req.user.id,
+      name: dashLayout.name,
+      children: dashLayout.children,
+      subdashboard: [],
+      layouts: dashLayout.layouts,
+    };
+    await dashboardMgr.updateDash(newDash);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+  /* const dashLayout = JSON.parse(req.body.layout);
   const newDash = new Dashboard({
     user: req.user.id,
     name: dashLayout.name,
@@ -92,75 +155,126 @@ router.post('/save/:dashboard', (req, res) => {
     if (err) throw err;
     console.log(dash);
   });
-  res.end();
+  res.end(); */
 });
 
-router.post('/edit/:dashboard', (req, res) => {
-  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
-    if (err) throw err;
-    let structure;
-    try {
-      structure = JSON.parse(req.body.structure);
-      console.log(structure);
-    } catch (e) {
-      res.end(e);
-    }
-    const idx = doc.children.findIndex(x => x.attrs.key === structure.attrs.key);
-    doc.children[idx] = structure;
-    Dashboard.updateOne({
-      user: doc.user,
-      name: doc.name,
-    }, doc, { upsert: true, new: true }, (error) => {
-      if (error) throw error;
-      res.end('edit: got it!');
-    });
-  });
-});
-
-router.post('/newWidget/:dashboard', (req, res) => {
-  Dashboard.findByUserAndDashboardName(req.user.id, req.params.dashboard, (err, doc) => {
-    if (err) throw err;
-    let structure;
-    try {
-      structure = JSON.parse(req.body.structure);
-      console.log(structure);
-    } catch (e) {
-      res.end(e);
-    }
-    doc.children.push(structure);
-    Dashboard.updateOne({
-      user: doc.user,
-      name: doc.name,
-    }, doc, { upsert: true, new: true }, (error) => {
-      if (error) throw error;
-      res.end('edit: got it!');
-    });
-  });
-});
-
-router.post('/create', async (req, res) => {
-  const body = req.body;
-  if (!body.name || !body.dashsuite) {
-    badRequest(res, `Missing param ${!body.name ? 'name' : ''} ${!body.dashsuite ? 'dashsuite' : ''}`);
+router.post('/edit/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  if (!req.body.structure) {
+    responses.badRequest(res, 'Missing \'structure\' body param.');
     return;
   }
   try {
-    const dashsuite = await Dashsuite.findByUserAndDashSuiteName(req.user.id, body.dashsuite, false);
-    const newDash = new Dashboard({
-      user: req.user.id,
-      name: body.name,
-      isMain: body.ismain,
-      dashsuite: dashsuite._id,
-      variables: JSON.parse(body.variables),
-    });
-    const doc = await Dashboard.createDash(newDash);
-    dashsuite.dashboards.push(doc._id);
-    await Dashsuite.updateDash(dashsuite);
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const structure = JSON.parse(req.body.structure);
+    const idx = doc.children.findIndex(x => x.attrs.key === structure.attrs.key);
+    if (idx === -1) {
+      responses.notFound(res, 'Component not found.');
+      return;
+    }
+    doc.children[idx] = structure;
+    await dashboardMgr.updateDash(doc);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/newWidget/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  if (!req.body.structure) {
+    responses.badRequest(res, 'Missing \'structure\' body param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const structure = JSON.parse(req.body.structure);
+    doc.children.push(structure);
+    await dashboardMgr.updateDash(doc);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/saveVars/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const variables = JSON.parse(req.body.variables);
+    doc.vars = variables;
+    await dashboardMgr.updateDash(doc);
     res.status(200);
     res.end();
   } catch (e) {
     console.log(e);
-    internalServerError(res, e.message);
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/startParametrizedJobs/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard, true);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const vars = JSON.parse(req.body.variables) || {};
+    const parametrizedJobs = doc.jobs.filter(j => !!j.parameters || (Array.isArray(j.parameters) && j.parameters.length > 0));
+    parametrizedJobs.forEach(j => dashboardMgr.startJob(j, vars));
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    responses.internalServerError(res, e.message);
+  }
+});
+
+router.post('/stopParametrizedJobs/:dashboard', async (req, res) => {
+  if (!req.params.dashboard) {
+    responses.badRequest(res, 'Missing \'dashboard\' param.');
+    return;
+  }
+  try {
+    const doc = await dashboardMgr.findByUserAndDashboardName(req.user.id, req.params.dashboard, true);
+    if (!doc) {
+      responses.notFound(res, 'Dashboard not found.');
+      return;
+    }
+    const parametrizedJobs = doc.jobs.filter(j => !!j.parameters || (Array.isArray(j.parameters) && j.parameters.length > 0));
+    parametrizedJobs.forEach(j => dashboardMgr.stopJob(j));
+    res.status(200);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    responses.internalServerError(res, e.message);
   }
 });
 

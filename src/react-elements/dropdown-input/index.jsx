@@ -2,7 +2,7 @@ import React from 'react';
 import ReactSelect from 'react-select';
 import Async from 'react-select/lib/Async';
 
-import './styles';
+import './styles.scss';
 
 export default class DropdownInput extends React.Component {
   constructor(props) {
@@ -36,6 +36,7 @@ export default class DropdownInput extends React.Component {
         id: this.props.id,
         name: this.props.name,
         data: value,
+        value: value.value,
       },
     };
     if (this.props.onChange)
@@ -48,7 +49,7 @@ export default class DropdownInput extends React.Component {
       return (
         <Async 
           autoFocus={this.props.autoFocus}
-          className={'dropdownInput ' + this.props.className}
+          className={`dropdownInput ${this.props.className}`}
           defaultOptions={this.props.defaultOptions}
           inputValue={this.props.inputValue || this.state.inputValue}
           isClearable={this.props.isClearable}
@@ -60,6 +61,7 @@ export default class DropdownInput extends React.Component {
           onInputChange={this.onInputChange} 
           onChange={this.onChange} 
           placeholder={this.props.placeholder}
+          style={this.props.style}
           value={this.state.selectedOption} 
         />
       );
@@ -67,7 +69,7 @@ export default class DropdownInput extends React.Component {
     return (
       <ReactSelect 
         autoFocus={this.props.autoFocus}
-        className={'dropdownInput ' + this.props.className}
+        className={`dropdownInput ${this.props.className}`}
         inputValue={this.props.inputValue || this.state.inputValue}
         isClearable={this.props.isClearable}
         isDisabled={this.props.isDisabled}
@@ -78,6 +80,7 @@ export default class DropdownInput extends React.Component {
         onInputChange={this.onInputChange} 
         options={this.props.options} 
         placeholder={this.props.placeholder}
+        style={this.props.style}
         value={this.state.selectedOption} 
       />
     );

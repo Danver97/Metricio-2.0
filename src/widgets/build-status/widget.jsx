@@ -38,6 +38,7 @@ export default class BuildStatusWidget extends BaseWidget {
       ...this.classList,
       'widget__buildStatus',
       `widget--${this.state.value}`,
+      'notSelectable',
     );
 
     return (

@@ -7,7 +7,7 @@ import { get, post } from '../lib/requests';
 
 import '../styles/default.scss';
 
-export default class DashboardEditView extends React.Component {
+export default class JobEditView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

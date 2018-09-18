@@ -52,6 +52,24 @@ p {
   margin: 0;
 }
 
+%notSelectable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.notSelectable {
+  @extend %notSelectable
+}
+
+div.notSelectable, button.notSelectable {
+  h1, h2, h3, h4, p, i {
+    @extend %notSelectable
+  }
+}
+
 .dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));

@@ -16,7 +16,7 @@ export default class DashboardToolbarDashboardListTitle extends React.Component 
   }
 
   render() {
-    let classNames = 'toolbar-dashboard-title';
+    let classNames = 'notSelectable toolbar-dashboard-title';
     if (this.props.separator) {
       classNames += ' separator';
     } else if (!this.props.disabled) {

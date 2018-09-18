@@ -3,7 +3,7 @@ import qs from 'query-string';
 function checkParam(strings) {
   const values = Array.from(arguments);
   values.shift();
-  const result = function () {
+  const result = function result() {
     const resultArr = [];
     const params = Array.from(arguments);
     let index;
@@ -45,8 +45,10 @@ export default {
       dashboard: (dash) => checkParam`/dashboard/get/${dash}`(':dashboard'),
       create: () => '/dashboards/create',
       edit: (dash) => checkParam`/dashboard/edit/${dash}`(':dashboard'),
-      getStructure: (dash) => checkParam`/dashboard/getStructure/${dash}`(':dashboard'),
+      editVars: (dash) => checkParam`/dashboard/editVars/${dash}`(':dashboard'),
       getComponentStructure: (dash) => checkParam`/dashboard/getComponentStructure/${dash}`(':dashboard'),
+      getStructure: (dash) => checkParam`/dashboard/getStructure/${dash}`(':dashboard'),
+      getVars: (dash) => checkParam`/dashboard/getVars/${dash}`(':dashboard'),
       listAll: () => '/dashboard/listAll',
       newWidget: (dash) => checkParam`/dashboard/newWidget/${dash}`(':dashboard'),
     },
@@ -55,7 +57,10 @@ export default {
       delete: (dash) => checkParam`/dashboard/delete/${dash}`(':dashboard'),
       edit: (dash) => checkParam`/dashboard/edit/${dash}`(':dashboard'),
       save: (dash) => checkParam`/dashboard/save/${dash}`(':dashboard'),
+      saveVars: (dash) => checkParam`/dashboard/saveVars/${dash}`(':dashboard'),
       newWidget: (dash) => checkParam`/dashboard/newWidget/${dash}`(':dashboard'),
+      startParametrizedJobs: (dash) => checkParam`/dashboard/startParametrizedJobs/${dash}`(':dashboard'),
+      stopParametrizedJobs: (dash) => checkParam`/dashboard/stopParametrizedJobs/${dash}`(':dashboard'),
     },
   },
   dashsuites: {
@@ -73,13 +78,16 @@ export default {
   },
   jobs: {
     get: {
-      create: () => '/jobs/create',
+      create: (dashboard) => checkParam`/jobs/create/${dashboard}`(':dashboard'),
       edit: (jobName) => checkParam`/jobs/edit/${jobName}`(':jobName'),
       getJobNamesLike: () => '/jobs/getJobNamesLike',
       getTaskNamesLike: () => '/jobs/getTaskNamesLike',
       job: (jobName) => checkParam`/jobs/job/${jobName}`(':jobName'),
-      jobs: () => '/jobs',
-      list: () => '/jobs/list',
+      jobs: (dashboard) => checkParam`/jobs/get/${dashboard}`(':dashboard'),
+      jobsAll: () => '/jobs/all',
+      list: (dashboard) => checkParam`/jobs/list/${dashboard}`(':dashboard'),
+      listAll: () => '/jobs/listAll',
+      types: () => '/jobs/types',
     },
     post: {
       create: () => '/jobs/create',

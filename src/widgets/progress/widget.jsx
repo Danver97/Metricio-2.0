@@ -68,7 +68,7 @@ export default class ProgressWidget extends BaseWidget {
   }
 
   render() {
-    const classList = classNames(...this.classList, 'widget__progress');
+    const classList = classNames(...this.classList, 'widget__progress', 'notSelectable');
     const progress = this.parseProgress(this.state.value);
 
     return (

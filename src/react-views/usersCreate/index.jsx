@@ -35,7 +35,7 @@ const colorInputWrong = '#ffc4c4';
 const colorBorderWrong = '#cc9595';
 const colorSideInputWrong = '#e0a3a3';
 
-export default class CreateView extends React.Component {
+export default class UsersCreateView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

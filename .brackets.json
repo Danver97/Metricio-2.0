@@ -6,5 +6,12 @@
       "linting.prefer": ["ESLint"],
       "linting.usePreferredOnly": true
     }
-  }
+  },
+  "jwolfe.file-tree-exclude.list": [
+	"node_modules",
+	"bower_components",
+	".git",
+	"dist",
+	"vendor"
+  ]
 }

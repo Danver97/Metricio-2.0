@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { HighchartsChart, Chart, Tooltip, XAxis, YAxis, Legend, ColumnSeries, SplineSeries } from 'react-jsx-highcharts';
 
-import logger from '../../../lib/logger';
 import BaseWidget from '../base';
 
 import './styles.scss';
@@ -204,8 +204,9 @@ export default class GraphWidget extends BaseWidget {
   }
   
   render() {
+    const classList = classNames(...this.classList, 'widget', 'widget__graph', 'notSelectable');
     return (
-      <div className="widget widget__graph" style={{ backgroundColor: this.color }}>
+      <div className={classList} style={{ backgroundColor: this.color }}>
         <h1 className="widget__title">{this.props.title}</h1>
         <HighchartsChart plotOptions={plotOptions} callback={this.getChart}>
           <Chart backgroundColor="none" style={{ width: '100%' }} />

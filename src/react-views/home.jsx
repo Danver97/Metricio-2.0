@@ -8,7 +8,6 @@ import urlPaths from '../lib/url_paths';
 
 const suitePath = urlPaths.dashsuites.get.dashsuites();
 const usersPath = urlPaths.users.get.users();
-const jobsPath = urlPaths.jobs.get.jobs();
 
 class Home extends React.Component {
   render() {
@@ -20,7 +19,7 @@ class Home extends React.Component {
             getSuitesStruct('MORE', suitePath), 
             getUsersStruct('MORE', usersPath), 
             getAllBoardsStruct(), 
-            getJobsStruct('MORE', jobsPath), 
+            getJobsStruct(), 
           ]} 
       />
     );

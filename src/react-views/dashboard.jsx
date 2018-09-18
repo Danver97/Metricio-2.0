@@ -1,4 +1,5 @@
 import React from 'react';
+import qs from 'query-string';
 
 import DashTreeHandler from '../lib/dashTreeHandler';
 import Dashboard from '../widgets/dashboard';
@@ -15,6 +16,37 @@ export default class DashboardView extends React.Component {
     this.onSave = this.onSave.bind(this);
     this.onJob = this.onJob.bind(this);
     this.onNewWidget = this.onNewWidget.bind(this);
+    this.onVariable = this.onVariable.bind(this);
+    this.onRefresh = this.onRefresh.bind(this);
+  }
+  
+  componentDidMount() {
+    const variables = qs.parse(this.props.location.search) || {};
+    post(
+      urlPaths.dashboard.post.startParametrizedJobs(this.dashboard), 
+      { Authorization: `Bearer ${this.props.auth.getToken()}`, 'Content-Type': 'application/x-www-form-urlencoded' }, 
+      `variables=${JSON.stringify(variables)}`, 
+      () => {}
+    );
+  }
+  
+  onRefresh(title, vars) {
+    const variables = {};
+    vars.filter(v => v.value && v.value !== 'no value').forEach(v => { variables[v.name] = v.value; });
+    console.log('onRefresh');
+    post(
+      urlPaths.dashboard.post.stopParametrizedJobs(this.dashboard), 
+      { Authorization: `Bearer ${this.props.auth.getToken()}`, 'Content-Type': 'application/x-www-form-urlencoded' }, 
+      null, 
+      () => {
+        post(
+          urlPaths.dashboard.post.startParametrizedJobs(title), 
+          { Authorization: `Bearer ${this.props.auth.getToken()}`, 'Content-Type': 'application/x-www-form-urlencoded' }, 
+          `variables=${JSON.stringify(variables)}`, 
+          () => {}
+        );
+      }
+    );
   }
   
   onSave(dashStr) {
@@ -27,19 +59,23 @@ export default class DashboardView extends React.Component {
   }
   
   onJob() {
-    if (this.props.history) {
-      this.props.history.push(urlPaths.jobs.get.jobs());
-      return;
-    }
-    window.location.assign(urlPaths.jobs.get.jobs());
+    this.redirect(urlPaths.jobs.get.jobs(this.dashboard));
+  }
+  
+  onVariable() {
+    this.redirect(urlPaths.dashboard.get.editVars(this.dashboard));
   }
   
   onNewWidget() {
+    this.redirect(urlPaths.dashboard.get.newWidget(this.dashboard));
+  }
+  
+  redirect(path) {
     if (this.props.history) {
-      this.props.history.push(urlPaths.dashboard.get.newWidget(this.dashboard));
+      this.props.history.push(path);
       return;
     }
-    window.location.assign(urlPaths.dashboard.get.newWidget(this.dashboard));
+    window.location.assign(path);
   }
   
   render() {
@@ -50,11 +86,14 @@ export default class DashboardView extends React.Component {
     return (
       <Dashboard 
         history={this.props.history} 
-        title={this.dashboard || 'index2'} 
+        query={qs.parse(this.props.location.search)} 
+        title={this.dashboard} 
         name="dash" 
         onSave={this.onSave} 
         onJob={this.onJob} 
         onAddPanel={this.onNewWidget} 
+        onVariable={this.onVariable} 
+        onRefresh={this.onRefresh} 
         editUrl={urlPaths.dashboard.get.edit(this.dashboard)} 
       />
     );

@@ -4,17 +4,17 @@ import { getDashsuites, getUsers, getDashboardsFromDashsuite, getAllDashboards, 
 import urlPaths from './url_paths';
 
 
-function getTitledTableStructure(title, coll, titleBut, link, defaultLink) {
+function getTitledTableStructure(title, coll, titleButton, link, defaultLink) {
   let buttonLink;
-  if (titleBut)
+  if (titleButton)
     buttonLink = link || defaultLink;
-  return new TitledTableStructure(title, coll, titleBut, buttonLink);
+  return new TitledTableStructure(title, coll, titleButton, buttonLink);
 }
 
 export function getDashSuitesCollection() {
   const response = getDashsuites();
   // console.log(response);
-  const keyOrder = ['name', 'dashNumber', 'lastModified'];
+  const keyOrder = ['name', 'dashNumber', 'lastModified', 'deleteLink'];
   const dashSuites = [];
   response.forEach(r => dashSuites.push({ data: r, link: r.link, original: r }));
   /* const dashSuites = [{
@@ -36,6 +36,7 @@ export function getDashSuitesCollection() {
     d.data.name = d.original.name;
     d.data.dashNumber = `Number of dashboards: ${d.original.dashboards.length}`;
     d.data.lastModified = `Last modified: ${d.original.lastModified}`;
+    d.data.deleteLink = d.original.delete;
   });
 
   return getCollectionOfOrderedByKeyObjects(dashSuites, keyOrder, 'data');
@@ -45,11 +46,12 @@ export function getDashboardsCollection(dashsuiteName) {
   const response = getDashboardsFromDashsuite(dashsuiteName);
   const dashboards = [];
   response.forEach(r => dashboards.push({ data: r, link: encodeURI(urlPaths.dashboard.get.dashboard(r.name)), original: r }));
-  const keyOrder = ['name', 'children', 'subdashboards'];
+  const keyOrder = ['name', 'children', 'subdashboards', 'deleteLink'];
   dashboards.forEach(d => {
     d.data.name = d.original.name;
     d.data.children = `Number of children: ${d.original.children.length}`;
     d.data.subdashboards = `Number of subdashboards: ${d.original.subdashboard.length}`;
+    d.data.deleteLink = d.original.delete;
   });
 
   return getCollectionOfOrderedByKeyObjects(dashboards, keyOrder, 'data');
@@ -59,24 +61,27 @@ export function getAllDashboardsCollection() {
   const response = getAllDashboards();
   const dashboards = [];
   response.forEach(r => dashboards.push({ data: r, link: urlPaths.dashboard.get.dashboard(r.name), original: r }));
-  const keyOrder = ['name', 'children', 'subdashboards'];
+  const keyOrder = ['name', 'children', 'subdashboards', 'deleteLink'];
   dashboards.forEach(d => {
     d.data.name = d.original.name;
     d.data.children = `Number of children: ${d.original.children.length}`;
     d.data.subdashboards = `Number of subdashboards: ${d.original.subdashboard.length}`;
+    d.data.deleteLink = d.original.delete;
   });
   return getCollectionOfOrderedByKeyObjects(dashboards, keyOrder, 'data');
 }
 
-export function getJobsCollection() {
-  const response = getJobs();
+export function getJobsCollection(dashboard) {
+  const response = getJobs(dashboard);
   const dashboards = [];
   response.forEach(r => dashboards.push({ data: r, link: urlPaths.jobs.get.edit(r.jobName), original: r }));
-  const keyOrder = ['jobName', 'type', 'taskNumber'];
+  const keyOrder = ['jobName', 'dashboard', 'type', 'taskNumber', 'deleteLink'];
   dashboards.forEach(d => {
     d.data.name = d.original.jobName;
-    d.data.type = d.original.type || 'none';
+    d.data.dashboard = `Dashboard: ${d.original.dashboard || 'none'}`;
+    d.data.type = `Type: ${d.original.type || 'none'}`;
     d.data.taskNumber = `Number of tasks: ${d.original.tasks.length}`;
+    d.data.deleteLink = d.original.delete;
   });
   return getCollectionOfOrderedByKeyObjects(dashboards, keyOrder, 'data');
 }
@@ -193,20 +198,20 @@ export function getUsersStructWithTitle(title, titleButton, link) {
 
 // Jobs
 // rst
-export function getJobsStructUtil(title, titleButton, link) {
-  const coll = getJobsCollection();
+export function getJobsStructUtil(title, dashboard, titleButton, link) {
+  const coll = getJobsCollection(dashboard);
   return getTitledTableStructure(title, coll, titleButton, link, urlPaths.jobs.get.list);
 }
 
-export function getJobsStruct(titleButton, link) {
-  return getJobsStructUtil('Jobs', titleButton, link);
+export function getJobsStruct(dashboard, titleButton, link) {
+  return getJobsStructUtil('Jobs', dashboard, titleButton, link);
 }
 
-export function getJobsStructNoTitle(titleButton, link) {
-  return getJobsStructUtil('', titleButton, link);
+export function getJobsStructNoTitle(dashboard, titleButton, link) {
+  return getJobsStructUtil('', dashboard, titleButton, link);
 }
 
-export function getJobsStructWithTitle(title, titleButton, link) {
-  return getJobsStructUtil(title, titleButton, link);
+export function getJobsStructWithTitle(title, dashboard, titleButton, link) {
+  return getJobsStructUtil(title, dashboard, titleButton, link);
 }
 // rcl

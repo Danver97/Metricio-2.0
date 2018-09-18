@@ -27,7 +27,7 @@ export default class SparklineWidget extends BaseWidget {
 
   render() {
     const latestValue = (this.state.value && Array.isArray(this.state.value)) ? this.state.value.slice(-1).pop() : 0;
-    const classList = classNames(...this.classList, 'widget__sparkline');
+    const classList = classNames(...this.classList, 'widget__sparkline', 'notSelectable');
 
     return (
       <div className={classList}>

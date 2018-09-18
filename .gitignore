@@ -6,6 +6,7 @@ coverage
 
 rmongo-server
 rredis-server
+.brackets.json
 
 config/*
 !config/index.js

@@ -7,7 +7,7 @@ import { post } from '../lib/requests';
 
 import '../styles/default.scss';
 
-export default class DashboardEditView extends React.Component {
+export default class JobCreateView extends React.Component {
   constructor(props) {
     super(props);
     // this.auth = new Auth();
@@ -19,8 +19,8 @@ export default class DashboardEditView extends React.Component {
   saveJob(jobStr) {
     post(
       urlPaths.jobs.post.create(),
-      { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.props.auth.getToken()}` }, 
-      `jobName=${jobStr.jobName}&interval=${jobStr.interval}&type=${jobStr.type}&tasks=${JSON.stringify(jobStr.tasks)}`
+      { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.props.auth.getToken()}` },
+  `dashboard=${this.props.match.params.dashboard}&jobName=${jobStr.jobName}&interval=${jobStr.interval}&type=${jobStr.type}&tasks=${JSON.stringify(jobStr.tasks)}`
     );
     this.back();
   }

@@ -15,7 +15,7 @@ import DefaultFrame from '../../react-elements/default-frame/widget';
 
 import './styles.scss';
 
-export default class CreateView extends React.Component {
+export default class DashsuiteCreateView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

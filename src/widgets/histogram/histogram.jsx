@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { HighchartsChart, Chart, Tooltip, XAxis, YAxis, Legend, ColumnSeries, SplineSeries } from 'react-jsx-highcharts';
 import logger from '../../../lib/logger';
 
@@ -191,9 +192,9 @@ export default class HistogramWidget extends BaseWidget {
   
   render() {    
     // const colors = ['#DB2763', '#0B7A75', '#645DD7', '#FF4242', '#F2FF49'];
-    
+    const classList = classNames(...this.classList, 'widget', 'widget__histogram', 'notSelectable');
     return (
-      <div className="widget widget__histogram">
+      <div className={classList}>
         <h1 className="widget__title">{this.props.title}</h1>
         <HighchartsChart plotOptions={plotOptions} callback={this.getChart}>
           <Chart backgroundColor="none" style={{ width: '100%' }} />

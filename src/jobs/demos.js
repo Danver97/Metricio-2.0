@@ -1,5 +1,16 @@
 /* eslint-disable no-mixed-operators */
 
+/*
+export const interval = '* * * * *';
+export const perform = async (jobs) => {
+  let result = [];
+  jobs.forEach(async j => {
+    const res = await j.perform();
+    result = result.concat(res);
+  });
+  return result;
+};
+*/
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }

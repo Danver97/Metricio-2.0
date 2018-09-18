@@ -82,16 +82,13 @@ export default class DashboardGrid extends React.PureComponent {
     // {lg: layout1, md: layout2, ...}
     let l = this.props.layout || [];
     l = Array.isArray(l) ? l : [];
-    let layouts;
-    if (!this.state.layouts) {
-      layouts = {
-        lg: l,
-        md: l,
-        sm: l,
-        xs: l,
-        xxs: l,
-      };
-    }
+    const layouts = {
+      lg: l,
+      md: l,
+      sm: l,
+      xs: l,
+      xxs: l,
+    };
     return (
       <ResponsiveGridLayout className="layout" layouts={layouts} breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }} cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }} onLayoutChange={this.props.onLayoutChange} onBreakpointChange={this.onBreakpointChange} rowHeight={40} isResizable={true} onResize={this.onResize}>
         {this.props.children && 

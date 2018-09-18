@@ -13,7 +13,7 @@ import {
   ModalFooter,
   UncontrolledTooltip,
 } from 'reactstrap';
-
+import fetch from 'node-fetch';
 import cronValidator from 'sancronos-validator';
 
 // Components
@@ -23,9 +23,8 @@ import ExpansiblePanel from '../../react-elements/expansible-panel';
 import DropdownInput from '../../react-elements/dropdown-input';
 import DefaultFrame from '../../react-elements/default-frame/widget';
 import InputGroupIcon from '../../react-elements/input-prepend-icon';
+import urlPaths from '../../lib/url_paths';
 // rcl
-
-import jobTypes from '../../lib/structures/jobsStructures';
 
 import './styles.scss';
 
@@ -286,7 +285,7 @@ export default class CreateView extends React.Component {
               id={`projection${id}`} 
               onChange={ev => this.addTask(ev, id)} 
               placeholder="Field" 
-              dafeaultValue={e.options.projection}
+              defaultValue={e.options.projection}
               style={Styles.InputDark} 
             />
             {e.options.method === 'POST' && 
@@ -403,8 +402,10 @@ export default class CreateView extends React.Component {
     );
   }
   
-  getJobTypeOptions() {
-    return Object.keys(jobTypes).map(k => ({ label: jobTypes[k].className, value: jobTypes[k].className }));
+  async getJobTypeOptions() {
+    const response = await fetch(urlPaths.jobs.get.types());
+    const types = await response.json();
+    return types.map(t => ({ label: t, value: t }));
   }
   
   addTask(e, id) {
@@ -546,12 +547,12 @@ export default class CreateView extends React.Component {
   }
   
   toggleModal(modal, callback) {
+    if (callback)
+      callback();
     this.setState(prevState => ({
       modalShow: !prevState.modalShow,
       modal: modal || prevState.modal,
     }));
-    if (callback)
-      callback();
   }
   
   render() {
@@ -593,10 +594,12 @@ export default class CreateView extends React.Component {
             <FormGroup>
               <Label for="type">Type:</Label>
               <DropdownInput 
+                async
                 className="marginBottom"
                 id="type"
                 name="type"
-                options={this.getJobTypeOptions()}
+                loadOptions={this.getJobTypeOptions}
+                defaultOptions
                 placeholder={this.state.jobStructure.type || 'Type'} 
                 style={{ marginBottom: '1rem' }}
                 onChange={e => this.onChange(e)}

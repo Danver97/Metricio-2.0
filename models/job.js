@@ -1,12 +1,15 @@
 import logger from '../lib/logger';
 
 const mongoose = require('mongoose');
-const jobEvents = require('../listeners/jobListener');
 
 const JobSchema = new mongoose.Schema({
   user: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
+  },
+  dashboard: {
+    type: String,
   },
   type: {
     type: String,
@@ -19,6 +22,9 @@ const JobSchema = new mongoose.Schema({
   interval: {
     type: String,
     required: true,
+  },
+  parameters: {
+    type: Boolean, // [String],
   },
   tasks: {
     type: [{
@@ -41,22 +47,22 @@ const Job = mongoose.model('Job', JobSchema);
 
 Job.createJob = async (job, cb) => {
   if (!cb) {
-    try {
-      await Job.create(job);
-      jobEvents.emit('createJob', job);
-    } catch (e) {
-      throw e;
-    }
-    return;
+    return Job.create(job);
   }
-  Job.create(job, (err, doc) => {
-    if (!err) jobEvents.emit('createJob', job);
-    cb(err, doc);
-  });
+  Job.create(job, cb);
+  return null;
 };
 
 Job.findByUser = (user, cb) => {
   const query = { user };
+  if (!cb)
+    return Job.find(query).exec();
+  Job.find(query, cb);
+  return null;
+};
+
+Job.findByUserAndDashboard = (user, dashboard, cb) => {
+  const query = { user, dashboard };
   if (!cb)
     return Job.find(query).exec();
   Job.find(query, cb);
@@ -75,7 +81,7 @@ Job.getJobNamesLike = (user, namelike, cb) => {
   const aggregate = Job.aggregate([
     {
       $match: {
-        user,
+        user: new mongoose.Types.ObjectId(user),
         jobName: new RegExp(`${namelike}`),
       },
     },
@@ -86,17 +92,20 @@ Job.getJobNamesLike = (user, namelike, cb) => {
       },
     },
   ]);
-  if (!cb)
+  if (!cb) {
     return aggregate.exec();
+  }
   aggregate.exec(cb);
   return null;
 };
 
 Job.getTaskNamesLike = (user, jobName, like, cb) => {
+  console.log(user);
+  console.log(jobName);
   const aggregate = Job.aggregate([
     {
       $match: {
-        user,
+        user: new mongoose.Types.ObjectId(user),
         jobName: jobName === '' ? /.*/ : jobName,
       },
     },
@@ -109,11 +118,11 @@ Job.getTaskNamesLike = (user, jobName, like, cb) => {
     {
       $unwind: '$taskName',
     },
-    {
+    /* {
       $match: {
         taskName: new RegExp(`${like}`),
       },
-    },
+    }, */
   ]);
   if (!cb)
     return aggregate.exec();
@@ -129,34 +138,28 @@ Job.getAll = (cb) => {
 };
 
 Job.deleteJobById = async (jobId, cb) => {
-  Job.findByIdAndDelete(jobId, (err, doc) => {
-    if (err && !cb) throw err;
-    jobEvents.emit('deleteJob', doc.jobName);
-    if (cb)
-      cb(err, doc);
-  });
+  if (!cb)
+    return Job.findByIdAndDelete(jobId).exec();
+  Job.findByIdAndDelete(jobId, cb);
+  return null;
 };
 
 Job.deleteJob = async (user, jobName, cb) => {
   const query = { user, jobName };
-  Job.findOneAndDelete(query, (err, doc) => {
-    if (err && !cb) throw err;
-    jobEvents.emit('deleteJob', jobName);
-    if (cb)
-      cb(err, doc);
-  });
+  if (!cb)
+    return Job.findOneAndDelete(query).exec();
+  Job.findOneAndDelete(query, cb);
+  return null;
 };
 
 Job.updateJob = async (user, jobName, job, cb) => {
   const query = { user, jobName };
   const newJob = job.toObject();
   delete newJob._id;
-  Job.findOneAndUpdate(query, newJob, { upsert: true, new: true }, (err, doc) => {
-    if (err && !cb) throw err;
-    jobEvents.emit('updateJob', doc);
-    if (cb)
-      cb(err, doc);
-  });
+  if (!cb)
+    return Job.findOneAndUpdate(query, newJob, { upsert: true, new: true });
+  Job.findOneAndUpdate(query, newJob, { upsert: true, new: true }, cb);
+  return null;
 };
 
 const demos = new Job({
@@ -205,6 +208,13 @@ const demos = new Job({
       },
     },
     {
+      taskName: 'DemoMultiProgress',
+      type: 'numberMinMax',
+      task: {
+        iterations: 4,
+      },
+    },
+    {
       taskName: 'DemoHistogram',
       type: 'graphSerie',
       task: {
@@ -217,12 +227,9 @@ const demos = new Job({
     },
   ],
 });
-
-try {
-  Job.createJob(demos);
-} catch (e) {
-  logger('jobs', '\'demos\' job already saved in db.');
-}
-
+Job.createJob(demos, (err) => {
+  if (err)
+    logger('jobs', '\'demos\' job already saved in db.');
+});
 
 module.exports = Job;

@@ -69,7 +69,7 @@ export default class AuthService {
     };
 
     if (this.loggedIn())
-      headers['Authorization'] = 'Bearer ' + this.getToken();
+      headers['Authorization'] = `Bearer ${this.getToken()}`;
     let data = options.data;
     if (headers['Content-Type'] === 'application/x-www-form-urlencoded')
       data = getURLQueryFromObject(options.data);

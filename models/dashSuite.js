@@ -31,6 +31,8 @@ const DashboardSuiteSchema = mongoose.Schema({
     type: String,
     default: urlPaths.dashsuites.get.list(),
   },
+  view: String,
+  delete: String,
 });
 
 DashboardSuiteSchema.pre('save', function (next) {
@@ -71,6 +73,13 @@ DashboardSuite.updateDash = (dashsuite, cb) => {
   return null;
 };
 
+DashboardSuite.findUsingId = (id, cb) => {
+  if (!cb)
+    return DashboardSuite.findById(id).exec();
+  DashboardSuite.findById(id, cb);
+  return null;
+};
+
 DashboardSuite.findByUser = (user, cb) => {
   const query = { user };
   if (!cb)
@@ -95,11 +104,12 @@ DashboardSuite.findByUserAndDashSuiteName = (user, dashSuiteName, populate, cb) 
 };
 
 DashboardSuite.deleteDash = (user, dashsuiteName, cb) => {
+  const query = { user, name: dashsuiteName };
   if (cb) {
-    DashboardSuite.deleteOne({ user, name: dashsuiteName }, cb);
+    DashboardSuite.findOneAndDelete(query, cb);
     return null;
   }
-  return DashboardSuite.deleteOne({ user, name: dashsuiteName }).exec();
+  return DashboardSuite.findOneAndDelete(query).exec();
 };
 
 module.exports = DashboardSuite;

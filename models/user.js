@@ -1,4 +1,5 @@
 import urlPaths from '../src/lib/url_paths';
+import logger from '../lib/logger';
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -8,7 +9,7 @@ const saltRounds = 10;
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    index: true,
+    index: { unique: true },
     required: true,
   },
   role: {
@@ -28,6 +29,8 @@ const UserSchema = new mongoose.Schema({
     default: urlPaths.users.get.list(),
   },
 });
+
+// UserSchema.index({ name: 1 }, { unique: true });
 
 UserSchema.pre('save', function (next) {
   this.delete = urlPaths.dashboard.post.delete(this.name);
@@ -102,5 +105,11 @@ User.deleteByNames = (nameArr, cb) => {
   User.deleteMany(query, cb);
   return null;
 };
+
+const admin = new User({ name: 'admin', role: 'admin', password: 'admin' });
+User.createUser(admin, (err) => {
+  if (err)
+    logger('users', '\'admin\' user already saved in db.');
+});
 
 module.exports = User;

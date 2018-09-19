@@ -1,5 +1,5 @@
 export default function request(method, url, async, headers, data, cb) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     console.log(url);
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -9,17 +9,17 @@ export default function request(method, url, async, headers, data, cb) {
       }
     };
     xhttp.open(method, url, async);
+    // xhttp.withCredentials = true;
     if (headers) {
-      if(Array.isArray(headers))
+      if (Array.isArray(headers))
         headers.forEach((header) => xhttp.setRequestHeader(header.tag, header.value));
-      if(typeof headers === 'object')
+      if (typeof headers === 'object')
         Object.keys(headers).forEach(k => xhttp.setRequestHeader(k, headers[k]));
     }
     if (data) xhttp.send(data);
     else xhttp.send();
   });
 }
-
   
 
 export function post(url, headers, data, cb) {

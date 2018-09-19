@@ -26,13 +26,37 @@ const bodyParser = require('body-parser');
 // const Job = require('./models/job');
 const cookieParser = require('cookie-parser');
 
-mongoose.connect('mongodb://localhost:27017/metricio');
+// mongoose.connect('mongodb://localhost:27017/metricio');
+function wait(ms) {
+  const start = Date.now();
+  let now = start;
+  while (now - start < ms) {
+    now = Date.now();
+  }
+}
+
+let attempt = 0;
+let error = null;
+while (attempt < 4) {
+  try {
+    // console.log(storage.mongodb.mongooseUri());
+    mongoose.connect(storage.mongodb.mongooseUri(), storage.mongodb.mongooseOptions());
+    attempt = 4;
+    error = null;
+  } catch (e) {
+    attempt++;
+    error = e;
+    wait(2000);
+  }
+}
+if (error)
+  throw error;
 // const db = mongoose.connection;
 
 
 const store = new MongoDBStoreSession({
-  uri: 'mongodb://localhost:27017',
-  databaseName: 'metricio',
+  uri: storage.mongodb.mongooseUri(),
+  databaseName: storage.mongodb.mongooseOptions().dbName,
   collection: 'users_sessions',
 }, (err) => { if (err) logger('err', err); });
 

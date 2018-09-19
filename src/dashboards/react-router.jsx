@@ -60,7 +60,6 @@ const Nav = () => (
 
 const App = () => (
   <div>
-    <Nav />
     <div>
       <Switch>
         <Route exact path={urlPaths.home.get.home()} component={home} />

@@ -35,9 +35,11 @@ router.post('/login', (req, res) => {
           const expiration = (new Date(Date.now() + age));
           const token = jwt.sign({ user: doc, exp: expiration.getTime() / 1000 }, ENV.jwtSecret);
           res.header('Autorization', `Bearer ${token}`);
+          res.header('Access-Control-Allow-Credentials', 'true');
           // res.header('Set-Cookie', `access_token=${token}; Expires=${expiration.toString()}; Domain=localhost; Path=/;`);
-          res.cookie('access_token', token, { expires: expiration, domain: 'localhost', path: '/' });
-          res.cookie('user', JSON.stringify(doc), { expires: expiration, domain: 'localhost', path: '/' });
+          res.cookie('access_token', token, { expires: expiration, path: '/' }); // , domain: 'localhost'
+          res.cookie('user', JSON.stringify(doc), { expires: expiration, path: '/' });
+          // console.log(req.headers);
           console.log('success');
           res.status(200);
           res.json({ token });

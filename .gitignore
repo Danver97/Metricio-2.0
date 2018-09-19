@@ -4,8 +4,8 @@ npm-debug.log
 coverage
 .nyc_output
 
-rmongo-server
-rredis-server
+rmongo-server.lnk
+rredis-server.lnk
 .brackets.json
 
 config/*

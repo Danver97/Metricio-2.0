@@ -1,0 +1,17 @@
+dist
+node_modules
+test
+npm-debug.log
+coverage
+.nyc_output
+
+rmongo-server.lnk
+rredis-server.lnk
+.brackets.json
+/coverage.lcov
+.eslintrc.json
+.eslintignore
+.gitattributes
+.gitignore
+.nycrc
+prova.js

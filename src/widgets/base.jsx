@@ -13,6 +13,10 @@ export default class BaseWidget extends React.Component {
     if (this.props.size) this.classList.push(`widget--${this.props.size}`);
   }
   
+  static get className() {
+    throw new Error('this.className not implemented!');
+  }
+    
   static get requiredProp() {
     return ['id', 'key', 'layout', 'name', 'socket'];
   }

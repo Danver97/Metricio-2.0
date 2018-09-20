@@ -79,6 +79,10 @@ router.get('/getTaskNamesLike', async (req, res) => {
 
 router.post('/create', async (req, res) => {
   const body = req.body;
+  if (body.jobName === 'demos') {
+    responses.badRequest(res, ' Job name \'demos\' is reserved.');
+    return;
+  }
   try {
     await jobsMgr.createJob({
       user: req.user.id,

@@ -3,7 +3,7 @@ import { getUserFromRequest } from '../lib/utils';
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/user');
+const userMgr = require('../managers/userManager');
 const ENV = require('../config/env');
 
 const responses = require('../lib/responses');
@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get('/list', getUserFromRequest, async (req, res) => {
   try {
-    const users = await User.getAll();
+    const users = await userMgr.getAll(); // await User.getAll();
     res.status(200);
     res.json(users);
   } catch (e) {
@@ -20,76 +20,74 @@ router.get('/list', getUserFromRequest, async (req, res) => {
   }
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  User.getByName(username, (err, doc) => {
-    if (err) throw err;
-    console.log(doc);
-    try {
-      if (!doc) throw new Error('No user found');
-      User.comparePassword(password, doc.password, (isMatch) => {
-        if (isMatch) {
-          delete doc.password;
-          const age = process.env.NODE_ENV === 'production' ? 1200000 : 1200000000;
-          const expiration = (new Date(Date.now() + age));
-          const token = jwt.sign({ user: doc, exp: expiration.getTime() / 1000 }, ENV.jwtSecret);
-          res.header('Autorization', `Bearer ${token}`);
-          res.header('Access-Control-Allow-Credentials', 'true');
-          // res.header('Set-Cookie', `access_token=${token}; Expires=${expiration.toString()}; Domain=localhost; Path=/;`);
-          res.cookie('access_token', token, { expires: expiration, path: '/' }); // , domain: 'localhost'
-          res.cookie('user', JSON.stringify(doc), { expires: expiration, path: '/' });
-          // console.log(req.headers);
-          console.log('success');
-          res.status(200);
-          res.json({ token });
-        } else {
-          console.log('Wrong username or password');
-          responses.badRequest(res, 'Wrong username or password');
-        }
-      });
-    } catch (e) {
-      console.log('Wrong username or password');
-      responses.badRequest(res, 'Wrong username or password');
-    }
-    // res.redirect('/');
-  });
+  try {
+    const user = await userMgr.autenticate(username, password);
+    delete user.password;
+    const age = process.env.NODE_ENV === 'production' ? 1200000 : 1200000000;
+    const expiration = (new Date(Date.now() + age));
+    const token = jwt.sign({ user, exp: expiration.getTime() / 1000 }, ENV.jwtSecret);
+    res.header('Autorization', `Bearer ${token}`);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.cookie('access_token', token, { expires: expiration, path: '/' }); // , domain: 'localhost'
+    res.cookie('user', JSON.stringify(user), { expires: expiration, path: '/' });
+    console.log('Authentication: success.');
+    res.status(200);
+    res.json({ token });
+  } catch (e) {
+    console.log('Authentication: failed.');
+    responses.badRequest(res, e.message);
+  }
 });
 
-router.post('/create', getUserFromRequest, (req, res) => {
-  const user = new User({
-    name: req.body.name,
-    role: req.body.role,
-    password: req.body.password,
-  });
-  User.createUser(user, (err) => {
-    if (err) throw err;
-    res.redirect('/users/list');
-  });
+router.post('/create', getUserFromRequest, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    res.status(403);
+    res.json({ error: 'Your role doesn\'t have this authorization.' });
+  }
+  try {
+    await userMgr.createUser({
+      name: req.body.name,
+      role: req.body.role,
+      password: req.body.password,
+    });
+    res.status(200);
+    res.end();
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
 });
 
-router.post('/changePassword', getUserFromRequest, (req, res) => {
+router.post('/changePassword', getUserFromRequest, async (req, res) => {
   const id = req.user.id;
   const name = req.user.name;
   const newPassword = req.body.password;
   if (!newPassword || (!id && !name)) {
-    res.statusCode = 500;
-    res.end();
+    responses.badRequest(res, 'Missing body params.');
   }
-  if (id)
+  try {
+    await userMgr.changePassword(id, name, newPassword);
+    res.status(200);
+    res.end();
+  } catch (e) {
+    responses.internalServerError(res, e.message);
+  }
+  /* if (id)
     User.getById(id, (err, user) => {
-      User.changePassword(user, newPassword, (err, user) => {
-        if (err) throw err;
+      User.changePassword(user, newPassword, (e) => {
+        if (e) throw e;
       });
     });
   else if (name) {
     User.getByName(name, (err, user) => {
-      User.changePassword(user, newPassword, (err, user) => {
-        if (err) throw err;
+      User.changePassword(user, newPassword, (e) => {
+        if (e) throw e;
       });
     });
   }
-  res.end();
+  res.end(); */
 });
 
 module.exports = router;

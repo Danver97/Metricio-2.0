@@ -5,7 +5,9 @@ coverage
 .nyc_output
 
 rmongo-server.lnk
+rmongo-server
 rredis-server.lnk
+rredis-server
 .brackets.json
 
 config/*

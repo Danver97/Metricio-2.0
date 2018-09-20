@@ -1,3 +1,4 @@
+// Imports
 // rst
 import { createServer } from 'http';
 // import https from 'https';
@@ -21,12 +22,14 @@ import dashsuites from './routes/dashsuite';
 import jobs from './routes/jobs';
 // rcl
 
+// Requires
+// rst
 const MongoDBStoreSession = require('connect-mongodb-session')(session);
 const bodyParser = require('body-parser');
-// const Job = require('./models/job');
 const cookieParser = require('cookie-parser');
+// rcl
 
-// mongoose.connect('mongodb://localhost:27017/metricio');
+// Syncronous wait function
 function wait(ms) {
   const start = Date.now();
   let now = start;
@@ -35,6 +38,8 @@ function wait(ms) {
   }
 }
 
+// Attempt to connect to MongoDB (MongoDB should be ready in 8 seconds before an error is thrown)
+// rst
 let attempt = 0;
 let error = null;
 while (attempt < 4) {
@@ -52,7 +57,7 @@ while (attempt < 4) {
 if (error)
   throw error;
 // const db = mongoose.connection;
-
+// rcl
 
 const store = new MongoDBStoreSession({
   uri: storage.mongodb.mongooseUri(),
@@ -60,8 +65,8 @@ const store = new MongoDBStoreSession({
   collection: 'users_sessions',
 }, (err) => { if (err) logger('err', err); });
 
-store.on('error', (error) => {
-  assert.ifError(error);
+store.on('error', (err) => {
+  assert.ifError(err);
   assert.ok(false);
 });
 
@@ -86,12 +91,14 @@ const sessionMiddleware = session({
 
 // Middlewares
 // rst
+// Body & Cookie Parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 io.use((socket, next) => sessionMiddleware(socket.request, socket.request.res, next));
 
+// Render Engine
 app.engine('hbs', exphbs({
   defaultLayout: 'index',
   extname: '.hbs',
@@ -103,11 +110,21 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes Middlewares
 app.use('/users', users);
 app.use('/dashboard', dashboards);
 app.use('/dashsuites', dashsuites);
 app.use('/jobs', jobs);
 
+// Webpack Middleware
+if (process.env.NODE_ENV === 'production') {
+  app.use('/dist', express.static('dist'));
+} else {
+  app.use(webpackMiddleWare());
+  app.use(webpackHotMw());
+}
+
+// Compress .js resources in production
 app.get('*.js', (req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
     // console.log(`asking for gzip ${req.url}`);
@@ -116,13 +133,6 @@ app.get('*.js', (req, res, next) => {
   }
   next();
 });
-
-if (process.env.NODE_ENV === 'production') {
-  app.use('/dist', express.static('dist'));
-} else {
-  app.use(webpackMiddleWare());
-  app.use(webpackHotMw());
-}
 // rcl
 
 app.set('view engine', 'hbs');

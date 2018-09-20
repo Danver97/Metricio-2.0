@@ -16,7 +16,7 @@ export function getDashSuitesCollection() {
   // console.log(response);
   const keyOrder = ['name', 'dashNumber', 'lastModified', 'deleteLink'];
   const dashSuites = [];
-  response.forEach(r => dashSuites.push({ data: r, link: r.link, original: r }));
+  response.forEach(r => dashSuites.push({ data: r, link: r.view, original: r }));
   /* const dashSuites = [{
     data: {
       user: 'Christian',

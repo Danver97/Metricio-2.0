@@ -13,9 +13,6 @@ const DashboardSuiteSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  link: {
-    type: String,
-  },
   dashboards: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Dashboard',

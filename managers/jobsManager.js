@@ -16,6 +16,7 @@ function createJob(jobObj, cb) {
     try {
       await Job.createJob(job);
       EventBus.emit('createJob', job);
+      resolve(job);
     } catch (e) {
       reject(e);
     }
@@ -137,6 +138,79 @@ EventBus.on('deleteDash', (dashboard) => {
     const jobsIds = dashboard.jobs;
     const promises = jobsIds.map(id => deleteJobById(id.toString()));
     Promise.all(promises);
+  });
+});
+
+EventBus.on('createDash', (dashboard) => {
+  setImmediate(async () => {
+    if (dashboard.name.toString() === 'Admin Dashboard') {
+      await createJob({
+        user: dashboard.user,
+        jobName: 'demos',
+        interval: '* * * * *',
+        type: 'LocalJob',
+        tasks: [
+          {
+            taskName: 'DemoUsers',
+            type: 'numberIntSerie',
+            task: {
+              min: 1000,
+              max: 1500,
+              iterations: 50,
+            },
+          },
+          {
+            taskName: 'DemoMaster',
+            type: 'text',
+            task: {
+              texts: ['success', 'fail'],
+            },
+          },
+          {
+            taskName: 'DemoDevelop',
+            type: 'text',
+            task: {
+              texts: ['success', 'fail'],
+            },
+          },
+          {
+            taskName: 'DemoConversion',
+            type: 'number',
+            task: {
+              min: 1.3,
+              max: 1.4,
+            },
+          },
+          {
+            taskName: 'DemoProgress',
+            type: 'numberInt',
+            task: {
+              min: 1,
+              max: 100,
+            },
+          },
+          {
+            taskName: 'DemoMultiProgress',
+            type: 'numberMinMax',
+            task: {
+              iterations: 4,
+            },
+          },
+          {
+            taskName: 'DemoHistogram',
+            type: 'graphSerie',
+            task: {
+              min: 1,
+              max: 10,
+              iterations: 3,
+              categories: ['Apples', 'Blackberries', 'Bananas'],
+              seriesNames: ['John', 'Carl', 'Susan'],
+            },
+          },
+        ],
+      });
+      // console.log('doneJob');
+    }
   });
 });
 

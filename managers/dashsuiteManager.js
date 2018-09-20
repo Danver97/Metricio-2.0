@@ -16,7 +16,7 @@ function createDash(dashsuiteObj, cb) {
     try {
       const doc = await Dashsuite.createDash(dashsuite);
       EventBus.emit('createDashsuite', doc);
-      resolve();
+      resolve(doc);
     } catch (e) {
       reject(e);
     }
@@ -36,7 +36,7 @@ function updateDash(dashsuiteObj, cb) {
     try {
       const doc = await Dashsuite.updateDash(dashsuite);
       EventBus.emit('updateDashsuite', doc);
-      resolve();
+      resolve(doc);
     } catch (e) {
       reject(e);
     }
@@ -55,7 +55,7 @@ function deleteDash(user, dashsuiteName, cb) {
     try {
       const doc = await Dashsuite.deleteDash(user, dashsuiteName);
       EventBus.emit('deleteDashsuite', doc);
-      resolve();
+      resolve(doc);
     } catch (e) {
       reject(e);
     }
@@ -83,11 +83,27 @@ EventBus.on('deleteDash', (dashboard) => {
   });
 });
 
-EventBus.on('createDash', async (dashboard) => {
+EventBus.on('createDash', (dashboard) => {
   setImmediate(async () => {
     const dashsuite = await findById(dashboard.dashsuite);
     dashsuite.dashboards.push(dashboard._id);
     updateDash(dashsuite);
+  });
+});
+
+EventBus.on('createUser', (user) => {
+  setImmediate(async () => {
+    if (user.name.toString() === 'admin') {
+      try {
+        await createDash({
+          user: user._id,
+          name: 'Admin Dashsuite',
+        });
+      } catch (e) {
+        return;
+      }
+      // console.log('dashsuite');
+    }
   });
 });
 

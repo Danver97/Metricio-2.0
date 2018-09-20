@@ -1,5 +1,4 @@
 import urlPaths from '../src/lib/url_paths';
-import logger from '../lib/logger';
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -46,6 +45,8 @@ const User = mongoose.model('User', UserSchema);
 
 User.createUser = (user, cb) => {
   bcrypt.hash(user.password, saltRounds, (err, hash) => {
+    if (err && cb) cb(err);
+    else if (err) throw err;
     user.password = hash;
     User.create(user, cb);
   });
@@ -53,6 +54,7 @@ User.createUser = (user, cb) => {
 
 User.changePassword = (user, password, cb) => {
   bcrypt.hash(password, saltRounds, (err, hash) => {
+    if (err) cb(err);
     user.password = hash;
     User.findOneAndUpdate({
       name: user.name,
@@ -92,10 +94,18 @@ User.getAll = (cb) => {
 
 User.comparePassword = (candidatePassword, hash, cb) => {
   bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
-    if (err) throw err;
+    if (err && !cb) throw err;
     if (cb)
-      cb(isMatch);
+      cb(err, isMatch);
   });
+};
+
+User.deleteByName = (name, cb) => {
+  const query = { name };
+  if (!cb)
+    return User.findOneAndDelete(query).exec();
+  User.findOneAndDelete(query, cb);
+  return null;
 };
 
 User.deleteByNames = (nameArr, cb) => {
@@ -105,11 +115,5 @@ User.deleteByNames = (nameArr, cb) => {
   User.deleteMany(query, cb);
   return null;
 };
-
-const admin = new User({ name: 'admin', role: 'admin', password: 'admin' });
-User.createUser(admin, (err) => {
-  if (err)
-    logger('users', '\'admin\' user already saved in db.');
-});
 
 module.exports = User;

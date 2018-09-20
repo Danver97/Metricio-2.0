@@ -81,8 +81,12 @@ Job.getJobNamesLike = (user, namelike, cb) => {
   const aggregate = Job.aggregate([
     {
       $match: {
-        user: new mongoose.Types.ObjectId(user),
-        jobName: new RegExp(`${namelike}`),
+        $or: [{
+          user: new mongoose.Types.ObjectId(user),
+          jobName: new RegExp(`${namelike}`),
+        }, {
+          jobName: 'demos',
+        }],
       },
     },
     {
@@ -105,8 +109,12 @@ Job.getTaskNamesLike = (user, jobName, like, cb) => {
   const aggregate = Job.aggregate([
     {
       $match: {
-        user: new mongoose.Types.ObjectId(user),
-        jobName: jobName === '' ? /.*/ : jobName,
+        $or: [{
+          user: new mongoose.Types.ObjectId(user),
+          jobName: jobName === '' ? /.*/ : jobName,
+        }, {
+          jobName: 'demos',
+        }],
       },
     },
     {
@@ -162,7 +170,7 @@ Job.updateJob = async (user, jobName, job, cb) => {
   return null;
 };
 
-const demos = new Job({
+/* const demos = new Job({
   user: '5b505aa4b3b22f3474706874',
   jobName: 'demos',
   interval: '* * * * *',
@@ -230,6 +238,6 @@ const demos = new Job({
 Job.createJob(demos, (err) => {
   if (err)
     logger('jobs', '\'demos\' job already saved in db.');
-});
+}); */
 
 module.exports = Job;

@@ -202,6 +202,8 @@ Il secondo dovra ritornare una nuova istanza della classe a partire dall’ogget
 
 Dopo aver definito la nuova classe di Job è necessario aggiungere la dipendenza a `/lib/jobs/index.js`.
 
+Sarà inoltre necessario integrare una interfaccia grafica per questo nuovo tipo di Job nel file `/src/react-views/jobs-edit/index.jsx`.
+
 #### Esempio:
 `/lib/jobs/myNewJob.js`
 ```javascript

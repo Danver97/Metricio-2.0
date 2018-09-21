@@ -44,7 +44,6 @@ let attempt = 0;
 let error = null;
 while (attempt < 4) {
   try {
-    // console.log(storage.mongodb.mongooseUri());
     mongoose.connect(storage.mongodb.mongooseUri(), storage.mongodb.mongooseOptions());
     attempt = 4;
     error = null;
@@ -56,20 +55,7 @@ while (attempt < 4) {
 }
 if (error)
   throw error;
-// const db = mongoose.connection;
 // rcl
-
-const store = new MongoDBStoreSession({
-  uri: storage.mongodb.mongooseUri(),
-  databaseName: storage.mongodb.mongooseOptions().dbName,
-  collection: 'users_sessions',
-}, (err) => { if (err) logger('err', err); });
-
-store.on('error', (err) => {
-  assert.ifError(err);
-  assert.ok(false);
-});
-
 
 const env = process.env.NODE_ENV || 'development';
 const RedisStore = connectRedis(session);
@@ -86,8 +72,6 @@ const sessionMiddleware = session({
   logErrors: true,
   saveUninitialized: true,
 });
-
-// app.use(sessionMiddleware);
 
 // Middlewares
 // rst
@@ -127,7 +111,6 @@ if (process.env.NODE_ENV === 'production') {
 // Compress .js resources in production
 app.get('*.js', (req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
-    // console.log(`asking for gzip ${req.url}`);
     req.url += '.gz';
     res.set('Content-Encoding', 'gzip');
   }

@@ -74,20 +74,6 @@ router.post('/changePassword', getUserFromRequest, async (req, res) => {
   } catch (e) {
     responses.internalServerError(res, e.message);
   }
-  /* if (id)
-    User.getById(id, (err, user) => {
-      User.changePassword(user, newPassword, (e) => {
-        if (e) throw e;
-      });
-    });
-  else if (name) {
-    User.getByName(name, (err, user) => {
-      User.changePassword(user, newPassword, (e) => {
-        if (e) throw e;
-      });
-    });
-  }
-  res.end(); */
 });
 
 module.exports = router;

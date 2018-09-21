@@ -143,19 +143,6 @@ router.post('/save/:dashboard', async (req, res) => {
   } catch (e) {
     responses.internalServerError(res, e.message);
   }
-  /* const dashLayout = JSON.parse(req.body.layout);
-  const newDash = new Dashboard({
-    user: req.user.id,
-    name: dashLayout.name,
-    children: dashLayout.children,
-    subdashboard: [],
-    layouts: dashLayout.layouts,
-  });
-  Dashboard.updateDash(newDash, (err, dash) => {
-    if (err) throw err;
-    console.log(dash);
-  });
-  res.end(); */
 });
 
 router.post('/edit/:dashboard', async (req, res) => {

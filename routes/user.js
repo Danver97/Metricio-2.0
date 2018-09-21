@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get('/list', getUserFromRequest, async (req, res) => {
   try {
-    const users = await userMgr.getAll(); // await User.getAll();
+    const users = await userMgr.getAll();
     res.status(200);
     res.json(users);
   } catch (e) {

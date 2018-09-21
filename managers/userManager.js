@@ -59,12 +59,6 @@ function deleteByName(name, cb) {
   });
 }
 
-/* 
-function deleteByNames(nameArr, cb) {
-  return User.deleteByNames(nameArr, cb);
-} 
-*/
-
 function changePassword(id, name, password, cb) {
   if (cb) {
     if (name) {

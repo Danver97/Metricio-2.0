@@ -136,6 +136,7 @@ Dashboard.deleteById = (id, cb) => {
   return null;
 };
 
+// should not be used
 Dashboard.deleteMultiple = (idArr, cb) => {
   const query = { _id: { $in: idArr } };
   if (!cb)

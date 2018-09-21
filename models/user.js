@@ -29,8 +29,6 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// UserSchema.index({ name: 1 }, { unique: true });
-
 UserSchema.pre('save', function (next) {
   this.delete = urlPaths.dashboard.post.delete(this.name);
   next();

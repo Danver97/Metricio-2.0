@@ -1,3 +1,4 @@
+
 # Metricio
 
 ## Installazione e avvio
@@ -60,12 +61,16 @@ Ciò nonostante il risultato di questa strada di sviluppo ha portato ad uno sche
 
 ## Architettura
 
+### Tecnologia e databases
+
 Dal punto di vista architetturale, Metricio si appoggia a due databases:
 
 - **Redis**: un database NoSQL in-memory di tipo key-value, utilizzato come cache per lo scheduling dei jobs e la memorizzazione dei risultati degli stessi.
 - **MongoDB**: un database NoSQL document-oriented, utilizzato per la memorizzazione persistente dello stato di tutte le entità sopracitate.
 
 Il server è sviluppato in Node.Js sfruttando principalmente il modulo Express.Js, che fornisce efficaci capacità di routing delle richieste all’interno del server.
+
+### Routes
 
 Sono state così definite 4 principali routes:
 
@@ -75,6 +80,8 @@ Sono state così definite 4 principali routes:
 - `/jobs`
 
 La route base / porta alla home.
+
+### Managers
 
 Ogni endpoint di ogni route sfrutta un “manager”. Un manager è un modulo che si occupa di svolgere tutte le operazioni di modifica della entità a cui corrisponde e di scriverla su un database.
 
@@ -91,7 +98,7 @@ Questo comporta così ad avere una struttura di entità sviluppate in modo indip
 
 Il lato negativo è che un eventuale operazione di eliminazione di un entità madre, può non avvenire a cascata anche sulle entità figlie in caso di collasso del server per motivi non noti.
 
-Tuttavia, a livello visivo questo non dovrebbe essere un problema. La consistenza può essere riottenuta eliminando ogni entità figlia non referenziante un entità madre (non esiste un documento di un entità madre con ObjectId pari a quello indicato dal documento dell’entità figlia).
+La consistenza può essere riottenuta eliminando ogni entità figlia non referenziante un entità madre (non esiste un documento di un entità madre con ObjectId pari a quello indicato dal documento dell’entità figlia).
 
 Nel caso in cui la transazionalità si ritiene sia necessaria 3 differenti strategie sono elencate sotto il capitolo **Transazionalità**.
 
@@ -102,6 +109,13 @@ L’architettura risultate attualmente è dunque la seguente:
 Ogni manager riceverà comandi dal REST API layer, effettuerà query/updates su MongoDB attraverso un data model (in particolare messo a disposizione da Mongoose.Js) e pubblicherà eventi nell’ Event Bus:
 
 ![Managers architecture](https://cdn1.imggmi.com/uploads/2018/9/20/d88d8892f77b0ee7f7045a34e02c5b0d-full.png)
+
+### Scheduling dei jobs
+
+All'avvio di Metricio il `/lib/jobProvider.js` richiede tutti i jobs salvati su MongoDB e aggiunge tutti quelli non parametrizzati ai jobs da schedulare.
+Il modulo `/lib/jobs/resqueJobs.js` si preoccuperà così poi di avviare i workers e lo scheduler e di schedulare i jobs ottenuti da `/lib/jobProvider.js`.
+
+Ogni volta che una dashboard che possiede jobs parametrizzati viene visualizzata, i rispettivi jobs parametrizzati vengono avviati con i parametri forniti dalla query del link della dashboard. I jobs parametrizzati della dashboard vengono in seguito fermati all'uscita da essa.
 
 ## Organizzazione del progetto
 
@@ -297,3 +311,11 @@ Ogni passaggio riportato deve avvenire necessariamente in maniera **sincrona**. 
 ### Cambio di database
 
 Un’ultima opzione è abbandonare MongoDB per un database più consono (eventualmente anche relazionale) con la possibile revisione parziale dell’architettura generale.
+
+## Deployment
+
+Sono disponibili 3 strade:
+- Deployment locale: sono necessari Redis e MongoDB già avviati prima del avvio di Metricio.
+- Deployment docker: anche qui sono necessari un container Redis e uno MongoDB già avviati prima del avvio del container di Metricio.
+- Deployment docker-compose: è presente un file di configurazione `docker-compose.yml` con cui è possibile ottenere il sistema pronto con un singolo comando (`docker-compose up --build`).
+- OpenShift: è possibile ottenere i file di configurazione per OpenShift convertendo il file `docker-compose.yml` con [Kompose](https://github.com/kubernetes/kompose) eseguendo il comando `kompose --provider openshift --file docker-compose.yml convert`. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.

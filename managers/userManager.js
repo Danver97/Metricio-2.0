@@ -2,6 +2,7 @@ import logger from '../lib/logger';
 
 const User = require('../models/user');
 const EventBus = require('../listeners/eventBus');
+const Events = require('../listeners/events');
 
 // User wrapper methods
 // rst
@@ -9,7 +10,7 @@ function createUser(userObj, cb) {
   const user = new User(userObj);
   if (cb) {
     User.createUser(user, (err, doc) => {
-      if (!err) EventBus.emit('createUser', user);
+      if (!err) EventBus.emit(Events.createUser, user);
       cb(err, doc);
     });
     return null;
@@ -18,7 +19,7 @@ function createUser(userObj, cb) {
     User.createUser(user, (err, doc) => {
       if (err) reject(err);
       resolve(doc);
-      EventBus.emit('createUser', user);
+      EventBus.emit(Events.createUser, user);
     });
   });
 }
@@ -42,7 +43,7 @@ function getAll(cb) {
 function deleteByName(name, cb) {
   if (cb) {
     User.deleteByName(name, (err, doc) => {
-      if (!err) EventBus.emit('deleteUser', doc);
+      if (!err) EventBus.emit(Events.deleteUser, doc);
       cb(err, doc);
     });
     return null;
@@ -50,7 +51,7 @@ function deleteByName(name, cb) {
   return new Promise(async (resolve, reject) => {
     try {
       const user = await User.deleteByName(name);
-      EventBus.emit('createUser', user);
+      EventBus.emit(Events.deleteUser, user);
       resolve(user);
     } catch (e) {
       reject(e);

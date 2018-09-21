@@ -1,0 +1,15 @@
+module.exports = {
+  createUser: 'createUser',
+  deleteUser: 'deleteUser',
+  createDashsuite: 'createDashsuite',
+  updateDashsuite: 'updateDashsuite',
+  deleteDashsuite: 'deleteDashsuite',
+  createDashboard: 'createDashboard',
+  updateDashboard: 'updateDashboard',
+  deleteDashboard: 'deleteDashboard',
+  createJob: 'createJob',
+  updateJob: 'updateJob',
+  deleteJob: 'deleteJob',
+  startParametrizedJob: 'startParametrizedJob',
+  stopParametrizedJob: 'stopParametrizedJob',
+};

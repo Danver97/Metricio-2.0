@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metricio Documentation</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#metricio">Metricio</a>
+<ul>
+<li><a href="#installazione-e-avvio">Installazione e avvio</a></li>
+<li><a href="#introduzione">Introduzione</a></li>
+<li><a href="#funzionamento">Funzionamento</a></li>
+<li><a href="#architettura">Architettura</a></li>
+<li><a href="#organizzazione-del-progetto">Organizzazione del progetto</a></li>
+<li><a href="#espansioni-dei-widgets-e-dei-jobs">Espansioni dei widgets e dei jobs</a></li>
+<li><a href="#transazionalità">Transazionalità</a></li>
+<li><a href="#deployment">Deployment</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="metricio">Metricio</h1>
+<h2 id="installazione-e-avvio">Installazione e avvio</h2>
+<p>Aprire una shell nella cartella contenente i sorgenti ed eseguire:</p>
+<pre><code>npm install
+# successivamente
+npm run production
+</code></pre>
+<p>All’avvio, Metricio provvederà a creare (se non presente) un utente admin, una sua dashsuite e una sua dashboard completa di widgets.</p>
+<p>Se al primo avvio sulla dashboard non viene visualizzato alcun valore, niente panico! Metricio genera una piccola cache ogni volta che vengono eseguiti i vari jobs e vi è almeno 1 client in ascolto. I jobs vengono eseguiti ogni minuto quindi entro i prossimi 60 secondi qualcosa verrà mostrato.</p>
+<h3 id="docker">Docker</h3>
+<p>E’ presente anche un <code>Dockerfile</code> nel caso in cui sia necessario mettere Metricio all’interno di un container.<br>
+Per un ambiente docker preparato al volo è presente anche un file <code>docker-compose.yaml</code></p>
+<h2 id="introduzione">Introduzione</h2>
+<p>La struttura base di Metricio si componeva di una o più dashboards descritte a codice le quali erano raggiungibili indicandone il nome nell’url. I dati dei singoli widget erano inoltre ottenuti da dei ‘Jobs’.</p>
+<p>Ogni Job era un insieme di una o più task che venivano schedulate atomicamente ed eseguite a periodi regolari. Ogni Job ritornava dunque un hashmap con come chiavi i valori delle tasks e valori i valori ritornati dall’esecuzione delle tasks: al widget era dunque sufficiente indicare il nome della task da cui prendere il valore da visualizzare.</p>
+<p>I vari jobs e le annesse tasks erano descritte anch’esse a codice. I limiti di utilizzo di tale organizzazione erano evidenti. Questa struttura è stata dunque profondamente rivista.</p>
+<p>Allo stato attuale in Metricio la definizione di dashboards e jobs è stata resa totalmente user-friendly, ma la struttura risultante non è più così elementare.</p>
+<h2 id="funzionamento">Funzionamento</h2>
+<p>In Metricio ci sono 4 principali entità distinte di seguito elencate in ordine di gerarchia:</p>
+<ol>
+<li><strong>User</strong></li>
+<li><strong>Dashsuite</strong></li>
+<li><strong>Dashboard</strong></li>
+<li><strong>Job</strong></li>
+</ol>
+<p>Ogni entità che sta più in alto nella gerarchia vede e include una o più istanze delle entità inferiori.</p>
+<p>In parole più semplici: Metricio può gestire uno o più utenti (User); ogni user può avere una o più dashsuite; ogni dashsuite possiede una o più dashboards; ogni dashboard possiede uno o più jobs.</p>
+<p>Nel caso non fosse ancora chiaro si osservi la seguente figura.</p>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/9/20/07d50493e7fe58aef02699a88f305cd7-full.png" alt="Domains"></p>
+<p>Di seguito il significato delle varie entità:</p>
+<ul>
+<li>
+<p><strong>User</strong>: un utente generico.</p>
+</li>
+<li>
+<p><strong>Dashsuite</strong>: una collezione di Dashboards appartenenti ad uno stesso contesto funzionale.</p>
+</li>
+<li>
+<p><strong>Dashboard</strong>: un contenitore di widgets che visualizzano i dati ottenendoli da una task di un Job. Widgets diversi possono ottenere dati da tasks di Jobs diversi.</p>
+</li>
+<li>
+<p><strong>Job</strong>: un contenitore di tasks eseguito ad un intervallo regolare definito appartenente ad una ed una sola Dashboard.</p>
+</li>
+</ul>
+<p>L’intero progetto è stato strutturato inoltre per supportare ulteriori espansioni di tipologie di widgets e jobs senza (quasi) alcun code-refactoring. Questo sviluppo “generalizzato” è stato reso necessario dalla poca chiarezza del formato e delle metodologie di accesso ai dati da visualizzare.</p>
+<p>Ciò nonostante il risultato di questa strada di sviluppo ha portato ad uno scheletro ben strutturato espandibile per ambiti di visualizzazione diversi dalla esclusiva visualizzazione per il progetto Disloman.</p>
+<h2 id="architettura">Architettura</h2>
+<h3 id="tecnologia-e-databases">Tecnologia e databases</h3>
+<p>Dal punto di vista architetturale, Metricio si appoggia a due databases:</p>
+<ul>
+<li><strong>Redis</strong>: un database NoSQL in-memory di tipo key-value, utilizzato come cache per lo scheduling dei jobs e la memorizzazione dei risultati degli stessi.</li>
+<li><strong>MongoDB</strong>: un database NoSQL document-oriented, utilizzato per la memorizzazione persistente dello stato di tutte le entità sopracitate.</li>
+</ul>
+<p>Il server è sviluppato in Node.Js sfruttando principalmente il modulo Express.Js, che fornisce efficaci capacità di routing delle richieste all’interno del server.</p>
+<h3 id="routes">Routes</h3>
+<p>Sono state così definite 4 principali routes:</p>
+<ul>
+<li><code>/users</code></li>
+<li><code>/dashsuites</code></li>
+<li><code>/dashboard</code></li>
+<li><code>/jobs</code></li>
+</ul>
+<p>La route base / porta alla home.</p>
+<h3 id="managers">Managers</h3>
+<p>Ogni endpoint di ogni route sfrutta un “manager”. Un manager è un modulo che si occupa di svolgere tutte le operazioni di modifica della entità a cui corrisponde e di scriverla su un database.</p>
+<p>Vi sono dunque 4 managers:</p>
+<ul>
+<li>usersManager</li>
+<li>dashsuitesManager</li>
+<li>dashboardManager</li>
+<li>jobsManager</li>
+</ul>
+<p>Ogni manager non ha dipendenze verso altri managers. Ogni manager notifica attraverso un bus interno ogni operazione di <strong>scrittura</strong> su db e può consumare notifiche provenienti da altri managers.</p>
+<p>Questo comporta così ad avere una struttura di entità sviluppate in modo indipendente tra loro dove dunque la modifica della logica di una operazione di scrittura non impatta sul funzionamento delle altre entità fintanto che queste continuano a venire notificate.</p>
+<p>Il lato negativo è che un eventuale operazione di eliminazione di un entità madre, può non avvenire a cascata anche sulle entità figlie in caso di collasso del server per motivi non noti.</p>
+<p>La consistenza può essere riottenuta eliminando ogni entità figlia non referenziante un entità madre (non esiste un documento di un entità madre con ObjectId pari a quello indicato dal documento dell’entità figlia).</p>
+<p>Nel caso in cui la transazionalità si ritiene sia necessaria 3 differenti strategie sono elencate sotto il capitolo <strong>Transazionalità</strong>.</p>
+<p>L’architettura risultate attualmente è dunque la seguente:</p>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/9/20/c3eba3af1712622cd07bbd80a3f457e6-full.png" alt="General architecture"></p>
+<p>Ogni manager riceverà comandi dal REST API layer, effettuerà query/updates su MongoDB attraverso un data model (in particolare messo a disposizione da Mongoose.Js) e pubblicherà eventi nell’ Event Bus:</p>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/9/20/d88d8892f77b0ee7f7045a34e02c5b0d-full.png" alt="Managers architecture"></p>
+<h3 id="scheduling-dei-jobs">Scheduling dei jobs</h3>
+<p>All’avvio di Metricio il <code>/lib/jobProvider.js</code> richiede tutti i jobs salvati su MongoDB e aggiunge tutti quelli non parametrizzati ai jobs da schedulare.<br>
+Il modulo <code>/lib/jobs/resqueJobs.js</code> si preoccuperà così poi di avviare i workers e lo scheduler e di schedulare i jobs ottenuti da <code>/lib/jobProvider.js</code>.</p>
+<p>Ogni volta che una dashboard che possiede jobs parametrizzati viene visualizzata, i rispettivi jobs parametrizzati vengono avviati con i parametri forniti dalla query del link della dashboard. I jobs parametrizzati della dashboard vengono in seguito fermati all’uscita da essa.</p>
+<h2 id="organizzazione-del-progetto">Organizzazione del progetto</h2>
+<p>Il progetto è stato organizzato per mantenere la più netta separazione possibile tra client e server.</p>
+<p>Tutto ciò che si trova sotto la cartella <code>/src</code> appartiene al client e non ha (quasi) dipendenze con quello che sta fuori che appartiene invece al server.</p>
+<h3 id="client">Client</h3>
+<p>In particolare sotto <code>/src</code> si trovano:</p>
+<ul>
+<li>
+<p><code>/dashboard</code>: contenente il React Router, unico punto di ingresso nel client.</p>
+</li>
+<li>
+<p><code>/jobs</code>: contenente i jobs originari definiti in javascript. Il supporto a questa tipologia di job è stato mantenuto.</p>
+</li>
+<li>
+<p><code>/lib</code>: contiene tutte le librerie di funzionalità utilizzate dal client</p>
+</li>
+<li>
+<p><code>/react-elements</code>: contenente elementi di React</p>
+</li>
+<li>
+<p><code>/react-views</code>: contenente viste utilizzate dal React router per la navigazione</p>
+</li>
+<li>
+<p><code>/styles</code>: alcuni stylesheets in scss</p>
+</li>
+<li>
+<p><code>/views</code>: contiene la pagina html di base che viene renderizzata e inviata a chi fa richiesta di utilizzare il client.</p>
+</li>
+<li>
+<p><code>/widgets</code>: contiene tutti i widgets e la struttura della dashboard di base.</p>
+</li>
+</ul>
+<h3 id="server">Server</h3>
+<p>Fuori da <code>/src</code> si trovano:</p>
+<ul>
+<li>
+<p><code>/lib</code>: contenente tutte le librerie di funzionalità utilizzate dal server.</p>
+</li>
+<li>
+<p><code>/listeners</code>: contenente il modulo dell’EventBus.</p>
+</li>
+<li>
+<p><code>/managers</code>: contenente i moduli dei vari managers.</p>
+</li>
+<li>
+<p><code>/model</code>: contenente i moduli dei data models di Mongoose.Js</p>
+</li>
+<li>
+<p><code>/routes</code>: contenente i moduli Express Routes utilizzati come middlewares da Express in /app.js</p>
+</li>
+</ul>
+<h2 id="espansioni-dei-widgets-e-dei-jobs">Espansioni dei widgets e dei jobs</h2>
+<h3 id="definizione-di-un-nuovo-widget">Definizione di un nuovo widget</h3>
+<p>Per la definizione di un nuovo widget è necessario:</p>
+<ul>
+<li>Definire una nuova classe che estenda <code>/src/widgets/base.jsx</code></li>
+<li>Aggiungere il modulo come dipendenza in <code>/src/widgets/Widgets.js</code></li>
+</ul>
+<p>E’ richiesto che venga implementato il getter <code>static get className()</code> il quale deve ritornare il nome letterale della classe.</p>
+<h4 id="esempio">Esempio:</h4>
+<p><code>/src/widgets/newWidget.jsx</code></p>
+<pre class=" language-jsx"><code class="prism  language-jsx"><span class="token keyword">import</span> React <span class="token keyword">from</span> <span class="token string">'react'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> BaseWidget <span class="token keyword">from</span> <span class="token string">'./base.jsx'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> <span class="token keyword">class</span> <span class="token class-name">MyNewWidget</span> <span class="token keyword">extends</span> <span class="token class-name">BaseWidget</span> <span class="token punctuation">{</span>
+	<span class="token keyword">static</span> <span class="token keyword">get</span> <span class="token function">className</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token string">'MyNewWidget'</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token punctuation">(</span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">className</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>helloWord<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+				<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">&gt;</span></span>Hello world<span class="token operator">!</span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">&gt;</span></span>
+			<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+		<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><code>/src/widgets/Widgets.js</code></p>
+<pre class=" language-js"><code class="prism  language-js"><span class="token keyword">import</span> MyNewWidget <span class="token keyword">from</span> <span class="token string">'./newWidget'</span><span class="token punctuation">;</span>
+<span class="token comment">// ...</span>
+<span class="token keyword">const</span> Widgets <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// ...</span>
+Widgets<span class="token punctuation">[</span>MyNewWidget<span class="token punctuation">.</span>className<span class="token punctuation">]</span> <span class="token operator">=</span> MyNewWidget<span class="token punctuation">;</span>
+</code></pre>
+<h3 id="definizione-di-un-nuovo-job">Definizione di un nuovo Job</h3>
+<p>Per la definizione di un nuovo Job è necessario prima di tutto definire una nuova tipologia di Job.</p>
+<p>Dunque sotto <code>/lib/jobs</code> (a partire dalla cartella contenente l’intero progetto) creare un nuovo modulo che esporti una classe che estenda <code>/lib/jobs/util/baseJob.js</code>.<br>
+Il costuttore di baseJob è il seguente: <code>constructor(jobName, interval)</code></p>
+<p>In particolare è richiesto che la classe implementi i seguenti metodi:</p>
+<ul>
+<li><code>static get className()</code></li>
+<li><code>static fromObject(job, vars)</code></li>
+</ul>
+<p>Il primo dovrà ritornare il nome esatto della classe come stringa.</p>
+<p>Il secondo dovra ritornare una nuova istanza della classe a partire dall’oggetto job e dall’oggetto vars.</p>
+<p><code>job</code> è una struttura rappresentate il job, e <code>vars</code> racchiude i valori dei parametri delle tasks parametrizzate. Ogni task parametrizzata avrà una o più proprietà di tipo string con la quale è possibile ottenerla valorizzata sfruttanto il metodo <code>this.getValueAll(string, vars)</code>.</p>
+<p>Dopo aver definito la nuova classe di Job è necessario aggiungere la dipendenza a <code>/lib/jobs/index.js</code>.</p>
+<p>Sarà inoltre necessario integrare una interfaccia grafica per questo nuovo tipo di Job nel file <code>/src/react-views/jobs-edit/index.jsx</code>.</p>
+<h4 id="esempio-1">Esempio:</h4>
+<p><code>/lib/jobs/myNewJob.js</code></p>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">import</span> BaseJob <span class="token keyword">from</span> <span class="token string">'./util/baseJob'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> Task <span class="token keyword">from</span> <span class="token string">'./util/task'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">MyNewJob</span> <span class="token keyword">extends</span> <span class="token class-name">BaseJob</span> <span class="token punctuation">{</span>
+	<span class="token comment">// Custom constructor</span>
+	<span class="token function">constructor</span> <span class="token punctuation">(</span>jobName<span class="token punctuation">,</span> interval<span class="token punctuation">,</span> moreParams<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">super</span><span class="token punctuation">(</span>jobName<span class="token punctuation">,</span> interval<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token comment">// More stuff...</span>
+		<span class="token comment">// Otherwise constructor is optional.</span>
+	<span class="token punctuation">}</span>
+	
+	<span class="token keyword">static</span> <span class="token keyword">get</span> <span class="token function">className</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token string">'MyNewJob'</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token keyword">static</span> <span class="token function">fromObject</span><span class="token punctuation">(</span>job<span class="token punctuation">,</span> vars<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">const</span> newJob <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyNewJob</span><span class="token punctuation">(</span>job<span class="token punctuation">.</span>jobName<span class="token punctuation">,</span> job<span class="token punctuation">.</span>interval<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		job<span class="token punctuation">.</span>tasks<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>t <span class="token operator">=&gt;</span> newJob<span class="token punctuation">.</span><span class="token function">addTask</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">return</span> newJob<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+
+	<span class="token function">addTask</span><span class="token punctuation">(</span>t<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">this</span><span class="token punctuation">.</span>tasks<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Task</span><span class="token punctuation">(</span>t<span class="token punctuation">.</span>taskName<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'NEW TASK!'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><code>/lib/jobs/index.js</code></p>
+<pre class=" language-js"><code class="prism  language-js"><span class="token comment">// ...</span>
+<span class="token keyword">export</span> <span class="token operator">*</span> <span class="token keyword">from</span> <span class="token string">'./myNewJob'</span><span class="token punctuation">;</span>
+</code></pre>
+<p>La logica di esecuzione del job e quindi delle rispettive tasks è già inclusa in <code>/lib/jobs/utils/baseJob.js</code>.</p>
+<p>Estendendo <code>BaseJob</code> ogni nuova istanza della nostra classe avrà le seguenti proprietà:</p>
+<ul>
+<li><code>jobName: string</code></li>
+<li><code>interval: string</code></li>
+<li><code>tasks: Array</code></li>
+<li><code>perform: Function</code></li>
+</ul>
+<p>Le prime due sono le stesse passate come parametri nel costruttore.<br>
+<code>tasks</code> è un array di <code>Task</code> (classe importabile da <code>/lib/jobs/util/task</code>).<br>
+<code>perform</code> invece è la funzione eseguita periodicamente dallo scheduler: è <strong>caldamente</strong> consigliato non modificarne il valore, a meno che si voglia creare qualcosa di più complesso. In quest’ultimo caso si consiglia di guardare come avviene l’interazione tra <code>baseJob.js</code> e <code>task.js</code> e come il modulo npm <code>node-resque</code> funziona.</p>
+<p>Ogni <code>Task</code> richiede come parametri nel costruttore il nome della task (<code>taskName</code>) e una funzione rappresentante il compito della task da eseguire (<code>execute</code>) che ritorni un qualsiasi valore rappresentante il risultato dell’esecuzione di tale task.</p>
+<p><strong>Nota:</strong> per l’export è <strong>necessario</strong> utilizzare <code>export</code> anziché <code>module.exports</code> o <code>export default</code></p>
+<h2 id="transazionalità">Transazionalità</h2>
+<p>La nuova architettura di Metricio pecca della mancata transazionalità in caso di updates in cascata (es. eliminazione di una dashsuite che deve corrispondere alla conseguente eliminazione di tutte le sue dashboards e all’eliminazione di ogni dashboard deve corrispondere l’eliminazione di tutti i jobs correlati).<br>
+Questo significa che nel caso di collasso del server per motivi non noti, l’update in cascata si verificherà parzialmente (es. viene eliminata la dashsuite, tutte le dashboards, ma non i jobs).</p>
+<p>Nel caso in cui la transazionalità sia un requisito esseziale di seguito sono riportate 3 strategie per ottenerla.</p>
+<h3 id="multi-document-transaction">Multi-document transaction</h3>
+<p>La transazionalità può essere ottenuta attraverso una transazione multi-documento disponibile a partire da MongoDB 4.0 (disponibile solo per server db in replica set, non per db standalone. Sarà funzionante anche su un db sharded a partire dalla 4.2).</p>
+<p>La strategia di esecuzione sarebbe dunque la seguente:</p>
+<ul>
+<li>Richiesta di eliminazione</li>
+<li>Presa in carico dal manager adeguato che:
+<ul>
+<li>Inizia una transazione</li>
+<li>Emette un evento di notifica sul bus</li>
+</ul>
+</li>
+<li>Ogni altro manager che si sottoscrive a tale evento dovrà farlo in maniera <strong>sincrona</strong> e aggiungere all’oggetto “transazione” ricevuto dalla notifica le operazioni da fare.</li>
+<li>Il manager notificante effettua il commit.</li>
+</ul>
+<p>Ogni passaggio riportato deve avvenire necessariamente in maniera <strong>sincrona</strong>. Diversamente il commit avverrà prima dell’aggiunta delle operazioni da svolgere da parte dei manager subscribers.</p>
+<p>Ciò comporterebbe un minimo cambiamento nei moduli dei managers (e quindi dell’application logic), ma una possibile completa revisione dei moduli appartenenti al layer di interfacciamento al db.</p>
+<h3 id="single-document-transaction">Single-document transaction</h3>
+<p>MongoDB garantisce come atomiche tutte le operazioni effettuate sul medesimo documento.</p>
+<p>Nel caso quindi in cui un MongoDB server in replica set non sia un opzione fattibile, è necessario creare un solo documento per ogni utente contenente tutti i sottodocumenti necessari per ogni sotto entità.</p>
+<p>In tal caso, il procedimento per la modifica è:</p>
+<ul>
+<li>Presa in carico del manager notifier che:
+<ul>
+<li>Ottiene il documento e applica le sue modifiche</li>
+<li>Pubblica un evento nel bus passando l’oggetto documento come riferimento.</li>
+</ul>
+</li>
+<li>Ogni manager subscriber applica le sue modifiche all’oggetto in maniera <strong>sincrona</strong>.</li>
+<li>Il manager notifier avvia l’update sul db.</li>
+</ul>
+<p>Ogni passaggio riportato deve avvenire necessariamente in maniera <strong>sincrona</strong>. Anche in questo caso il layer di interfacciamento a MongoDB sarebbe totalmente rivisto, e l’implementazione della logica di reazione agli eventi potrebbe non essere banale.</p>
+<h3 id="cambio-di-database">Cambio di database</h3>
+<p>Un’ultima opzione è abbandonare MongoDB per un database più consono (eventualmente anche relazionale) con la possibile revisione parziale dell’architettura generale.</p>
+<h2 id="deployment">Deployment</h2>
+<p>Sono disponibili 3 strade:</p>
+<ul>
+<li>Deployment locale: sono necessari Redis e MongoDB già avviati prima del avvio di Metricio.</li>
+<li>Deployment docker: anche qui sono necessari un container Redis e uno MongoDB già avviati prima del avvio del container di Metricio.</li>
+<li>Deployment docker-compose: è presente un file di configurazione <code>docker-compose.yml</code> con cui è possibile ottenere il sistema pronto con un singolo comando (<code>docker-compose up --build</code>).</li>
+<li>OpenShift: è possibile ottenere i file di configurazione per OpenShift convertendo il file <code>docker-compose.yml</code> con <a href="https://github.com/kubernetes/kompose">Kompose</a> eseguendo il comando <code>kompose --provider openshift --file docker-compose.yml convert</code>. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.</li>
+</ul>
+
+    </div>
+  </div>
+</body>
+
+</html>

@@ -40,6 +40,7 @@ export default class CreateView extends React.Component {
       taskHeaders: {},
       taskBodyParams: {},
       panelExpanded: {},
+      parameters: false,
       modal: {
         title: 'Error',
         body: 'Error',
@@ -135,6 +136,8 @@ export default class CreateView extends React.Component {
     const obj = {};
     if (e.target.name === 'type')
       obj[e.target.name] = e.target.data.value;
+    else if (e.target.name === 'parameters')
+      obj[e.target.name] = e.target.data.value;
     else
       obj[e.target.name] = e.target.value;
     this.setState(obj);
@@ -173,6 +176,7 @@ export default class CreateView extends React.Component {
           jobName: this.state.jobName,
           interval: this.state.interval,
           type: this.state.type,
+          parameters: this.state.parameters,
           tasks,
         });
     } else {
@@ -604,6 +608,19 @@ export default class CreateView extends React.Component {
                 style={{ marginBottom: '1rem' }}
                 onChange={e => this.onChange(e)}
                 value={this.state.type}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label for="type">Parametrized:</Label>
+              <DropdownInput 
+                className="marginBottom"
+                id="parameters"
+                name="parameters"
+                options={[{ label: 'True', value: true }, { label: 'False', value: false }]}
+                placeholder={this.state.jobStructure.parameters || 'Parametrized'} 
+                style={{ marginBottom: '1rem' }}
+                onChange={e => this.onChange(e)}
+                value={this.state.parameters}
               />
             </FormGroup>
             <FormGroup>

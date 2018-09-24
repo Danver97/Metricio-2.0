@@ -90,6 +90,7 @@ router.post('/create', async (req, res) => {
       dashboard: body.dashboard,
       interval: body.interval,
       type: body.type,
+      parameters: body.parameters,
       tasks: JSON.parse(body.tasks),
     });
     res.status(200);

@@ -1,4 +1,5 @@
 import React from 'react';
+import qs from 'query-string';
 
 import JobEdit from '../react-views/jobs-edit';
 import urlPaths from '../lib/url_paths';
@@ -33,11 +34,12 @@ export default class JobEditView extends React.Component {
   }
   
   saveJob(jobStr) {
-    const jobName = this.props.match.params.jobName;
+    jobStr.jobName = this.props.match.params.jobName;
+    jobStr.tasks = JSON.stringify(jobStr.tasks);
     post(
-      urlPaths.jobs.post.update(jobName),
+      urlPaths.jobs.post.update(jobStr.jobName),
       { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.props.auth.getToken()}` }, 
-      `jobName=${jobStr.jobName}&interval=${jobStr.interval}&type=${jobStr.type}&tasks=${JSON.stringify(jobStr.tasks)}`
+      qs.stringify(jobStr)
     );
     this.back();
   }

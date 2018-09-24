@@ -164,13 +164,6 @@ export default class CreateView extends React.Component {
     // console.log(tasks);
     const modalBody = this.convalidateAll();
     if (modalBody.length === 0) {
-      /* post(
-        // '/jobs/create',
-        urlPaths.jobs.post.create(),
-        { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Bearer ${this.auth.getToken()}` }, 
-        `jobName=${this.state.jobName}&interval=${this.state.interval}&type=${this.state.type}&tasks=${this.getTasksStringList(tasks)}`
-      );
-      this.back(); */
       if (this.props.onSave)
         this.props.onSave({
           jobName: this.state.jobName,
@@ -202,17 +195,12 @@ export default class CreateView extends React.Component {
   }
   
   onDeleteConfirm() {
-    /* post(
-      urlPaths.jobs.post.delete(),
-      { Authorization: `Bearer ${this.auth.getToken()}` },
-    ); */
     if (this.props.onDelete)
       this.props.onDelete();
   }
   
   onCancel(e) {
     e.preventDefault();
-    // this.back();
     if (this.props.onCancel)
       this.props.onCancel();
   }
@@ -228,6 +216,11 @@ export default class CreateView extends React.Component {
     return this.state.tasks.map((e, i) => {
       const id = e.id;
       const children = this.getTaskHeadersElems(id);
+      let projection = e.options.projection;
+      if (!projection)
+        projection = '';
+      else
+        projection = typeof projection === 'string' && projection !== '' ? `#${projection}` : projection.join(', ');
       return (
         <div key={id}>
           {i !== 0 && <div style={{ backgroundColor: 'white' }}><Divider style={{ marginLeft: '1rem', marginRight: '1rem' }} /></div> }
@@ -283,13 +276,15 @@ export default class CreateView extends React.Component {
             <UncontrolledTooltip placement="right" target="iconProjection">
               Please insert the JSON field separated by commas, spaces or carriage returns.
             </UncontrolledTooltip>
+            {console.log(e.options.projection)}
+            {console.log(typeof e.options.projection)}
             <Input 
               type="textarea" 
               name="projection" 
               id={`projection${id}`} 
               onChange={ev => this.addTask(ev, id)} 
               placeholder="Field" 
-              defaultValue={e.options.projection}
+              defaultValue={projection}
               style={Styles.InputDark} 
             />
             {e.options.method === 'POST' && 
@@ -423,9 +418,9 @@ export default class CreateView extends React.Component {
     if (e.target.name === 'method')
       task.options.method = e.target.data.value;
     else if (e.target.name === 'projection') {
-      if (/^\$/.test(e.target.value))
-        task.options.projection = e.target.value.replace(/^\$/g, '');
-      else {
+      if (/^#/.test(e.target.value)) {
+        task.options.projection = e.target.value.replace(/^#/g, '');
+      } else {
         const projection = e.target.value
           .replace(/[^\w-,\s\n]/g, '')
           .replace(/,+/g, ' ')
@@ -433,7 +428,7 @@ export default class CreateView extends React.Component {
           .replace(/([\w-]+)/g, '"$1" ')
           .replace(/\s+(?="|\w)/g, ', ')
           .replace(/"\s+/g, '"');
-        task.options.projection = `[${projection}]`;
+        task.options.projection = JSON.parse(`[${projection}]`);
       }
     } else
       task[e.target.name] = e.target.value;

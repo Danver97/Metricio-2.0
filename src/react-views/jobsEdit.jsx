@@ -28,6 +28,7 @@ export default class JobEditView extends React.Component {
       { Accept: 'application/json', Authorization: `Bearer ${this.props.auth.getToken()}` },
       xhttp => {
         const response = JSON.parse(xhttp.responseText);
+        console.log(response);
         this.setState({ jobStructure: response });
       }
     );

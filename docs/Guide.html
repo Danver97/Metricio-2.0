@@ -301,7 +301,14 @@ Questo significa che nel caso di collasso del server per motivi non noti, l’up
 <li>Deployment locale: sono necessari Redis e MongoDB già avviati prima del avvio di Metricio.</li>
 <li>Deployment docker: anche qui sono necessari un container Redis e uno MongoDB già avviati prima del avvio del container di Metricio.</li>
 <li>Deployment docker-compose: è presente un file di configurazione <code>docker-compose.yml</code> con cui è possibile ottenere il sistema pronto con un singolo comando (<code>docker-compose up --build</code>).</li>
-<li>OpenShift: è possibile ottenere i file di configurazione per OpenShift convertendo il file <code>docker-compose.yml</code> con <a href="https://github.com/kubernetes/kompose">Kompose</a> eseguendo il comando <code>kompose --provider openshift --file docker-compose.yml convert</code>. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.</li>
+</ul>
+<h3 id="openshift">OpenShift</h3>
+<p>E’ possibile ottenere i file di configurazione per OpenShift convertendo il file <code>docker-compose.yml</code> con <a href="https://github.com/kubernetes/kompose">Kompose</a> eseguendo il comando <code>kompose --provider openshift --file docker-compose.yml convert</code>. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.<br>
+In alternativa effettuare un deployment su OpenShift tramite <code>oc new-app . --strategy=docker</code> oppure:</p>
+<ul>
+<li><code>oc new-build --strategy docker --binary --docker-image node --name metricio</code></li>
+<li><code>oc start-build metricio --from-dir . --follow</code></li>
+<li><code>oc new-app metricio</code></li>
 </ul>
 
     </div>

@@ -318,4 +318,11 @@ Sono disponibili 3 strade:
 - Deployment locale: sono necessari Redis e MongoDB già avviati prima del avvio di Metricio.
 - Deployment docker: anche qui sono necessari un container Redis e uno MongoDB già avviati prima del avvio del container di Metricio.
 - Deployment docker-compose: è presente un file di configurazione `docker-compose.yml` con cui è possibile ottenere il sistema pronto con un singolo comando (`docker-compose up --build`).
-- OpenShift: è possibile ottenere i file di configurazione per OpenShift convertendo il file `docker-compose.yml` con [Kompose](https://github.com/kubernetes/kompose) eseguendo il comando `kompose --provider openshift --file docker-compose.yml convert`. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.
+
+### OpenShift
+
+E' possibile ottenere i file di configurazione per OpenShift convertendo il file `docker-compose.yml` con [Kompose](https://github.com/kubernetes/kompose) eseguendo il comando `kompose --provider openshift --file docker-compose.yml convert`. Anche in questo caso è necessario che il deployment di MongoDB e Redis venga effettuato prima del deployment di Metricio.
+In alternativa effettuare un deployment su OpenShift tramite `oc new-app . --strategy=docker` oppure: 
+- `oc new-build --strategy docker --binary --docker-image node --name metricio`
+- `oc start-build metricio --from-dir . --follow`
+- `oc new-app metricio`

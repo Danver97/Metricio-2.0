@@ -1,0 +1,25 @@
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: "mongodb-deployconfig"
+spec:
+  template:
+    metadata:
+      labels:
+        name: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo
+          volumeMounts:
+          - mountPath: "/data/db"
+            name: mongodata
+  replicas: 1
+  selector:
+    name: mongo
+  strategy:
+    type: Rolling
+  volumes:
+  - name: mongodata 
+    persistentVolumeClaim:
+        claimName: "mongoclaim"

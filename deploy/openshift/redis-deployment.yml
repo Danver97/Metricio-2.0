@@ -1,0 +1,25 @@
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: "redis-deployconfig"
+spec:
+  template:
+    metadata:
+      labels:
+        name: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis
+          volumeMounts:
+          - mountPath: "/data"
+            name: redisdata
+  replicas: 1
+  selector:
+    name: redis
+  strategy:
+    type: Rolling
+  volumes:
+  - name: redisdata 
+    persistentVolumeClaim:
+        claimName: "redisclaim"

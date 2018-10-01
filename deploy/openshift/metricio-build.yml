@@ -1,0 +1,15 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  name: "metricio-build" 
+spec:
+  runPolicy: "Serial" 
+  source: 
+    contextDir: "../../"
+  strategy: 
+    dockerStrategy:
+      dockerfilePath: "../../Dockerfile"
+  output: 
+    to:
+      kind: "ImageStreamTag"
+      name: "metricio:latest"

@@ -24,6 +24,7 @@ import jobs from './routes/jobs';
 
 // Requires
 // rst
+const probe = require('kube-probe');
 const MongoDBStoreSession = require('connect-mongodb-session')(session);
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -60,6 +61,7 @@ if (error)
 const env = process.env.NODE_ENV || 'development';
 const RedisStore = connectRedis(session);
 const app = express();
+probe(app);
 const server = createServer(app);
 const io = socketIo(server, {});
 

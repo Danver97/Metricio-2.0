@@ -1,4 +1,3 @@
-
 # Metricio
 
 ## Installazione e avvio
@@ -326,3 +325,6 @@ In alternativa effettuare un deployment su OpenShift tramite `oc new-app . --str
 - `oc new-build --strategy docker --binary --docker-image node --name metricio`
 - `oc start-build metricio --from-dir . --follow`
 - `oc new-app metricio`
+
+Sotto `/deploy/openshift` sono presenti alcuni file che definiscono i deployment configuration di redis e mongodb (`*-deployment.yml`) e i due *persistent volume claim* (`*-pvc.yml`) dei due database.
+E' presente anche un BuildConfig dei sorgenti di Metricio, ma è consigliata la strategia sopra riportata.

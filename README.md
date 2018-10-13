@@ -1,6 +1,6 @@
 # Metricio 2.0
 
-A dashboard framework fork based on [Metricio]().
+A dashboard framework fork based on [Metricio](https://github.com/metricio/metricio).
 
 
 Metricio allows you to:
@@ -13,9 +13,7 @@ Metricio allows you to:
 - Event-based communication with [socket.io](https://socket.io/)
 - Number formatting with [Numeral](http://numeraljs.com/)
 
-## Guides and docs
-
-[Guide]()
+For more detailed informations please visit the [guide](https://github.com/Danver97/Metricio-2.0/blob/master/docs/Guide.md).
 
 ### Contributing
 

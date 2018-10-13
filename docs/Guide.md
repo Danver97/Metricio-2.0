@@ -116,6 +116,121 @@ Il modulo `/lib/jobs/resqueJobs.js` si preoccuperà così poi di avviare i worke
 
 Ogni volta che una dashboard che possiede jobs parametrizzati viene visualizzata, i rispettivi jobs parametrizzati vengono avviati con i parametri forniti dalla query del link della dashboard. I jobs parametrizzati della dashboard vengono in seguito fermati all'uscita da essa.
 
+## Utilizzo
+
+### Primo login
+
+Il primo login può essere effettuato con le seguenti credenziali:
+
+- User: admin
+- Password: admin
+
+### Home
+
+Nella home vengono raggruppate tutte le entità appartenenti all'utente quali dashboards, dashsuites e anche tutti gli utenti registrati con i relativi ruoli.
+
+Il pulsante "MORE" (se presente) di ogni sezione permette di entrare nel dettaglio della relativa sezione e gestire le varie entità.
+![Home](https://cdn1.imggmi.com/uploads/2018/10/13/8e69d982c1c59c488140c052238457ea-full.jpg)
+
+### Dashsuites
+
+Qui è possibile visualizzare le tutte le dashsuites dell'utente loggato.
+![Dashsuites](https://cdn1.imggmi.com/uploads/2018/10/13/6b5ebe96ec1bc7847389d391ee0c1863-full.jpg)
+
+Cliccando sul pulsante "Add new" è possibile aggiungere una nuova dashsuite.
+![New dashsuite](https://cdn1.imggmi.com/uploads/2018/10/13/b5ad24ffaba89efd9e014720cb2fd262-full.jpg)
+
+Se si clicca sul nome di una dashsuite è possibile visualizzare le dashboards che questa raccoglie...
+![Dashboards](https://cdn1.imggmi.com/uploads/2018/10/13/745b7edac521e02226017880cfc8cdf2-full.jpg)
+
+...e aggiungerne una nuova cliccando su "Add new":
+![New dashboard](https://cdn1.imggmi.com/uploads/2018/10/13/477588c766bde8e565c1f25be436a7ab-full.jpg)
+
+### Dashboard
+
+![Dashboard](https://cdn1.imggmi.com/uploads/2018/10/13/3c8d1055a2baaccb6c81f653e7f75739-full.jpg)
+Ad ogni mutamento nella disposizione dei widgets (all'eliminazione di uno di essi) è necessario cliccare su "Save" per confermare il layout.
+
+E' possibile aggiungere un nuovo widget cliccando su "Add panel"...
+![New widget](https://cdn1.imggmi.com/uploads/2018/10/13/7a4847ce190f1c326c45bdc99e6a2175-full.jpg)
+
+...o modificarlo/eliminarlo cliccando con il tasto desto sulla barra in alto del pannello del widget...
+![Widget right click](https://cdn1.imggmi.com/uploads/2018/10/13/7c3d6a7dd0f79b99c52784b14ec611de-full.jpg)
+![Widget edit](https://cdn1.imggmi.com/uploads/2018/10/13/6c198d0964a993e460b231247438354b-full.jpg)
+
+E' possibile gestire i jobs cliccando su "Jobs"...
+![Jobs](https://cdn1.imggmi.com/uploads/2018/10/13/8635ce4eb8e0a52ad61c2d871322e59a-full.jpg)
+
+...e aggiungerne di nuovi cliccando su "Add new"...
+![New job](https://cdn1.imggmi.com/uploads/2018/10/13/aa2a7811948eaf219d1c23b88ee4c9f3-full.jpg)
+
+...o modificare quelli presenti cliccando sul loro nome con la possibilità di eliminarli:
+![Modify job](https://cdn1.imggmi.com/uploads/2018/10/13/03531e4948f4f6a03addc3d044a21117-full.jpg)
+
+E' possibile gestire le variabili della dashboard cliccando su "Variables".
+![Variables](https://cdn1.imggmi.com/uploads/2018/10/13/df6ebfdab04f8fc15e4050f4f436e818-full.jpg)
+
+### Tipi di widgets
+
+#### GraphWidget
+![Graph widget](https://cdn1.imggmi.com/uploads/2018/10/13/d6413bc624c119f626db8497c351fba1-full.jpg)
+##### Json data format
+```json
+{
+	"value": {
+		"categories": [String],
+		"series": [{
+			"name": String,
+			"data": [number],
+		}],
+	},
+}
+```
+#### NumberWidget
+![Number widget](https://cdn1.imggmi.com/uploads/2018/10/13/216f7d8771c950f5c38bec7ca1c06360-full.jpg)
+##### Json data format
+```json
+{
+	"value": number
+}
+```
+#### SparklineWidget
+![Sparkline widget](https://cdn1.imggmi.com/uploads/2018/10/13/6968ec49d00046891cd684f783e3e07a-full.jpg)
+##### Json data format
+```json
+{
+	"value": [number],
+}
+```
+#### BuildStatusWidget
+![Build status widget](https://cdn1.imggmi.com/uploads/2018/10/13/bd103c1d35bd0818accc28e0b46f404e-full.jpg)
+##### Json data format
+```json
+{
+	"value": String,
+}
+```
+#### ProgressWidget
+![Progress widget](https://cdn1.imggmi.com/uploads/2018/10/13/32d96e6717e3af5d1bd77ae60c54f095-full.jpg)
+##### Json data format
+```json
+{
+	"value": number
+}
+```
+#### MultiProgressWidget
+![Multi progress widget](https://cdn1.imggmi.com/uploads/2018/10/13/b2dba813a0458009cbe8decf6e88d260-full.jpg)
+##### Json data format
+```json
+{
+	"value": [{
+		"name": String,
+		"min": number,
+		"max": number,
+		"actual": number,
+	}]
+}
+```
 ## Organizzazione del progetto
 
 Il progetto è stato organizzato per mantenere la più netta separazione possibile tra client e server.

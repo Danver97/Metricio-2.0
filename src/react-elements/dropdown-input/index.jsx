@@ -36,7 +36,7 @@ export default class DropdownInput extends React.Component {
         id: this.props.id,
         name: this.props.name,
         data: value,
-        value: value.value,
+        value: value ? value.value : null,
       },
     };
     if (this.props.onChange)

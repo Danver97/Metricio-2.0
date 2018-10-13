@@ -19,6 +19,7 @@
 <li><a href="#introduzione">Introduzione</a></li>
 <li><a href="#funzionamento">Funzionamento</a></li>
 <li><a href="#architettura">Architettura</a></li>
+<li><a href="#utilizzo">Utilizzo</a></li>
 <li><a href="#organizzazione-del-progetto">Organizzazione del progetto</a></li>
 <li><a href="#espansioni-dei-widgets-e-dei-jobs">Espansioni dei widgets e dei jobs</a></li>
 <li><a href="#transazionalità">Transazionalità</a></li>
@@ -116,6 +117,96 @@ Per un ambiente docker preparato al volo è presente anche un file <code>docker-
 <p>All’avvio di Metricio il <code>/lib/jobProvider.js</code> richiede tutti i jobs salvati su MongoDB e aggiunge tutti quelli non parametrizzati ai jobs da schedulare.<br>
 Il modulo <code>/lib/jobs/resqueJobs.js</code> si preoccuperà così poi di avviare i workers e lo scheduler e di schedulare i jobs ottenuti da <code>/lib/jobProvider.js</code>.</p>
 <p>Ogni volta che una dashboard che possiede jobs parametrizzati viene visualizzata, i rispettivi jobs parametrizzati vengono avviati con i parametri forniti dalla query del link della dashboard. I jobs parametrizzati della dashboard vengono in seguito fermati all’uscita da essa.</p>
+<h2 id="utilizzo">Utilizzo</h2>
+<h3 id="primo-login">Primo login</h3>
+<p>Il primo login può essere effettuato con le seguenti credenziali:</p>
+<ul>
+<li>User: admin</li>
+<li>Password: admin</li>
+</ul>
+<h3 id="home">Home</h3>
+<p>Nella home vengono raggruppate tutte le entità appartenenti all’utente quali dashboards, dashsuites e anche tutti gli utenti registrati con i relativi ruoli.</p>
+<p>Il pulsante “MORE” (se presente) di ogni sezione permette di entrare nel dettaglio della relativa sezione e gestire le varie entità.<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/8e69d982c1c59c488140c052238457ea-full.jpg" alt="Home"></p>
+<h3 id="dashsuites">Dashsuites</h3>
+<p>Qui è possibile visualizzare le tutte le dashsuites dell’utente loggato.<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/6b5ebe96ec1bc7847389d391ee0c1863-full.jpg" alt="Dashsuites"></p>
+<p>Cliccando sul pulsante “Add new” è possibile aggiungere una nuova dashsuite.<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/b5ad24ffaba89efd9e014720cb2fd262-full.jpg" alt="New dashsuite"></p>
+<p>Se si clicca sul nome di una dashsuite è possibile visualizzare le dashboards che questa raccoglie…<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/745b7edac521e02226017880cfc8cdf2-full.jpg" alt="Dashboards"></p>
+<p>…e aggiungerne una nuova cliccando su “Add new”:<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/477588c766bde8e565c1f25be436a7ab-full.jpg" alt="New dashboard"></p>
+<h3 id="dashboard">Dashboard</h3>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/3c8d1055a2baaccb6c81f653e7f75739-full.jpg" alt="Dashboard"><br>
+Ad ogni mutamento nella disposizione dei widgets (all’eliminazione di uno di essi) è necessario cliccare su “Save” per confermare il layout.</p>
+<p>E’ possibile aggiungere un nuovo widget cliccando su “Add panel”…<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/7a4847ce190f1c326c45bdc99e6a2175-full.jpg" alt="New widget"></p>
+<p>…o modificarlo/eliminarlo cliccando con il tasto desto sulla barra in alto del pannello del widget…<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/7c3d6a7dd0f79b99c52784b14ec611de-full.jpg" alt="Widget right click"><br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/6c198d0964a993e460b231247438354b-full.jpg" alt="Widget edit"></p>
+<p>E’ possibile gestire i jobs cliccando su “Jobs”…<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/8635ce4eb8e0a52ad61c2d871322e59a-full.jpg" alt="Jobs"></p>
+<p>…e aggiungerne di nuovi cliccando su “Add new”…<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/aa2a7811948eaf219d1c23b88ee4c9f3-full.jpg" alt="New job"></p>
+<p>…o modificare quelli presenti cliccando sul loro nome con la possibilità di eliminarli:<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/03531e4948f4f6a03addc3d044a21117-full.jpg" alt="Modify job"></p>
+<p>E’ possibile gestire le variabili della dashboard cliccando su “Variables”.<br>
+<img src="https://cdn1.imggmi.com/uploads/2018/10/13/df6ebfdab04f8fc15e4050f4f436e818-full.jpg" alt="Variables"></p>
+<h3 id="tipi-di-widgets">Tipi di widgets</h3>
+<h4 id="graphwidget">GraphWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/d6413bc624c119f626db8497c351fba1-full.jpg" alt="Graph widget"></p>
+<h5 id="json-data-format">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+		<span class="token string">"categories"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>String<span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"series"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+			<span class="token string">"name"</span><span class="token punctuation">:</span> String<span class="token punctuation">,</span>
+			<span class="token string">"data"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>number<span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="numberwidget">NumberWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/216f7d8771c950f5c38bec7ca1c06360-full.jpg" alt="Number widget"></p>
+<h5 id="json-data-format-1">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> number
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="sparklinewidget">SparklineWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/6968ec49d00046891cd684f783e3e07a-full.jpg" alt="Sparkline widget"></p>
+<h5 id="json-data-format-2">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>number<span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="buildstatuswidget">BuildStatusWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/bd103c1d35bd0818accc28e0b46f404e-full.jpg" alt="Build status widget"></p>
+<h5 id="json-data-format-3">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> String<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="progresswidget">ProgressWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/32d96e6717e3af5d1bd77ae60c54f095-full.jpg" alt="Progress widget"></p>
+<h5 id="json-data-format-4">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> number
+<span class="token punctuation">}</span>
+</code></pre>
+<h4 id="multiprogresswidget">MultiProgressWidget</h4>
+<p><img src="https://cdn1.imggmi.com/uploads/2018/10/13/b2dba813a0458009cbe8decf6e88d260-full.jpg" alt="Multi progress widget"></p>
+<h5 id="json-data-format-5">Json data format</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+	<span class="token string">"value"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+		<span class="token string">"name"</span><span class="token punctuation">:</span> String<span class="token punctuation">,</span>
+		<span class="token string">"min"</span><span class="token punctuation">:</span> number<span class="token punctuation">,</span>
+		<span class="token string">"max"</span><span class="token punctuation">:</span> number<span class="token punctuation">,</span>
+		<span class="token string">"actual"</span><span class="token punctuation">:</span> number<span class="token punctuation">,</span>
+	<span class="token punctuation">}</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
 <h2 id="organizzazione-del-progetto">Organizzazione del progetto</h2>
 <p>Il progetto è stato organizzato per mantenere la più netta separazione possibile tra client e server.</p>
 <p>Tutto ciò che si trova sotto la cartella <code>/src</code> appartiene al client e non ha (quasi) dipendenze con quello che sta fuori che appartiene invece al server.</p>

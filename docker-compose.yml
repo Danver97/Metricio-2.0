@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+    
+    metricio:
+        build: '.'
+        depends_on:
+            - mongodb
+            - redis
+        ports:
+            - "80:3000"
+        environment:
+            REDIS_SERVER_HOST: redis
+            MONGODB_SERVER_HOST: mongodb
+
+    mongodb:
+        image: mongo
+        ports:
+            - "27017:27017"
+        volumes:
+            - "mongodbdata:/data/db"
+        
+    redis:
+        image: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - "redisdata:/data"
+        
+volumes:
+    mongodbdata:
+    redisdata:
